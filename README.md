@@ -3,9 +3,21 @@ Decomposition
 
 ## Modules
 
-1. Tokenizer [ ] - _Baron & Pranav_
-2. Parser [ ] - _Baron & Pranav_
-3. Assembler [ ] - _Youssef & Baron_
-4. Emulator [ ] - _Angelos & Youssef & Baron_
-5. Memory [ ] - _Angelos_
-6. Front-End [ ] - _Angelos_
+* Program [ ] - 
+* Assembler [ ] - _Youssef & Baron_
+    * Tokenizer [ ] - _Baron & Pranav_
+    * Parser [ ] - _Baron & Pranav_
+    * AST [ ] - 
+* Emulator [ ] - _Angelos & Youssef & Baron_
+    * Arithmetic Instructions [ ] - 
+    * Load/Store Instructions [ ] -
+    * Branch Instructions [ ] - 
+    * Other Instructions [ ] - 
+* Memory [ ] - _Angelos_
+* Front-End [ ] - _Angelos_
+
+
+## Project Milestones
+
+- [x] Figure out what we're supposed to do
+- [ ] Figure out how we're supposed to start
