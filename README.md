@@ -21,3 +21,5 @@ Decomposition
 
 - [x] Figure out what we're supposed to do
 - [ ] Figure out how we're supposed to start
+- [ ] Write ADC function
+- [ ] Come up with machineState interface
