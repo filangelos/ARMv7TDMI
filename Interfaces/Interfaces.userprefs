@@ -1,0 +1,18 @@
+﻿<Properties StartupConfiguration="{F208B62D-A115-42B7-BC18-A81905023D7C}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Interfaces/Memory.fs">
+    <Files>
+      <File FileName="Interfaces/Program.fs" Line="7" Column="17" />
+      <File FileName="Interfaces/Register.fs" Line="1" Column="21" />
+      <File FileName="Interfaces/Common.fs" Line="1" Column="21" />
+      <File FileName="Interfaces/Flags.fs" Line="14" Column="3" />
+      <File FileName="Interfaces/Memory.fs" Line="2" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Interfaces PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
