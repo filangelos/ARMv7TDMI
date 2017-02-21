@@ -3,9 +3,9 @@ Decomposition
 
 ## Modules
 
-* Program - [ ] - 
-* Assembler - [ ] - _Youssef & Baron_
-    * Tokenizer - [ ] - _Baron & Pranav_
+* Program [ ] - 
+* Assembler [ ] - _Youssef & Baron_
+    * Tokenizer [ ] - _Baron & Pranav_
     * Parser [ ] - _Baron & Pranav_
     * AST [ ] - 
 * Emulator [ ] - _Angelos & Youssef & Baron_
