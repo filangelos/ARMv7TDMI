@@ -1,4 +1,9 @@
 ﻿namespace Assembler
 
-module Tokeniser
+module Tokeniser =
+    open Common
 
+    //string -> Token List
+    let tokenise (input:string) =
+        
+        0

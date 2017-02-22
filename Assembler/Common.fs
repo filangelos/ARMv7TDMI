@@ -1,8 +1,10 @@
 ﻿namespace Assembler
 
 module Common =
+
     type Token =
-        | TokName
-        | TokConst
+        | TokName of string
+        | TokConst of int
         | TokComma
         | TokNewLine
+        | TokNull
