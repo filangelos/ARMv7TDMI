@@ -3,8 +3,8 @@
 namespace Assembler
 
 module Program =
-
-    //[<EntryPoint>]
+    [<EntryPoint>]
     let main argv = 
-        printfn "%A" argv
+        printfn "Running tokeniseTest:"
+        Tokeniser.tokeniseTest
         0 // return an integer exit code

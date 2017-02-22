@@ -23,12 +23,11 @@ Decomposition
 - [ ] Figure out how we're supposed to start
 - [ ] Write ADC function
 - [ ] Come up with machineState interface
+- [ ] Write basic tokeniser and parser
 
 
-## Module Functions and Types Exported for other Modules
-
-### Common
-* type Token
+## Functions and Types Exported from each Module
 
 ### Tokeniser
 * function tokenise: string -> Token list
+* function tokeniseTest: unit
