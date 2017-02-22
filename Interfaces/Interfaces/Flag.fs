@@ -4,9 +4,9 @@ module Flag =
 
     // Status Flags Type
     type Flag =
-        // Negative Flag
+        // Flag ID
         { id: char
-        // Zero Flag
+        // Flag status bit
           bit: bool }
 
         // Flag id Optic Functions 
