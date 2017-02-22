@@ -1,27 +1,30 @@
 ﻿namespace Interfaces
 
-module FlagsModule =
+module Flags =
 
-    type Flag =
-        | C of bool
-        | V of bool
-        | N of bool
-        | Z of bool
+    // Status Flags Type
+    type Flags =
+        // Negative Flag
+        { N: bool
+        // Zero Flag
+          Z: bool
+        // Carry Flag
+          C: bool
+        // Signed Overflow Flag
+          V: bool }
 
-    // Machine State Flags
-    type Flags = { C: Flag; V: Flag; N: Flag; Z: Flag }
+        // N Flag Optic Functions 
+        static member N_ =
+          ( fun flags -> flags.C ), ( fun flags N -> { flags with N = N } )
 
-//    module Flags =
+        // Z Flag Optic Functions 
+        static member Z_ =
+          ( fun flags -> flags.Z ), ( fun flags Z -> { flags with Z = Z } )
 
-        // Get Flag
-//        let getFlag ( f: Flag ) ( flags: Flags ) =
-//            match f with
-//            | C v ->  flags.C
-            
+        // C Flag Optic Functions 
+        static member C_ =
+          ( fun flags -> flags.C ), ( fun flags C -> { flags with C = C } )
 
-        // Make new Flags with CVNZ
-//        let Flags ( C: bool) (V: bool ) ( N: bool ) ( Z: bool ) =
-//            { C = C; V = V; N = N; Z = Z }
-
-// Exported Type
-//type Flags = FlagsModule.Flags
+        // V Flag Optic Functions 
+        static member V_ =
+          ( fun flags -> flags.V ), ( fun flags V -> { flags with V = V } )
