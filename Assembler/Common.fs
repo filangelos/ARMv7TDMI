@@ -3,8 +3,15 @@
 module Common =
 
     type Token =
-        | TokName of string
+        | TokInstruction of string
+        | TokReg of int
+        | TokLabel of string
         | TokConst of int
         | TokComma
+        | TokExclam
+        | TokSquareLeft
+        | TokSquareRight
+        | TokCurlyLeft
+        | TokCurlyRight
         | TokNewLine
         | TokNull
