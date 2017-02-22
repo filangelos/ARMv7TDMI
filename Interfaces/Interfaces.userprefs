@@ -1,12 +1,13 @@
 ﻿<Properties StartupConfiguration="{F208B62D-A115-42B7-BC18-A81905023D7C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Interfaces/Program.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Interfaces/MachineState.fs">
     <Files>
-      <File FileName="Interfaces/Program.fs" Line="12" Column="38" />
-      <File FileName="Interfaces/Optics.fs" Line="8" Column="5" />
-      <File FileName="Interfaces/Common.fs" Line="7" Column="23" />
-      <File FileName="Interfaces/Register.fs" Line="25" Column="35" />
-      <File FileName="Interfaces/Flags.fs" Line="5" Column="2" />
-      <File FileName="Interfaces/Memory.fs" Line="6" Column="57" />
+      <File FileName="Interfaces/Program.fs" Line="19" Column="41" />
+      <File FileName="Interfaces/Optics.fs" Line="13" Column="19" />
+      <File FileName="Interfaces/Common.fs" Line="9" Column="5" />
+      <File FileName="Interfaces/Register.fs" Line="10" Column="33" />
+      <File FileName="Interfaces/Flags.fs" Line="18" Column="63" />
+      <File FileName="Interfaces/Memory.fs" Line="5" Column="5" />
+      <File FileName="Interfaces/MachineState.fs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Interfaces PreferredExecutionTarget="MonoDevelop.Default" />

@@ -18,6 +18,10 @@ module Register =
         static member value_ =
           ( fun reg -> reg.value ), ( fun reg value -> { reg with value = value } )
 
+    // Constructor
+    let make ( id: string ) =
+        { id = id; value = 0u }
+
     // Operand Type
     type Operand =
         // Data Content of Register

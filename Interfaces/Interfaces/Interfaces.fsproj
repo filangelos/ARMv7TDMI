@@ -47,17 +47,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Optics.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="Register.fs" />
-    <Compile Include="Flags.fs" />
-    <Compile Include="Memory.fs" />
+    <Compile Include="Flag.fs" />
+    <Compile Include="MemoryLocation.fs" />
+    <Compile Include="MachineState.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(FSharpTargetsPath)" />
 </Project>
