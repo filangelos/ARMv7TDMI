@@ -14,6 +14,10 @@ module MachineState =
         // Raw Memory
           Memory: MemoryLocation array }
 
+        // Registers Optic Function
+        static member Registers_ =
+            ( fun state -> state.Registers ), ( fun state regs -> { state with Registers = regs } )
+
     // MachineState Initialisation
     let make () =
         let registers =

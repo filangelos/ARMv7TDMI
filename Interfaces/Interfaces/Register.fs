@@ -28,3 +28,10 @@ module Register =
         | ORegister of Register
         // Literal Passed by Value
         | OLiteral of Data
+
+    // Registers Type
+    type Registers = 
+        Register seq
+
+        static member Register_ =
+            ( Seq.find  )
