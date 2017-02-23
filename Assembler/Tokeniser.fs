@@ -3,7 +3,6 @@
 module Tokeniser =
     open Common
     open System.Text.RegularExpressions
-
     
     ///returns the first matched group of a regex and the leftovers from the input
     let (|MatchToken|_|) pattern input =
@@ -49,13 +48,11 @@ module Tokeniser =
             | "" -> lst
             | _ -> failwithf "Unidentified character(s) in %A" str
 
-
         let strList = input.Split([|' '; '\t'|])
         //printfn "%A" strList
-
         Array.fold strToToken [] strList
 
-    ///prints the results for the tokenise function against a set of tests
+    ///prints the results for the tokenise function against a set of good and bad inputs
     let tokeniseTest =
         let goodTests = [|  "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
@@ -92,10 +89,11 @@ module Tokeniser =
             if count < (Array.length testList) then
                 try     
                     tokenise testList.[count] |> ignore
-                    //if exception is not raised by bad test:
+                    //if exception is not raised by tokenise due to bad input:
                     printfn "Test %A is good input, expected bad input" count
                     count
                 with
+                    //if exception is raised, test is passed
                     | Failure msg ->
                         tryBadTests testList (count+1)
             else
@@ -105,5 +103,8 @@ module Tokeniser =
         printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
         printfn "Running badTests..."
         printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
+
+        //TODO: ADD TESTING FOR CORRECT TOKENISATION
+
         //printfn "%A" (tokenise "MOV R1, #24")
         //printfn "%A" (tokenise "MOV R1 ,r16 \n LABEL \n ADD [r23 ,#3]r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]")
