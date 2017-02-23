@@ -19,7 +19,7 @@ module Tokeniser =
             match str with
             | MatchToken "[rR]([0-9][0-6]?)(?![^,])" (reg, newStr) ->
                 strToToken (lst @ [TokReg(reg |> int)]) newStr
-            | MatchToken "#0[xX]([0-9A-F]+)" (hexVal, newStr) ->
+            | MatchToken "#0[xX]([0-9A-F]+(?![^0-9A-F,]))" (hexVal, newStr) ->
                 //printfn "hex: %A" hexVal
                 let intVal = System.Convert.ToInt32(hexVal, 16)
                 strToToken (lst @ [TokConst intVal]) newStr
@@ -27,23 +27,23 @@ module Tokeniser =
                 //printfn "bin: %A" binVal
                 let intVal = System.Convert.ToInt32(binVal, 2)
                 strToToken (lst @ [TokConst intVal]) newStr
-            | MatchToken "([A-Za-z][A-Za-z0-9_]+)" (name, newStr) ->
+            | MatchToken "([A-Za-z][A-Za-z0-9_]*)" (name, newStr) ->
                 strToToken (lst @ [TokIdentifier name]) newStr
             | MatchToken "#([0-9]+)" (value, newStr) ->
                 printfn "int: %A" value
                 strToToken (lst @ [TokConst(value |> int)]) newStr
             | MatchToken "," (_, newStr) ->
-                lst @ [TokComma]
+                strToToken (lst @ [TokComma]) newStr
             | MatchToken "!" (_, newStr) ->
-                lst @ [TokExclam]
+                strToToken (lst @ [TokExclam]) newStr
             | MatchToken "\[" (_, newStr) ->
-                lst @ [TokSquareLeft]
+                strToToken (lst @ [TokSquareLeft]) newStr
             | MatchToken "\]" (_, newStr) ->
-                lst @ [TokSquareRight]
+                strToToken (lst @ [TokSquareRight]) newStr
             | MatchToken "\{" (_, newStr) ->
-                lst @ [TokCurlyLeft]
+                strToToken (lst @ [TokCurlyLeft]) newStr
             | MatchToken "\}" (_, newStr) ->
-                lst @ [TokCurlyRight]
+                strToToken (lst @ [TokCurlyRight]) newStr
             | MatchToken "\n" (_,newStr) ->
                 strToToken (lst @ [TokNewLine]) newStr
             | "" -> lst
