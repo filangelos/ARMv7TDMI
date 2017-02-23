@@ -5,31 +5,27 @@ module Tokeniser =
     open System.Text.RegularExpressions
 
     
-    //returns the first matched group of a regex and the leftovers from the input
+    ///returns the first matched group of a regex and the leftovers from the input
     let (|MatchToken|_|) pattern input =
         let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
         if (m.Success)
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
-    //returns a list of tokens from a string input
+    ///returns a list of tokens from a string input
     let tokenise (input:string) =
 
-        //breaks down a string into a list of tokens and appends them onto lst
+        ///breaks down a string into a list of tokens and appends them onto lst
         let rec strToToken (lst:Token list) (str:string) =
             match str with
-            //str may contain several tokens, so recursively call MatchToken until str is "" 
+            //str may contain several tokens, so recursively call MatchToken until str is empty 
             | MatchToken "[rR]([0-9]|1[0-6])(?![^,])" (reg, leftovers) ->                           //register
                 strToToken (lst @ [TokReg(reg |> int)]) leftovers
             | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!]))" (hexVal, leftovers) ->   //hex const
                 //printfn "hex: %A" hexVal
-                //let intVal = System.Convert.ToInt32(hexVal, 16)
-                //strToToken (lst @ [TokConst intVal]) leftovers
                 strToToken (lst @ [TokConst (int hexVal)]) leftovers
             | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!]))" (binVal, leftovers) ->                 //bin const
                 //printfn "bin: %A" binVal
-                //let intVal = System.Convert.ToInt32(binVal, 2)
-                //strToToken (lst @ [TokConst intVal]) leftovers
                 strToToken (lst @ [TokConst (int binVal)]) leftovers
             | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!])" (value, leftovers) ->                     //dec const
                 //printfn "dec: %A" value
@@ -48,15 +44,66 @@ module Tokeniser =
                 strToToken (lst @ [TokCurlyLeft]) leftovers
             | MatchToken "\}" (_, leftovers) ->
                 strToToken (lst @ [TokCurlyRight]) leftovers
-            | MatchToken "\n" (_,leftovers) ->
+            | MatchToken "\n|\r|\f" (_,leftovers) ->
                 strToToken (lst @ [TokNewLine]) leftovers
             | "" -> lst
             | _ -> failwithf "Unidentified character(s) in %A" str
 
 
         let strList = input.Split([|' '; '\t'|])
-        printfn "%A" strList
+        //printfn "%A" strList
+
         Array.fold strToToken [] strList
 
+    ///prints the results for the tokenise function against a set of tests
     let tokeniseTest =
-        printfn "%A" (tokenise "MOV R1 ,r16 \n LABEL \n ADD [r23 ,#3]r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]")
+        let goodTests = [|  "MOV R1, #24";
+                            "MOV r12 ,R4 , #0x45";
+                            "aDd r0, r2 ,#0B101100";
+                            "LABEL123_ABC MOV r1, R16";
+                            "MOV R1 ,r16 \n LABEL \n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
+                        |]
+
+        let badTests = [|  "1MOV r1, r2";
+                            "add rr1, r22, 1";
+                            "mov r1, #abc123";
+                            "aDd r0, r2 ,#0B474";
+                            "adc r1, r1, #0xh";
+                            "1LABEL";
+                            "LABEL MOV r1, 0b0102";
+                            "LDr r0!, [r3 ,#3];";
+                            "MOV r1, r^2"
+                        |]
+
+        let rec tryGoodTests testList count = 
+            if count < (Array.length testList) then
+                try     
+                    tokenise testList.[count] |> ignore
+                    tryGoodTests testList (count+1)
+                with
+                    | Failure msg ->
+                        printfn "%A" msg
+                        printfn "Test %A is bad input, expected good input" count
+                        count
+            else
+                count
+
+        let rec tryBadTests testList count = 
+            if count < (Array.length testList) then
+                try     
+                    tokenise testList.[count] |> ignore
+                    //if exception is not raised by bad test:
+                    printfn "Test %A is good input, expected bad input" count
+                    count
+                with
+                    | Failure msg ->
+                        tryBadTests testList (count+1)
+            else
+                count
+
+        printfn "Running goodTests..."
+        printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
+        printfn "Running badTests..."
+        printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
+        //printfn "%A" (tokenise "MOV R1, #24")
+        //printfn "%A" (tokenise "MOV R1 ,r16 \n LABEL \n ADD [r23 ,#3]r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]")
