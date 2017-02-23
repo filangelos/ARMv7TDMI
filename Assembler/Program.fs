@@ -7,5 +7,5 @@ module Program =
     let main argv = 
         printfn "Running tokeniseTest:"
         Tokeniser.tokeniseTest
-        printfn "Finished tokensiseTest"
+        printfn "Finished tokeniseTest"
         0 // return an integer exit code

@@ -23,7 +23,7 @@ Decomposition
 - [x] Figure out how we're supposed to start
 - [ ] Write ADC function
 - [ ] Come up with machineState interface
-- [ ] Write basic tokeniser
+- [x] Write basic tokeniser
 - [ ] Write basic parser
 - [ ] Write basic AST
 
@@ -32,6 +32,7 @@ Decomposition
 
 ### Common
 (NB: we will need to combine the Common modules from each solution)
+
 * type Token
 * type Data
 * type RegisterID
@@ -53,8 +54,16 @@ Decomposition
 
 ### Tokeniser
 * function tokenise: string -> Token list
+	* Note: returns an exception from syntax error - catch this somewhere else for the web GUI (e.g. in the main)
+* function (|MatchToken|_|): string -> string -> (string * string) option
 * function tokeniseTest: unit
 
 ### Parser
 * 
 
+
+## Packages
+
+Add packages here if modules are using them:
+
+* FSCheck (used in Tokeniser)

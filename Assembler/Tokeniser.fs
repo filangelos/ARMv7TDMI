@@ -3,7 +3,10 @@
 module Tokeniser =
     open Common
     open System.Text.RegularExpressions
+    open FsCheck
     
+    //NB: handle exceptions from tokenise() externally for web GUI (e.g. in main)
+
     ///returns the first matched group of a regex and the leftovers from the input
     let (|MatchToken|_|) pattern input =
         let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
@@ -61,6 +64,7 @@ module Tokeniser =
                             "MOV R1 ,r16 \n LABEL \n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
                         |]
 
+        //test for syntax errors
         let badTests = [|  "1MOV r1, r2";
                             "add rr1, r22, 1";
                             "mov r1, #abc123";
@@ -69,7 +73,8 @@ module Tokeniser =
                             "1LABEL";
                             "LABEL MOV r1, 0b0102";
                             "LDr r0!, [r3 ,#3];";
-                            "MOV r1, r^2"
+                            "MOV r1, r^2";
+                            "MOV r1, #ab0c45"
                         |]
 
         let rec tryGoodTests testList count = 
@@ -103,8 +108,24 @@ module Tokeniser =
         printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
         printfn "Running badTests..."
         printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
+        
+        //Perform property-based testing to check for correct number of tokens
+        let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
 
-        //TODO: ADD TESTING FOR CORRECT TOKENISATION
+        let checkTokenListLength = 
+            //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
+            let rnd = new System.Random()
+            let rec subset xs = 
+                let removeAt n xs = ( Seq.nth (n-1) xs, Seq.append (Seq.take (n-1) xs) (Seq.skip n xs) )
+                match xs with 
+                | [] -> []
+                | _ -> let (rem, left) = removeAt (rnd.Next( List.length xs ) + 1) xs
+                       let next = subset (List.ofSeq left)
+                       if rnd.Next(2) = 0 then rem :: next else next
+            let subList = subset strWords
+            let subStr = String.concat " " subList
+            let tokList = tokenise subStr
+            tokList.Length = subList.Length
 
-        //printfn "%A" (tokenise "MOV R1, #24")
-        //printfn "%A" (tokenise "MOV R1 ,r16 \n LABEL \n ADD [r23 ,#3]r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]")
+        printfn "Running FSCheck..."
+        Check.Quick checkTokenListLength
