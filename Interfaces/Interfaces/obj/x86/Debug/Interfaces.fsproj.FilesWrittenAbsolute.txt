@@ -1,7 +1,0 @@
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/obj/x86/Debug/.NETFramework,Version=v4.5.1.AssemblyAttribute.fs
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/bin/Debug/System.ValueTuple.dll
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/bin/Debug/FSharp.Core.dll
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/bin/Debug/Interfaces.exe.mdb
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/bin/Debug/Interfaces.exe
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/obj/x86/Debug/Interfaces.exe
-/Users/omega/Developer/Github/HLP/Interfaces/Interfaces/obj/x86/Debug/Interfaces.exe.mdb

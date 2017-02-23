@@ -1,8 +1,8 @@
-﻿namespace Interfaces
+﻿namespace Machine
 open System.Reflection
 open System.Runtime.CompilerServices
 
-[<assembly: AssemblyTitle("Interfaces")>]
+[<assembly: AssemblyTitle("Machine")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
