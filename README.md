@@ -41,15 +41,6 @@ Decomposition
 * type FlagID
 * type Flags
 
-### MachineState
-* type MachineState
-* function make: unit
-
-### Optics
-* type Lens<'a, 'b>
-* inline function get: 'a * 'b -> 'a
-* inline function set: 'a * 'b -> 'b
-
 ### Assembler
 * function readAsm: string -> MachineState
 
