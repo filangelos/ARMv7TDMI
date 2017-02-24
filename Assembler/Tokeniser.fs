@@ -21,18 +21,18 @@ module Tokeniser =
         let rec strToToken (lst:Token list) (str:string) =
             match str with
             //str may contain several tokens, so recursively call MatchToken until str is empty 
-            | MatchToken "[rR]([0-9]|1[0-6])(?![^,])" (reg, leftovers) ->                           //register
+            | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                 strToToken (lst @ [TokReg(reg |> int)]) leftovers
-            | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!]))" (hexVal, leftovers) ->   //hex const
+            | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) ->     //hex const
                 //printfn "hex: %A" hexVal
                 strToToken (lst @ [TokConst (int hexVal)]) leftovers
-            | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!]))" (binVal, leftovers) ->                 //bin const
+            | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                 //printfn "bin: %A" binVal
                 strToToken (lst @ [TokConst (int binVal)]) leftovers
-            | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!])" (value, leftovers) ->                     //dec const
+            | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                 //printfn "dec: %A" value
                 strToToken (lst @ [TokConst(value |> int)]) leftovers
-            | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*)" (name, leftovers) ->                  //identifier (MOV, ADD, label)
+            | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //identifier (MOV, ADD, label)
                 strToToken (lst @ [TokIdentifier name]) leftovers
             | MatchToken "," (_, leftovers) ->
                 strToToken (lst @ [TokComma]) leftovers
@@ -55,8 +55,9 @@ module Tokeniser =
         //printfn "%A" strList
         Array.fold strToToken [] strList
 
-    ///prints the results for the tokenise function against a set of good and bad inputs
+    ///prints the results for the tokenise function against a set of good, bad and random inputs
     let tokeniseTest =
+        ///list of correct syntax
         let goodTests = [|  "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
                             "aDd r0, r2 ,#0B101100";
@@ -64,7 +65,7 @@ module Tokeniser =
                             "MOV R1 ,r16 \n LABEL \n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
                         |]
 
-        //test for syntax errors
+        ///list of incorrect syntax
         let badTests = [|  "1MOV r1, r2";
                             "add rr1, r22, 1";
                             "mov r1, #abc123";
@@ -77,6 +78,7 @@ module Tokeniser =
                             "MOV r1, #ab0c45"
                         |]
 
+        ///test for good syntax
         let rec tryGoodTests testList count = 
             if count < (Array.length testList) then
                 try     
@@ -89,7 +91,8 @@ module Tokeniser =
                         count
             else
                 count
-
+        
+        ///test for bad syntax
         let rec tryBadTests testList count = 
             if count < (Array.length testList) then
                 try     
@@ -112,7 +115,9 @@ module Tokeniser =
         //Perform property-based testing to check for correct number of tokens
         let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
 
-        let checkTokenListLength = 
+      
+        let checkTokenListLength separator = 
+            let isSeparatorAToken = ((tokenise separator).Length > 0)
             //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
             let rnd = new System.Random()
             let rec subset xs = 
@@ -123,9 +128,18 @@ module Tokeniser =
                        let next = subset (List.ofSeq left)
                        if rnd.Next(2) = 0 then rem :: next else next
             let subList = subset strWords
-            let subStr = String.concat " " subList
+            let subStr = String.concat separator subList
             let tokList = tokenise subStr
-            tokList.Length = subList.Length
+            if isSeparatorAToken then 
+                tokList.Length = (subList.Length * 2) - 1
+            else
+                tokList.Length = subList.Length
 
         printfn "Running FSCheck..."
-        Check.Quick checkTokenListLength
+        Check.Quick (checkTokenListLength " ")
+        Check.Quick (checkTokenListLength " , ")
+        Check.Quick (checkTokenListLength ", ")
+        Check.Quick (checkTokenListLength " ,")
+        Check.Quick (checkTokenListLength " \n ")
+        Check.Quick (checkTokenListLength " \n")
+        Check.Quick (checkTokenListLength "\n ")
