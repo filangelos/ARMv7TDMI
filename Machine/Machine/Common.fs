@@ -13,8 +13,10 @@
 [<AutoOpen>]
 module Common =
 
-    // Raw data type
+    // Raw data Type
     type Data = int
+    // Cast Function
+    let Data = int
 
     // Register ID D.U
     type RegisterID =
@@ -34,3 +36,8 @@ module Common =
 
     // Flags Type Abbreviation
     type Flags = Map<FlagID, bool>
+
+    // Operand D.U Type
+    type Operand =
+        | ID of RegisterID // Pass Register ID for data access
+        | Literal of Data // Pass literal 

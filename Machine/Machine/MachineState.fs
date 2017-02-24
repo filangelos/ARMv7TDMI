@@ -54,7 +54,3 @@ module MachineState =
                          C, false ; V, false ]
 
         { Registers = registers ; StatusBits = flags }
-
-    // stortcuts
-    let ( ^. ) = Optics.get MachineState.Register_
-    let ( ^= ) = Optics.set MachineState.Register_
