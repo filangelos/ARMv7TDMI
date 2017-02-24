@@ -14,6 +14,13 @@ module Tokeniser =
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
+    ///remove comments from an input string
+    let rec removeComments (input:string) =
+        let newInput = (new Regex(";[\s\s0-9\w\W]*\n")).Replace(input, "\n", 1)
+        let newInput2 = (new Regex(";[\s\s0-9\w\W]*$")).Replace(newInput, "", 1)
+        if newInput2 = input then newInput2
+        else removeComments newInput2
+
     ///returns a list of tokens from a string input
     let tokenise (input:string) =
 
@@ -51,7 +58,10 @@ module Tokeniser =
             | "" -> lst
             | _ -> failwithf "Unidentified character(s) in %A" str
 
-        let strList = input.Split([|' '; '\t'|])
+        //remove comments from input
+        let inputNoComments = removeComments input
+
+        let strList = inputNoComments.Split([|' '; '\t'|])
         //printfn "%A" strList
         Array.fold strToToken [] strList
 
@@ -61,19 +71,19 @@ module Tokeniser =
         let goodTests = [|  "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
                             "aDd r0, r2 ,#0B101100";
-                            "LABEL123_ABC MOV r1, R16";
-                            "MOV R1 ,r16 \n LABEL \n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
+                            "LABEL123_ABC MOV r1, R16      ; end of line";
+                            "MOV R1 ,r16 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
                         |]
 
         ///list of incorrect syntax
-        let badTests = [|  "1MOV r1, r2";
+        let badTests = [|   "1MOV r1, r2";
                             "add rr1, r22, 1";
                             "mov r1, #abc123";
                             "aDd r0, r2 ,#0B474";
                             "adc r1, r1, #0xh";
                             "1LABEL";
                             "LABEL MOV r1, 0b0102";
-                            "LDr r0!, [r3 ,#3];";
+                            "LDr r0!, [r3 ,#!3]";
                             "MOV r1, r^2";
                             "MOV r1, #ab0c45"
                         |]
@@ -135,7 +145,7 @@ module Tokeniser =
             else
                 tokList.Length = subList.Length
 
-        printfn "Running FSCheck..."
+        printfn "Running FSCheck for token list length..."
         Check.Quick (checkTokenListLength " ")
         Check.Quick (checkTokenListLength " , ")
         Check.Quick (checkTokenListLength ", ")
@@ -143,3 +153,17 @@ module Tokeniser =
         Check.Quick (checkTokenListLength " \n ")
         Check.Quick (checkTokenListLength " \n")
         Check.Quick (checkTokenListLength "\n ")
+
+
+        //temporary testing, will add robust testing later
+        printfn "Testing Comments Removal... (will improve testing later)\ninput -> output:"
+        let test = "; This is a comment"
+        printfn "1. %A -> %A" (test) (removeComments test)
+        let test2 = "MOV r1, r2 ;End of line comment"
+        printfn "2. %A -> %A" (test2) (removeComments test2)
+        let test3 = "MOV r1, r2 ; remove comment and instruction: MOV r1, r1"
+        printfn "3. %A -> %A" (test3) (removeComments test3)
+        let test4 = "MOV r1, r2 ; remove comment but not instruction: \n MOV r1, r1"
+        printfn "4. %A -> %A" (test4) (removeComments test4)
+        let test5 = ";comment with random chars 354 245 ! [ ] £ # // %$ 65"
+        printfn "5. %A -> %A" (test5) (removeComments test5)
