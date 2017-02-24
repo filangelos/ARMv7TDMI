@@ -24,6 +24,7 @@ Decomposition
 - [ ] Write ADC function
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
+- [ ] Remove comments from input (totally forgot about this)
 - [ ] Write basic parser
 - [ ] Write basic AST
 
