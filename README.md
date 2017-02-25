@@ -22,6 +22,7 @@ Decomposition
 - [x] Figure out what we're supposed to do
 - [x] Figure out how we're supposed to start
 - [ ] Write ADC function
+- [ ] Write flag setting function
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
 - [ ] Error Handling Framework - "Printing" Monad
