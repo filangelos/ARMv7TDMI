@@ -19,8 +19,8 @@ module InstructionsModule =
         let regNValue = (^.) regN state
 
         let op2Value = match op2 with 
-                       | Reg(register) -> (^.) register state
-                       | Op(data) -> data
+                       | ID(register) -> (^.) register state
+                       | Literal(data) -> data
 
         let (carryVal: Data) = match ( ^* ) C state with
                        |true -> regNValue + op2Value + Data 1
@@ -51,7 +51,7 @@ module InstructionsModule =
     let n = (^=) R12 9 m
 
 
-    let inputs = [(R0,R5,Op(7),n);(R0,R1,Reg(R2),n);(R10,R1,Reg(R5),n);(R4,R1,Reg(R7),n);(R5,R12,Reg(R2),n)]
+    let inputs = [(R0,R5,Literal(7),n);(R0,R1,ID(R2),n);(R10,R1,ID(R5),n);(R4,R1,ID(R7),n);(R5,R12,ID(R2),n)]
 
     let testOutput = List.map addWithCarryR inputs
 
