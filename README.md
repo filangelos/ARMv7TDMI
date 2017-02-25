@@ -24,6 +24,7 @@ Decomposition
 - [ ] Write ADC function
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
+- [ ] Error Handling Framework - "Printing" Monad
 - [ ] Write basic parser
 - [ ] Write basic AST
 - [ ] Connect all basic modules together
