@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Machine", "Machine\Machine.fsproj", "{6CDD73FA-EF04-49C9-8BB3-88D473F71291}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Machine", "Machine.fsproj", "{6CDD73FA-EF04-49C9-8BB3-88D473F71291}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

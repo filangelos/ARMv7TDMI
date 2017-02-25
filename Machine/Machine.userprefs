@@ -1,11 +1,7 @@
 ﻿<Properties StartupConfiguration="{6CDD73FA-EF04-49C9-8BB3-88D473F71291}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Machine/Program.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Program.fs">
     <Files>
-      <File FileName="Machine/Program.fs" Line="10" Column="32" />
-      <File FileName="Machine/Optics.fs" Line="15" Column="5" />
-      <File FileName="Machine/Common.fs" Line="43" Column="43" />
-      <File FileName="Machine/MachineState.fs" Line="27" Column="37" />
-      <File FileName="Machine/Instructions.fs" Line="3" Column="26" />
+      <File FileName="Program.fs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
