@@ -1,7 +1,9 @@
-.DS_Store
+# Mac Desktop files
+*.DS_Store
 
 # Executables
 *.exe
+*.mdb
 
 # User-specific files
 *.suo
