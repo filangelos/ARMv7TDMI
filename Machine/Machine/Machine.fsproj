@@ -50,6 +50,7 @@
     <Compile Include="Optics.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="MachineState.fs" />
+    <Compile Include="Instructions.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

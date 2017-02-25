@@ -3,6 +3,7 @@
 module Program =
 
     open MachineState
+    open InstructionsModule
 
     [<EntryPoint>]
     let main argv =
