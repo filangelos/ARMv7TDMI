@@ -26,6 +26,9 @@ Decomposition
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
 - [ ] Error Handling Framework - "Printing" Monad
+- [ ] Memory Implementation
+- [ ] `MachineState` Testing
+- [ ] Basic Codemirror UI
 - [ ] Write basic parser
 - [ ] Write basic AST
 - [ ] Connect all basic modules together
