@@ -56,7 +56,7 @@ module Tokeniser =
             | MatchToken "\n|\r|\f" (_,leftovers) ->
                 strToToken (lst @ [TokNewLine]) leftovers
             | "" -> lst
-            | _ -> failwithf "Unidentified character(s) in %A" str
+            | _ -> (lst @ [TokError(str)])
 
         //remove comments from input
         let inputNoComments = removeComments input
@@ -64,6 +64,9 @@ module Tokeniser =
         let strList = inputNoComments.Split([|' '; '\t'|])
         //printfn "%A" strList
         Array.fold strToToken [] strList
+
+
+(*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
     ///prints the results for the tokenise function against a set of good, bad and random inputs
     let tokeniseTest =
@@ -89,7 +92,7 @@ module Tokeniser =
                         |]
 
         ///test for good syntax
-        let rec tryGoodTests testList count = 
+        (*let rec tryGoodTests testList count = 
             if count < (Array.length testList) then
                 try     
                     tokenise testList.[count] |> ignore
@@ -116,16 +119,34 @@ module Tokeniser =
                         tryBadTests testList (count+1)
             else
                 count
+        *)
 
-        printfn "Running goodTests..."
-        printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
-        printfn "Running badTests..."
-        printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
+        let rec tryGoodTests testList count = 
+            if count < (Array.length testList) then  
+                let tokList = tokenise testList.[count]
+                let containsError = List.exists (fun a -> match a with | TokError _ -> true | _ -> false ) tokList
+                if containsError then 
+                    printfn "Test %A (\n%A\n) is bad input, expected good input" count testList.[count]
+                    count
+                else
+                    tryGoodTests testList (count+1)
+            else
+                count
         
-        //Perform property-based testing to check for correct number of tokens
+        let rec tryBadTests testList count = 
+            if count < (Array.length testList) then    
+                let tokList = tokenise testList.[count]
+                let containsError = List.exists (fun a -> match a with | TokError _ -> true | _ -> false ) tokList
+                if containsError then 
+                    tryBadTests testList (count+1)
+                else
+                    printfn "Test %A (\n%A\n) is good input, expected bad input" count testList.[count]
+                    count
+            else
+                count
+
         let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
 
-      
         let checkTokenListLength separator = 
             let isSeparatorAToken = ((tokenise separator).Length > 0)
             //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
@@ -145,6 +166,14 @@ module Tokeniser =
             else
                 tokList.Length = subList.Length
 
+
+        //perform valid input tests
+        printfn "Running goodTests..."
+        printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
+        printfn "Running badTests..."
+        printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
+        
+        //perform property-based testing to check for correct number of tokens
         printfn "Running FSCheck for token list length..."
         Check.Quick (checkTokenListLength " ")
         Check.Quick (checkTokenListLength " , ")

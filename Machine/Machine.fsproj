@@ -51,6 +51,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="MachineState.fs" />
     <Compile Include="Instructions.fs" />
+    <Compile Include="Class.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

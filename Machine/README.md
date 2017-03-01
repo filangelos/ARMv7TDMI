@@ -26,7 +26,8 @@ MachineState
 * `Flags` type abbreviation of `Map<FlagID, bool>` representing the status bits and content
 
 #### Functions
-* `Data` "cast" operator 
+* `Data` "cast" operator : int -> Data
+* D.U type enumerator : 'T -> 'T [||]
 
 ### MachineState
 #### Types

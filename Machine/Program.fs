@@ -11,5 +11,6 @@ module Program =
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x
         let u: MachineState = Optics.set MachineState.Flag_ N true z
-        printfn "%A" u
+        printfn "%A" x
+
         0 // return an integer exit code

@@ -13,4 +13,4 @@ module Common =
         | TokCurlyLeft
         | TokCurlyRight
         | TokNewLine
-        | TokNull
+        | TokError of string
