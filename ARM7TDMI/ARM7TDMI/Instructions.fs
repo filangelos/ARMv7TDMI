@@ -118,9 +118,49 @@ module Instructions =
 
         (^=) (regD) (op2Value) (finState)
 
+    let orr ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+
+        //extracting operand values
+        let regNValue = (^.) regN state
+
+        let op2Value = 
+            match op2 with 
+            | ID(register) -> (^.) register state
+            | Literal(data) -> data
+        
+        let result = regNValue ||| op2Value
+
+        let state1 = if setFlags then setNegative result state else state
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero result state1 else state1
+
+        (^=) (regD) (result) (finState)
+
+
+    let andOp ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+
+        //extracting operand values
+        let regNValue = (^.) regN state
+
+        let op2Value = 
+            match op2 with 
+            | ID(register) -> (^.) register state
+            | Literal(data) -> data
+        
+        let result = regNValue &&& op2Value
+
+        let state1 = if setFlags then setNegative result state else state
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero result state1 else state1
+
+        (^=) (regD) (result) (finState)
 
     
 
+    
+    
     ////test code for addWithCarry Function
     //let a = MachineState.make()
     //let b = mov (R0, Literal(-1073741824), a, true)
@@ -139,9 +179,23 @@ module Instructions =
     //let c1 = mov (R0, Literal(1),b1,true)
     //printfn "%A" c1
 
-    //test code for mvn Function
-    let a2 = MachineState.make()
-    let b2 = mvn (R0, Literal(0), a2, true)
-    printfn "%A" b2
-    let c2 = mvn (R0, Literal(1),b2,true)
-    printfn "%A" c2
+    ////test code for mvn Function
+    //let a2 = MachineState.make()
+    //let b2 = mvn (R0, Literal(0), a2, true)
+    //printfn "%A" b2
+    //let c2 = mvn (R0, Literal(1),b2,true)
+    //printfn "%A" c2
+
+    ////test code for ORR Function
+    //let a3 = MachineState.make()
+    //let b3 = mov (R0, Literal(-2147483648), a3, false)
+    //let c3 = mov (R1, Literal(0),b3,false)
+    //let d3 = orr (R2, R1, ID R0, c3, true)
+    //printfn "%A" d3
+
+    //test code for AND Function
+    let a3 = MachineState.make()
+    let b3 = mov (R0, Literal(-1), a3, false)
+    let c3 = mov (R1, Literal(1),b3,false)
+    let d3 = andOp (R2, R1, ID R0, c3, true)
+    printfn "%A" d3
