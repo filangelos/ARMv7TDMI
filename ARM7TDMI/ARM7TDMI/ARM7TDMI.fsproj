@@ -42,6 +42,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="MachineState.fs" />
     <Compile Include="Tokeniser.fs" />
+    <Compile Include="AST.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Instructions.fs" />
     <Compile Include="Program.fs" />
