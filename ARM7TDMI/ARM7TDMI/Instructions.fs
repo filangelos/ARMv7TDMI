@@ -21,23 +21,24 @@ module Instructions =
     let ( ^- ) = Optics.set MachineState.Flag_
 
     //NOTE: Check if V flag is set by shift operations
-    //Do not care about actual result
+    //Returns a tuple containing an int (irrelevant) and a state
     let setOverflow a b state =
-        try Checked.(+) a b with
-        e -> (( ^- ) V true state) |> ignore ; 1
+        try (Checked.(+) a b),state with
+        e -> 1,(( ^- ) V true state)
 
     //sets Carry flag by representing inputs as uint64 and applying logical operations, returns result in 32-bits
     let setCarry operation a b state =
         let newA = uint64 (uint32 a)
         let newB = uint64 (uint32 b)
-        ( ^- ) C (((operation newA newB) &&& (1UL <<< 32)) > 0uL) state |> ignore;
-        (operation newA newB) &&& 4294967295uL
+        (int ((operation newA newB) &&& 4294967295uL),( ^- ) C (((operation newA newB) &&& (1UL <<< 32)) > 0uL) state)
+
     
 
     //Op2 can be either a register or a literal
     //type OP2 = Reg of Register | Op of Data
+    //right now implementing adcs
+    let addWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (carry: bool))=
 
-    let addWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState))=
         let regNValue = (^.) regN state
 
         let op2Value = 
@@ -45,13 +46,23 @@ module Instructions =
             | ID(register) -> (^.) register state
             | Literal(data) -> data
 
-        let (carryVal: Data) =
-            match ( ^* ) C state with
-            |true ->  Data 1
-            |false -> Data 0
+        let newRegVal =
+            match carry && ( ^* ) C state with
+            |true ->  setCarry (+) regNValue (Data 1) state
+            |false -> (regNValue, state)
        
+        //updating the state encapsulation
+        let state1 = snd newRegVal
 
-        (^=) (regD) (carryVal) (state)
+        let finVal = match ( ^* ) C state1 with
+                     |true -> (fst (setCarry (+) regNValue op2Value state1)),state1
+                     |false -> setCarry (+) regNValue op2Value state1
+             
+        let state2 = snd finVal
+
+        let finState = snd (setOverflow regNValue op2Value state2)
+
+        (^=) (regD) (fst finVal) (finState)
 
     //let subtractWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: RegisterID), (state: MachineState)) =
 
@@ -62,9 +73,14 @@ module Instructions =
     let a = MachineState.make()
     let b = (^=) R0 -2147483648 a
     let c = (^=) R1 -2147483648 b
+    let d = ( ^- ) C false c
+    let e = ( ^- ) V false d
+    let f = ( ^- ) N false e
+    let g = ( ^- ) Z false f
 
 
-    let inputs = [(R0,R5,Literal(7),c);(R0,R1,ID(R2),c);(R10,R1,ID(R5),c);(R4,R1,ID(R7),c);(R5,R12,ID(R2),c)]
+
+    let inputs = [(R0,R0,ID(R1),g, false)]
 
     let testOutput = List.map addWithCarry inputs
 
