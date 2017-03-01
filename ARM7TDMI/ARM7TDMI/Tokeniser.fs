@@ -15,8 +15,6 @@ module Tokeniser =
     open System.Text.RegularExpressions
     open Microsoft.FSharp.Reflection
     open FsCheck
-    
-    //NB: handle exceptions from tokenise() externally for web GUI (e.g. in main)
 
     ///returns the first matched group of a regex and the leftovers from the input
     let (|MatchToken|_|) pattern input =
@@ -32,6 +30,10 @@ module Tokeniser =
         if newInput2 = input then newInput2
         else removeComments newInput2
 
+<<<<<<< HEAD
+=======
+    ///turns an integer into a TokReg token (feel free to change this mess of code)
+>>>>>>> a045ce470d29ee6488778078a3a0b5220ca9d072
     let getTokenRegisterFromID (id:int) = 
         match id with
         | 0 -> TokReg(R0)
