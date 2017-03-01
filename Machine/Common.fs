@@ -13,6 +13,11 @@
 [<AutoOpen>]
 module Common =
 
+    // enumerate all values of a D.U. 
+    let enumerator<'T> =
+        FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
+        |> Array.map (fun c ->  Reflection.FSharpValue.MakeUnion(c,[||]) :?> 'T)
+
     // Raw data Type
     type Data = int
     // Cast Function
@@ -40,4 +45,4 @@ module Common =
     // Operand D.U Type
     type Operand =
         | ID of RegisterID // Pass Register ID for data access
-        | Literal of Data // Pass literal 
+        | Literal of Data // Pass literal

@@ -42,15 +42,22 @@ module MachineState =
 
     // MachineState Initialisation
     let make () =
-        let registers =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Common.enumerator<RegisterID>
             // Initialise all Registers to zero
-            Map.ofList [ R0, 0 ; R1, 0 ; R2, 0 ; R3, 0 ; R4, 0;
-                         R5, 0 ; R6, 0 ; R7, 0 ; R8, 0 ; R9, 0 ;
-                         R10, 0 ; R11, 0 ; R12, 0 ; R13, 0 ; R14, 0;]
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
 
-        let flags =
+        let flags : Flags =
+            // Enumerate all Flags
+            Common.enumerator<FlagID>
             // Initialise all Status Bits to zero
-            Map.ofList [ N, false ; Z, false ;
-                         C, false ; V, false ]
+            |> Array.map ( fun id -> id, true )
+            // construct Map
+            |> Map.ofArray
 
         { Registers = registers ; StatusBits = flags }
+
+// TESTS
