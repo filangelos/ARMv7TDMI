@@ -29,7 +29,7 @@ Temporary Items
 ### XamarinStudio ###
 bin/
 obj/
-*.userprefs
+**/*.userprefs
 
 
 ### F# ###
