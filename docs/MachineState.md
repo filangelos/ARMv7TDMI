@@ -1,7 +1,7 @@
 # MachineState
 
 ## Types
-- `type MachineState = { Registers: Registers ; StatusBits: Flags ; Memory  }` record of registers, status bits and memory ( unimplemented ).
+* `type MachineState = { Registers: Registers ; StatusBits: Flags ; Memory  }` record of registers, status bits and memory ( unimplemented ).
 ---
 ## Functions
 * `MachineState.Registers_ : ( MachineState -> Registers ) * ( Regisers -> MachineState -> MachineState ) ` Lens for `Registers`, useful for UI.
