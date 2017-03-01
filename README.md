@@ -21,7 +21,7 @@ Decomposition
 
 - [x] Figure out what we're supposed to do
 - [x] Figure out how we're supposed to start
-- [ ] Write ADC function
+- [x] Write ADC function
 - [x] Write flag setting function
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
@@ -32,3 +32,4 @@ Decomposition
 - [ ] Write basic parser
 - [ ] Write basic AST
 - [ ] Connect all basic modules together
+- [ ] Write flag-setting function
