@@ -7,12 +7,13 @@
     Contributors: Baron Khan
 
     Module: Tokeniser
-    Description: 
+    Description: Takes a string input representing the programs and produces a list of tokens.
 *)
 
 module Tokeniser =
 
     open System.Text.RegularExpressions
+    open Microsoft.FSharp.Reflection
     open FsCheck
     
     //NB: handle exceptions from tokenise() externally for web GUI (e.g. in main)
@@ -31,6 +32,26 @@ module Tokeniser =
         if newInput2 = input then newInput2
         else removeComments newInput2
 
+    let getTokenRegisterFromID (id:int) = 
+        match id with
+        | 0 -> TokReg(R0)
+        | 1 -> TokReg(R1)
+        | 2 -> TokReg(R2)
+        | 3 -> TokReg(R3)
+        | 4 -> TokReg(R4)
+        | 5 -> TokReg(R5)
+        | 6 -> TokReg(R6)
+        | 7 -> TokReg(R7)
+        | 8 -> TokReg(R8)
+        | 9 -> TokReg(R9)
+        | 10 -> TokReg(R10)
+        | 11 -> TokReg(R11)
+        | 12 -> TokReg(R12)
+        | 13 -> TokReg(R13)
+        | 14 -> TokReg(R14)
+        | 15 -> TokReg(R15)
+        | _ -> TokError("R"+id.ToString())
+
     ///returns a list of tokens from a string input
     let tokenise (input:string) =
 
@@ -39,7 +60,7 @@ module Tokeniser =
             match str with
             //str may contain several tokens, so recursively call MatchToken until str is empty 
             | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
-                strToToken (lst @ [TokReg(reg |> int)]) leftovers
+                strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
             | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) ->     //hex const
                 //printfn "hex: %A" hexVal
                 strToToken (lst @ [TokConst (int hexVal)]) leftovers

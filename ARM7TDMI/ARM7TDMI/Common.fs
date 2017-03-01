@@ -13,19 +13,6 @@
 [<AutoOpen>]
 module Common =
 
-    type Token =
-        | TokIdentifier of string   //includes MOV, ADD, etc. and labels
-        | TokReg of int
-        | TokConst of int
-        | TokComma
-        | TokExclam
-        | TokSquareLeft
-        | TokSquareRight
-        | TokCurlyLeft
-        | TokCurlyRight
-        | TokNewLine
-        | TokError of string
-
     // enumerate all values of a D.U. 
     let enumerator<'T> =
         FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
@@ -59,3 +46,18 @@ module Common =
     type Operand =
         | ID of RegisterID // Pass Register ID for data access
         | Literal of Data // Pass literal
+
+    // Token Type
+    type Token =
+        | TokIdentifier of string   //includes MOV, ADD, etc. and labels
+        //| TokReg of int
+        | TokReg of RegisterID
+        | TokConst of int
+        | TokComma
+        | TokExclam
+        | TokSquareLeft
+        | TokSquareRight
+        | TokCurlyLeft
+        | TokCurlyRight
+        | TokNewLine
+        | TokError of string
