@@ -7,7 +7,9 @@
 * `Registers` type abbreviation of `Map<RegisterID, Data>` representing the register index and content
 * `FlagID` D.U `| N | V | C | Z` representing the status bits
 * `Flags` type abbreviation of `Map<FlagID, bool>` representing the status bits and content
-
+---
 ## Functions
 * `Data` "cast" operator : int -> Data
 * D.U type enumerator : 'T -> 'T [||]
+---
+## Dependencies
