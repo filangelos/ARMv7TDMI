@@ -25,6 +25,14 @@ module Instructions =
     let setOverflow a b state =
         try (Checked.(+) a b),state with
         e -> 1,(( ^- ) V true state)
+     
+    //sets Zero flag. Returns a state
+    let setZero a state =
+        if a = 0 then (( ^- ) Z true state) else (( ^- ) Z false state)
+
+    //sets N flag. Returns a state
+    let setNegative a state =
+        if a < 0 then ( ^- ) N true state else ( ^- ) N false state
 
     //sets Carry flag by representing inputs as uint64 and applying logical operations, returns result in 32-bits
     let setCarry operation a b state =
@@ -64,10 +72,16 @@ module Instructions =
         //updating the state encapsulation again     
         let state2 = snd finVal
 
-        //Obtaining final state reflecting signed overflow
-        let finState = snd (setOverflow regNValue op2Value state2)
+        let result = fst finVal
 
-        (^=) (regD) (fst finVal) (finState)
+        let state3 = snd (setOverflow regNValue op2Value state2)
+
+        let state4 = setNegative result state3
+
+        //Obtaining final state reflecting signed overflow
+        let finState = setZero result state4
+
+        (^=) (regD) (result) (finState)
 
     //let subtractWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: RegisterID), (state: MachineState)) =
 
