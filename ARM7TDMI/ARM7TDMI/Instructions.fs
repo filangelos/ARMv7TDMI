@@ -21,7 +21,7 @@ module Instructions =
     let ( ^- ) = Optics.set MachineState.Flag_
 
     //NOTE: Check if V flag is set by shift operations
-    //Returns a tuple containing an int (irrelevant) and a state
+    //Checks overflow. Returns tuple containing value of addition (not used) and new state reflecting new overflow flag
     let setOverflow a b state =
         try (Checked.(+) a b),state with
         e -> 1,(( ^- ) V true state)
@@ -39,6 +39,7 @@ module Instructions =
     //right now implementing adcs
     let addWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (carry: bool))=
 
+        //extracting operand values
         let regNValue = (^.) regN state
 
         let op2Value = 
@@ -46,6 +47,7 @@ module Instructions =
             | ID(register) -> (^.) register state
             | Literal(data) -> data
 
+        //including the value of carry into the first register and producing a new state : (newRegisterValue:Data,newState:MachineState)
         let newRegVal =
             match carry && ( ^* ) C state with
             |true ->  setCarry (+) regNValue (Data 1) state
@@ -54,12 +56,15 @@ module Instructions =
         //updating the state encapsulation
         let state1 = snd newRegVal
 
+        //Producing result of the operation, along with a state that reflects the change by the carry : (finalResult: Data, newState: MachineState)
         let finVal = match ( ^* ) C state1 with
                      |true -> (fst (setCarry (+) regNValue op2Value state1)),state1
                      |false -> setCarry (+) regNValue op2Value state1
-             
+
+        //updating the state encapsulation again     
         let state2 = snd finVal
 
+        //Obtaining final state reflecting signed overflow
         let finState = snd (setOverflow regNValue op2Value state2)
 
         (^=) (regD) (fst finVal) (finState)
