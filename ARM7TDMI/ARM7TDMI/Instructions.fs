@@ -88,14 +88,28 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    //let subtractWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: RegisterID), (state: MachineState)) =
+    let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+
+        let op2Value = 
+            match op2 with 
+            | ID(register) -> (^.) register state
+            | Literal(data) -> data
+        
+        //Obtaining state reflecting sign of result
+        let state1 = if setFlags then setNegative op2Value state else state
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero op2Value state1 else state1
+
+        (^=) (regD) (op2Value) (finState)
+
 
 
     
 
-    //test code for add without carry
+    //test code for addWithCarry Function
     let a = MachineState.make()
-    let b = (^=) R0 -1073741824 a
+    let b = mov (R0, Literal(-1073741824), a, true)
     let c = (^=) R1 -268435456 b
     let d = ( ^- ) C false c
     let e = ( ^- ) V false d
@@ -103,5 +117,10 @@ module Instructions =
     let g = ( ^- ) Z false f
     let h = addWithCarryS (R0,R0,ID(R0),g, false, true)
     let i = addWithCarryS (R2,R0,ID(R1),h, true, true)
-
     printfn "%A" i
+
+    //test code for mov Function
+    let a1 = MachineState.make()
+    let b1 = mov (R0, Literal(-1073741824), a1, true)
+    let c1 = mov (R0, Literal(1),b1,true)
+    printfn "%A" c1
