@@ -13,7 +13,6 @@
 module Instructions =
 
     open MachineState
-    open Common
 
     // stortcuts
     let ( ^. ) = Optics.get MachineState.Register_
@@ -21,10 +20,24 @@ module Instructions =
     let ( ^* ) = Optics.get MachineState.Flag_
     let ( ^- ) = Optics.set MachineState.Flag_
 
+    //NOTE: Check if V flag is set by shift operations
+    //Do not care about actual result
+    let setOverflow a b state =
+        try Checked.(+) a b with
+        e -> (( ^- ) V true state) |> ignore ; 1
+
+    //sets Carry flag by representing inputs as uint64 and applying logical operations, returns result in 32-bits
+    let setCarry operation a b state =
+        let newA = uint64 (uint32 a)
+        let newB = uint64 (uint32 b)
+        ( ^- ) C (((operation newA newB) &&& (1UL <<< 32)) > 0uL) state |> ignore;
+        (operation newA newB) &&& 4294967295uL
+    
+
     //Op2 can be either a register or a literal
     //type OP2 = Reg of Register | Op of Data
 
-    let addWithCarryR ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState))=
+    let addWithCarry ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState))=
         let regNValue = (^.) regN state
 
         let op2Value = 
@@ -34,8 +47,8 @@ module Instructions =
 
         let (carryVal: Data) =
             match ( ^* ) C state with
-            |true -> regNValue + op2Value + Data 1
-            |false -> regNValue + op2Value
+            |true ->  Data 1
+            |false -> Data 0
        
 
         (^=) (regD) (carryVal) (state)
@@ -47,23 +60,12 @@ module Instructions =
 
     //test code for add without carry
     let a = MachineState.make()
-    let b = (^=) R0 1 a
-    let c = (^=) R1 2 b
-    let d = (^=) R2 3 c
-    let e = (^=) R3 4 d
-    let f = (^=) R4 5 e
-    let g = (^=) R5 6 f
-    let h = (^=) R6 57 g
-    let i = (^=) R7 23 h
-    let j = (^=) R8 67 i
-    let k = (^=) R9 34 j
-    let l = (^=) R10 24 k
-    let m = (^=) R11 7 l
-    let n = (^=) R12 9 m
+    let b = (^=) R0 -2147483648 a
+    let c = (^=) R1 -2147483648 b
 
 
-    let inputs = [(R0,R5,Literal(7),n);(R0,R1,ID(R2),n);(R10,R1,ID(R5),n);(R4,R1,ID(R7),n);(R5,R12,ID(R2),n)]
+    let inputs = [(R0,R5,Literal(7),c);(R0,R1,ID(R2),c);(R10,R1,ID(R5),c);(R4,R1,ID(R7),c);(R5,R12,ID(R2),c)]
 
-    let testOutput = List.map addWithCarryR inputs
+    let testOutput = List.map addWithCarry inputs
 
     printfn "%A" testOutput
