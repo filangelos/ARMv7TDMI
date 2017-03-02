@@ -4,7 +4,11 @@ module AST =
 
     open MachineState
 
-    type Parameters = (RegisterID * RegisterID * Operand * MachineState * bool * bool)
+    //different paramters based on instruction functions
+    type Parameters =
+        | Parameters6 of (RegisterID * RegisterID * Operand * MachineState * bool * bool)   //(regD, regN, op2, state, includeCarry, setFlags)
+        | Parameters5 of (RegisterID * RegisterID * Operand * MachineState * bool)          //(regD, regN, op2, state, setFlags)
+        | Parameters4 of (RegisterID * Operand * MachineState * bool)                       //(regD, op2, state, setFlags)
 
     type InstructionFunc = Parameters -> MachineState
 

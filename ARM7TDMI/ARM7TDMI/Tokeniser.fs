@@ -8,6 +8,7 @@
 
     Module: Tokeniser
     Description: Takes a string input representing the programs and produces a list of tokens.
+    e.g. the string, "MOV R1, R2" will become [TokIndentifier("MOV"); TokReg(R1); TokComma; TokReg(R2)]
 *)
 
 module Tokeniser =
@@ -58,7 +59,9 @@ module Tokeniser =
         ///breaks down a string into a list of tokens and appends them onto lst
         let rec strToToken (lst:Token list) (str:string) =
             match str with
-            //str may contain several tokens, so recursively call MatchToken until str is empty 
+            //str may contain several tokens, so recursively call MatchToken until str is empty
+            | MatchToken "([pP][cC])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                           //pc (R15)
+                strToToken (lst @ [TokReg(R15)]) leftovers
             | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                 strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
             | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) ->     //hex const
@@ -105,8 +108,8 @@ module Tokeniser =
         let goodTests = [|  "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
                             "aDd r0, r2 ,#0B101100";
-                            "LABEL123_ABC MOV r1, R16      ; end of line";
-                            "MOV R1 ,r16 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
+                            "LABEL123_ABC MOV r1, R15      ; end of line";
+                            "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
                         |]
 
         ///list of incorrect syntax
@@ -157,7 +160,7 @@ module Tokeniser =
                 let tokList = tokenise testList.[count]
                 let containsError = List.exists (fun a -> match a with | TokError _ -> true | _ -> false ) tokList
                 if containsError then 
-                    printfn "Test %A (\n%A\n) is bad input, expected good input" count testList.[count]
+                    printfn "Test %A (\n%A\n) is bad input, expected good input. Tokens = %A" count testList.[count] tokList
                     count
                 else
                     tryGoodTests testList (count+1)
@@ -171,7 +174,7 @@ module Tokeniser =
                 if containsError then 
                     tryBadTests testList (count+1)
                 else
-                    printfn "Test %A (\n%A\n) is good input, expected bad input" count testList.[count]
+                    printfn "Test %A (\n%A\n) is good input, expected bad input. Tokens = %A" count testList.[count] tokList
                     count
             else
                 count
@@ -216,14 +219,17 @@ module Tokeniser =
 
 
         //temporary testing, will add robust testing later
-        printfn "Testing Comments Removal... (will improve testing later)\ninput -> output:"
+        printfn "Testing Comments Removal... (will improve testing later)\ninput\t->\toutput:"
         let test = "; This is a comment"
-        printfn "1. %A -> %A" (test) (removeComments test)
+        printfn "1. %A\t->\t%A" (test) (removeComments test)
         let test2 = "MOV r1, r2 ;End of line comment"
-        printfn "2. %A -> %A" (test2) (removeComments test2)
+        printfn "2. %A\t->\t%A" (test2) (removeComments test2)
         let test3 = "MOV r1, r2 ; remove comment and instruction: MOV r1, r1"
-        printfn "3. %A -> %A" (test3) (removeComments test3)
+        printfn "3. %A\t->\t%A" (test3) (removeComments test3)
         let test4 = "MOV r1, r2 ; remove comment but not instruction: \n MOV r1, r1"
-        printfn "4. %A -> %A" (test4) (removeComments test4)
+        printfn "4. %A\t->\t%A" (test4) (removeComments test4)
         let test5 = ";comment with random chars 354 245 ! [ ] £ # // %$ 65"
-        printfn "5. %A -> %A" (test5) (removeComments test5)
+        printfn "5. %A\t->\t%A" (test5) (removeComments test5)
+
+        printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
+        printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
