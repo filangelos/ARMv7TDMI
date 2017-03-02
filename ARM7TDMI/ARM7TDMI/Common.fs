@@ -23,6 +23,10 @@ module Common =
     // Cast Function
     let Data = int
 
+    type ShiftDirection = 
+        |Left of int
+        |Right of int
+
     // Register ID D.U
     type RegisterID =
         | R0 | R1 | R2 | R3 | R4
