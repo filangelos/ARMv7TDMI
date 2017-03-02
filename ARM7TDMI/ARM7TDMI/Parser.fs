@@ -10,6 +10,8 @@
     Description: Parse individual instruction and initiate correct function call
 *)
 open System
+//open Instructions
+//open Common
 
 module Parser =
     let pchar(cToMatch,str) =
@@ -26,20 +28,20 @@ module Parser =
                 let msg = sprintf "Expecting '%c'. Got '%c'" cToMatch first
                 (msg,str)
         
-    let (|ADD|_|) rd rn op2 =
+   // let (|ADD|_|) rd rn op2 =
 
-    let (|ADDC|_|) rd rn op2 =
+  //  let (|ADDC|_|) rd rn op2 =
 
-    let (|ADDS|_|) rd rn op2 =
+   //  let (|ADDS|_|) rd rn op2 =
 
-    let (|AND|_|) rd rn op2 =
+  //  let (|AND|_|) rd rn op2 =
 
-    let (|ANDS|_|) rd rn op2 =
+  //  let (|ANDS|_|) rd rn op2 =
 
-    let (|ADD|_|) rd rn op2 =
+ //   let (|ADD|_|) rd rn op2 =
     
 
-    let instructionParse str  :Instructions = 
+ (*  let instructionParse str  :Instructions = 
         match str with
         | ADD rd rn op2  -> addWithCarryS rd rn op2 MachineState false false
         | ADDC rd rn op2  -> addWithCarryS rd rn op2 MachineState true false
@@ -58,9 +60,8 @@ module Parser =
         | OR rd rn op2 -> orr rd rn op2 MachineState false
         | ORS rd rn op2 -> orr rd rn op2 MachineState true
         | BIC rd rn op2 -> orr rd rn op2 MachineState false
-        | BICS rd rn op2 -> orr rd rn op2 MachineState true
+        | BICS rd rn op2 -> orr rd rn op2 MachineState true\
 
-    let parseAndReturn (tokenList: Token List): Instructions List = 
-        tokenList |> instructionParse |> List.append
-
-    
+    let parseAndReturn (tokenList: Token List) = 
+        tokenList |> instructionParse
+        *)
