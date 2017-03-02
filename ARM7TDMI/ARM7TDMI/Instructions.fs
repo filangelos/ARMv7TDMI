@@ -40,6 +40,10 @@ module Instructions =
         let newB = uint64 (uint32 b)
         (int ((operation newA newB) &&& 4294967295uL),( ^- ) C (((operation newA newB) &&& (1UL <<< 32)) > 0uL) state)
 
+    let opVal state x =  match x with
+                         | ID(register) -> (^.) register state
+                         | Literal(data) -> data 
+
     
 
     //Op2 can be either a register or a literal
@@ -50,10 +54,7 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = 
-            match op2 with 
-            | ID(register) -> (^.) register state
-            | Literal(data) -> data
+        let op2Value = opVal state op2
 
         //including the value of carry into the first register and producing a new state : (newRegisterValue:Data,newState:MachineState)
         let newRegVal =
@@ -90,10 +91,7 @@ module Instructions =
 
     let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
-        let op2Value = 
-            match op2 with 
-            | ID(register) -> (^.) register state
-            | Literal(data) -> data
+        let op2Value = opVal state op2
         
         //Obtaining state reflecting sign of result
         let state1 = if setFlags then setNegative op2Value state else state
@@ -105,10 +103,7 @@ module Instructions =
 
     let mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
-        let op2Value = 
-            match op2 with 
-            | ID(register) -> ~~~((^.) register state)
-            | Literal(data) -> ~~~data
+        let op2Value = opVal state op2
         
         //Obtaining state reflecting sign of result
         let state1 = if setFlags then setNegative op2Value state else state
@@ -123,11 +118,9 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = 
-            match op2 with 
-            | ID(register) -> (^.) register state
-            | Literal(data) -> data
-        
+        let op2Value = opVal state op2
+
+        //performing ORR instruction
         let result = regNValue ||| op2Value
 
         let state1 = if setFlags then setNegative result state else state
@@ -143,11 +136,9 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = 
-            match op2 with 
-            | ID(register) -> (^.) register state
-            | Literal(data) -> data
-        
+        let op2Value = opVal state op2
+
+        //Performing AND Instruction
         let result = regNValue &&& op2Value
 
         let state1 = if setFlags then setNegative result state else state
@@ -161,18 +152,18 @@ module Instructions =
 
     
     
-    //test code for addWithCarry Function
-    let a = MachineState.make()
-    let b = mov (R0, Literal(-1073741824), a, true)
-    let c = (^=) R1 -268435456 b
-    let d = ( ^- ) C false c
-    let e = ( ^- ) V false d
-    let f = ( ^- ) N false e
-    let g = ( ^- ) Z false f
-    let h = addWithCarryS (R0,R0,ID(R0),g, false, true)
-    let i = addWithCarryS (R2,R0,ID(R1),h, true, true)
-    printfn "%A" h
-    printfn "%A" i
+    ////test code for addWithCarry Function
+    //let a = MachineState.make()
+    //let b = mov (R0, Literal(-1073741824), a, true)
+    //let c = (^=) R1 -268435456 b
+    //let d = ( ^- ) C false c
+    //let e = ( ^- ) V false d
+    //let f = ( ^- ) N false e
+    //let g = ( ^- ) Z false f
+    //let h = addWithCarryS (R0,R0,ID(R0),g, false, true)
+    //let i = addWithCarryS (R2,R0,ID(R1),h, true, true)
+    //printfn "%A" h
+    //printfn "%A" i
 
     ////test code for mov Function
     //let a1 = MachineState.make()
@@ -194,9 +185,9 @@ module Instructions =
     //let d3 = orr (R2, R1, ID R0, c3, true)
     //printfn "%A" d3
 
-    ////test code for AND Function
-    //let a3 = MachineState.make()
-    //let b3 = mov (R0, Literal(-1), a3, false)
-    //let c3 = mov (R1, Literal(1),b3,false)
-    //let d3 = andOp (R2, R1, ID R0, c3, true)
-    //printfn "%A" d3
+    //test code for AND Function
+    let a3 = MachineState.make()
+    let b3 = mov (R0, Literal(-1), a3, false)
+    let c3 = mov (R1, Literal(1),b3,false)
+    let d3 = andOp (R2, R1, ID R0, c3, true)
+    printfn "%A" d3
