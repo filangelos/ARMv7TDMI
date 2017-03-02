@@ -35,12 +35,15 @@ module Instructions =
         if a < 0 then ( ^- ) N true state else ( ^- ) N false state
 
     //sets Carry flag by representing inputs as uint64 and applying logical operations, returns result in 32-bits
-    let setCarry operation a b state =
+    let setCarryA operation a b state =
         let newA = uint64 (uint32 a)
         let newB = uint64 (uint32 b)
         (int ((operation newA newB) &&& 4294967295uL),( ^- ) C (((operation newA newB) &&& (1UL <<< 32)) > 0uL) state)
 
-    let opVal state x =  match x with
+    let setCarryL state a =
+        (int (a &&& 4294967295uL),( ^- ) C ((a &&& (1uL <<< 32)) > 0uL) state)
+
+    let opVal state (x: Operand) =  match x with
                          | ID(register) -> (^.) register state
                          | Literal(data) -> data 
 
@@ -59,8 +62,8 @@ module Instructions =
         //including the value of carry into the first register and producing a new state : (newRegisterValue:Data,newState:MachineState)
         let newRegVal =
             match setFlags && includeCarry && ( ^* ) C state with
-            |true ->  setCarry (+) regNValue (Data 1) state
-            |false when includeCarry && ( ^* ) C state -> fst (setCarry (+) regNValue (Data 1) state), state
+            |true ->  setCarryA (+) regNValue (Data 1) state
+            |false when includeCarry && ( ^* ) C state -> fst (setCarryA (+) regNValue (Data 1) state), state
             |false -> (regNValue, state)
        
         //updating the state encapsulation
@@ -69,8 +72,8 @@ module Instructions =
         //Producing result of the operation, along with a state that reflects the change by the carry : (finalResult: Data, newState: MachineState)
         //Under correct execution, the C flag of state1 should only reflect
         let finVal = match setFlags && ( ^* ) C state1 with
-                     |true |false when not setFlags -> (fst (setCarry (+) regNValue op2Value state1)),state1
-                     |false when setFlags -> setCarry (+) regNValue op2Value state1
+                     |true |false when not setFlags -> (fst (setCarryA (+) regNValue op2Value state1)),state1
+                     |false when setFlags -> setCarryA (+) regNValue op2Value state1
                      | _ -> failwithf "This will never happen"
 
         //updating the state encapsulation again     
@@ -89,12 +92,21 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+    let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
 
-        let op2Value = opVal state op2
+        let op2ValTuple = match shift with 
+                          | Left x when setFlags -> (uint64(opVal state op2) <<< x) |> setCarryL state
+                          | Left x -> ((opVal state op2) <<< x),state
+                          | Right x when setFlags-> (uint64(opVal state op2) >>> x) |> setCarryL state
+                          | Right x -> ((opVal state op2) >>> x),state
+                          | NoShift -> (opVal state op2),state
         
+        let op2Value = fst op2ValTuple
+
+        let state0 = snd op2ValTuple
+
         //Obtaining state reflecting sign of result
-        let state1 = if setFlags then setNegative op2Value state else state
+        let state1 = if setFlags then setNegative op2Value state0 else state0
 
         //Obtaining state reflecting zero status
         let finState = if setFlags then setZero op2Value state1 else state1
@@ -184,6 +196,10 @@ module Instructions =
 
         (^=) (regD) (result) (finState)   
 
+    //wrapper for LSL/LSR (S) functions
+    let logicalShift ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
+        mov (regD,op2,state,setFlags,shift)
+
     
     
     ////test code for addWithCarry Function
@@ -233,9 +249,16 @@ module Instructions =
     //let d3 = eOR (R2, R1, ID R0, c3, true)
     //printfn "%A" d3
 
-    //test code for BIC Function
+    ////test code for BIC Function
+    //let a3 = MachineState.make()
+    //let b3 = mov (R0, Literal(-1), a3, false)
+    //let c3 = mov (R1, Literal(1),b3,false)
+    //let d3 = bic (R2, R1, ID R0, c3, true)
+    //printfn "%A" d3
+
+    //test code for LSL(S) Function
     let a3 = MachineState.make()
-    let b3 = mov (R0, Literal(-1), a3, false)
-    let c3 = mov (R1, Literal(1),b3,false)
-    let d3 = bic (R2, R1, ID R0, c3, true)
-    printfn "%A" d3
+    let b3 = logicalShift (R0, Literal(-1), a3, true, Left 1)
+    printfn "%A" b3
+    let c3 = logicalShift (R1, Literal(1),b3,true, Right 1)
+    printfn "%A" c3
