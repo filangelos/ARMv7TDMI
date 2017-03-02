@@ -148,6 +148,23 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
+    let eOR ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+
+        //extracting operand values
+        let regNValue = (^.) regN state
+
+        let op2Value = opVal state op2
+
+        //Performing AND Instruction
+        let result = regNValue ^^^ op2Value
+
+        let state1 = if setFlags then setNegative result state else state
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero result state1 else state1
+
+        (^=) (regD) (result) (finState)
+
     
 
     
@@ -185,9 +202,16 @@ module Instructions =
     //let d3 = orr (R2, R1, ID R0, c3, true)
     //printfn "%A" d3
 
+    ////test code for AND Function
+    //let a3 = MachineState.make()
+    //let b3 = mov (R0, Literal(-1), a3, false)
+    //let c3 = mov (R1, Literal(1),b3,false)
+    //let d3 = andOp (R2, R1, ID R0, c3, true)
+    //printfn "%A" d3
+
     //test code for AND Function
     let a3 = MachineState.make()
     let b3 = mov (R0, Literal(-1), a3, false)
     let c3 = mov (R1, Literal(1),b3,false)
-    let d3 = andOp (R2, R1, ID R0, c3, true)
+    let d3 = eOR (R2, R1, ID R0, c3, true)
     printfn "%A" d3
