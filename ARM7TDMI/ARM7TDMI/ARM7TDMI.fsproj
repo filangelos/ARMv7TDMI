@@ -42,10 +42,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="MachineState.fs" />
     <Compile Include="Tokeniser.fs" />
-<<<<<<< HEAD
-=======
     <Compile Include="AST.fs" />
->>>>>>> a045ce470d29ee6488778078a3a0b5220ca9d072
     <Compile Include="Parser.fs" />
     <Compile Include="Instructions.fs" />
     <Compile Include="Program.fs" />

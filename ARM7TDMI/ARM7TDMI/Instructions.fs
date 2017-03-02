@@ -23,8 +23,8 @@ module Instructions =
     //NOTE: Check if V flag is set by shift operations
     //Checks overflow. Returns tuple containing value of addition (not used) and new state reflecting new overflow flag
     let setOverflow a b state =
-        try (Checked.(+) a b),(( ^- ) V false state) with
-        e -> 1,(( ^- ) V true state)
+        try ((Checked.(+) a b),(( ^- ) V false state)) |> snd with
+        e -> (1,(( ^- ) V true state)) |> snd
      
     //sets Zero flag. Returns a state
     let setZero a state =
@@ -78,13 +78,13 @@ module Instructions =
         let result = fst finVal
 
         //Obtaining state reflecting signed overflow
-        let state3 = if setFlags then snd (setOverflow regNValue op2Value state2) else state2
+        let state3 = if setFlags then (setOverflow regNValue op2Value state2) else state2
 
         //Obtaining state reflecting sign of result
         let state4 = if setFlags then setNegative result state3 else state3
 
         //Obtaining state reflecting zero status
-        let finState = if setFlags then setZero result state3 else state3
+        let finState = if setFlags then setZero result state4 else state4
 
         (^=) (regD) (result) (finState)
 
@@ -161,17 +161,18 @@ module Instructions =
 
     
     
-    ////test code for addWithCarry Function
-    //let a = MachineState.make()
-    //let b = mov (R0, Literal(-1073741824), a, true)
-    //let c = (^=) R1 -268435456 b
-    //let d = ( ^- ) C false c
-    //let e = ( ^- ) V false d
-    //let f = ( ^- ) N false e
-    //let g = ( ^- ) Z false f
-    //let h = addWithCarryS (R0,R0,ID(R0),g, false, true)
-    //let i = addWithCarryS (R2,R0,ID(R1),h, true, true)
-    //printfn "%A" i
+    //test code for addWithCarry Function
+    let a = MachineState.make()
+    let b = mov (R0, Literal(-1073741824), a, true)
+    let c = (^=) R1 -268435456 b
+    let d = ( ^- ) C false c
+    let e = ( ^- ) V false d
+    let f = ( ^- ) N false e
+    let g = ( ^- ) Z false f
+    let h = addWithCarryS (R0,R0,ID(R0),g, false, true)
+    let i = addWithCarryS (R2,R0,ID(R1),h, true, true)
+    printfn "%A" h
+    printfn "%A" i
 
     ////test code for mov Function
     //let a1 = MachineState.make()
@@ -193,9 +194,9 @@ module Instructions =
     //let d3 = orr (R2, R1, ID R0, c3, true)
     //printfn "%A" d3
 
-    //test code for AND Function
-    let a3 = MachineState.make()
-    let b3 = mov (R0, Literal(-1), a3, false)
-    let c3 = mov (R1, Literal(1),b3,false)
-    let d3 = andOp (R2, R1, ID R0, c3, true)
-    printfn "%A" d3
+    ////test code for AND Function
+    //let a3 = MachineState.make()
+    //let b3 = mov (R0, Literal(-1), a3, false)
+    //let c3 = mov (R1, Literal(1),b3,false)
+    //let d3 = andOp (R2, R1, ID R0, c3, true)
+    //printfn "%A" d3
