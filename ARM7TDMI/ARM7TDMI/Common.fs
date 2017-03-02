@@ -26,6 +26,7 @@ module Common =
     type ShiftDirection = 
         |Left of int
         |Right of int
+        |NoShift
 
     // Register ID D.U
     type RegisterID =
