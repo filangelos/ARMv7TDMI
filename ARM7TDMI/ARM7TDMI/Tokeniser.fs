@@ -64,7 +64,7 @@ module Tokeniser =
                 strToToken (lst @ [TokReg(R15)]) leftovers
             | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                 strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
-            | MatchToken "#(0[xX][0-9A-Fa-f]+(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) ->     //hex const
+            | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                 //printfn "hex: %A" hexVal
                 strToToken (lst @ [TokConst (int hexVal)]) leftovers
             | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
@@ -109,7 +109,8 @@ module Tokeniser =
                             "MOV r12 ,R4 , #0x45";
                             "aDd r0, r2 ,#0B101100";
                             "LABEL123_ABC MOV r1, R15      ; end of line";
-                            "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]"
+                            "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]";
+                            "MOV R1, #0xFFFF0000"
                         |]
 
         ///list of incorrect syntax
@@ -122,7 +123,8 @@ module Tokeniser =
                             "LABEL MOV r1, 0b0102";
                             "LDr r0!, [r3 ,#!3]";
                             "MOV r1, r^2";
-                            "MOV r1, #ab0c45"
+                            "MOV r1, #ab0c45";
+                            "MOV R1, #0xFFFF00004"
                         |]
 
         ///test for good syntax
