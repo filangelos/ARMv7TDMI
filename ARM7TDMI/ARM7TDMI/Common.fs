@@ -66,3 +66,10 @@ module Common =
         | TokCurlyRight
         | TokNewLine
         | TokError of string
+
+    type Operation = 
+        | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
+        | SixOp of Token*Token*Token*Operand*bool*bool
+        | FourOp of Token*Token*Token*bool
+        | FourOp2 of Token*Token*bool*Operand
+        | FourOp3 of Token*Operand*bool*Operand
