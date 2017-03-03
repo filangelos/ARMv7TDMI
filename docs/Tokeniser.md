@@ -11,3 +11,9 @@
 * function tokeniseTest: unit
 ---
 ## Dependencies
+
+aCommon.fs
+
+## Notes
+
+* If you get an exception when running tokeniseTest (after it says, "Running FSCheck..."), delete FSharp.Core from the Solution references in the Solution Explorer (Visual Studio).

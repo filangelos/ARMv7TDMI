@@ -8,7 +8,7 @@
 
     Module: Tokeniser
     Description: Takes a string input representing the programs and produces a list of tokens.
-    e.g. the string, "MOV R1, R2" will become [TokIndentifier("MOV"); TokReg(R1); TokComma; TokReg(R2)]
+    e.g. the string, "MOV R1, R2" will become [TokInstr(MOV); TokReg(R1); TokComma; TokReg(R2)]
 *)
 
 module Tokeniser =
@@ -35,23 +35,31 @@ module Tokeniser =
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let getTokenRegisterFromID (id:int) = 
         match id with
-        | 0 -> TokReg(R0)
-        | 1 -> TokReg(R1)
-        | 2 -> TokReg(R2)
-        | 3 -> TokReg(R3)
-        | 4 -> TokReg(R4)
-        | 5 -> TokReg(R5)
-        | 6 -> TokReg(R6)
-        | 7 -> TokReg(R7)
-        | 8 -> TokReg(R8)
-        | 9 -> TokReg(R9)
-        | 10 -> TokReg(R10)
-        | 11 -> TokReg(R11)
-        | 12 -> TokReg(R12)
-        | 13 -> TokReg(R13)
-        | 14 -> TokReg(R14)
-        | 15 -> TokReg(R15)
+        | 0 -> TokReg(R0)   | 1 -> TokReg(R1)
+        | 2 -> TokReg(R2)   | 3 -> TokReg(R3)
+        | 4 -> TokReg(R4)   | 5 -> TokReg(R5)
+        | 6 -> TokReg(R6)   | 7 -> TokReg(R7)
+        | 8 -> TokReg(R8)   | 9 -> TokReg(R9)
+        | 10 -> TokReg(R10) | 11 -> TokReg(R11)
+        | 12 -> TokReg(R12) | 13 -> TokReg(R13)
+        | 14 -> TokReg(R14) | 15 -> TokReg(R15)
         | _ -> TokError("R"+id.ToString())
+
+    ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
+    let getTokenInstructionFrom (name:string) =
+        (*UNDER CONSTRUCTION*)
+        match name.ToUpper() with
+        | "ADD" -> TokInstr(ADD)
+        | "ADC" -> TokInstr(ADC)
+        | "MOV" -> TokInstr(MOV)
+        | "MVN" -> TokInstr(MVN)
+        | "ORR" -> TokInstr(ORR)
+        | "AND" -> TokInstr(AND)
+        | "EOR" -> TokInstr(EOR)
+        | "BIC" -> TokInstr(BIC)
+        | "LSL" -> TokInstr(LSL)
+        | "LSR" -> TokInstr(LSR)
+        | _ -> TokLabel(name)
 
     ///returns a list of tokens from a string input
     let tokenise (input:string) =
@@ -73,8 +81,10 @@ module Tokeniser =
             | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                 //printfn "dec: %A" value
                 strToToken (lst @ [TokConst(value |> int)]) leftovers
-            | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //identifier (MOV, ADD, label)
-                strToToken (lst @ [TokIdentifier name]) leftovers
+            //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
+            //    strToToken (lst @ [TokIdentifier name]) leftovers
+            | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
+                strToToken (lst @ [getTokenInstructionFrom name]) leftovers
             | MatchToken "," (_, leftovers) ->
                 strToToken (lst @ [TokComma]) leftovers
             | MatchToken "!" (_, leftovers) ->
@@ -110,7 +120,8 @@ module Tokeniser =
                             "aDd r0, r2 ,#0B101100";
                             "LABEL123_ABC MOV r1, R15      ; end of line";
                             "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]";
-                            "MOV R1, #0xFFFF0000"
+                            "MOV R1, #0xFFFF0000";
+                            "ADCS R1, R2, #3, LSL #2"
                         |]
 
         ///list of incorrect syntax
@@ -233,5 +244,5 @@ module Tokeniser =
         let test5 = ";comment with random chars 354 245 ! [ ] £ # // %$ 65"
         printfn "5. %A\t->\t%A" (test5) (removeComments test5)
 
-        printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
-        printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
+        printfn "Using R15 identifier:\t%A" (tokenise "START MOV r15, R15, #3")
+        printfn "Using PC identifier:\t%A" (tokenise "START MOV PC, pC, #3")
