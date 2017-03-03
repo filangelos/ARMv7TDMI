@@ -206,21 +206,35 @@ module Instructions =
         mov (regD,op2,state,setFlags,shift)
 
     
+    let arithmeticRightShift ((regD: RegisterID), (op2: Operand), (shift: int), (state: MachineState), (setFlags: bool)) =
+
+        let op2Value = opVal state op2
+
+        let result = op2Value >>> shift
+
+        let state1 = if setFlags then ( ^- ) C false state else state
+
+        let state2 = if setFlags then setNegative result state1 else state1
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero result state2 else state2
+
+        (^=) (regD) (result) (finState)
     
-    //test code for addWithCarry Function
-    let a = MachineState.make()
-    let b = mov (R0, Literal(-1073741824), a, true, NoShift)
-    let c = (^=) R1 -268435456 b
-    let d = ( ^- ) C false c
-    let e = ( ^- ) V false d
-    let f = ( ^- ) N false e
-    let g = ( ^- ) Z false f
-    let h = addWithCarryS (R0,R0,ID(R0),g, false, true,Right 16)
-    let i = addWithCarryS (R2,R0,ID(R1),h, true, true,NoShift)
-    printfn "%A" b
-    printfn "%A" c
-    printfn "%A" h
-    printfn "%A" i
+    ////test code for addWithCarry Function
+    //let a = MachineState.make()
+    //let b = mov (R0, Literal(-1073741824), a, true, NoShift)
+    //let c = (^=) R1 -268435456 b
+    //let d = ( ^- ) C false c
+    //let e = ( ^- ) V false d
+    //let f = ( ^- ) N false e
+    //let g = ( ^- ) Z false f
+    //let h = addWithCarryS (R0,R0,ID(R0),g, false, true,Right 16)
+    //let i = addWithCarryS (R2,R0,ID(R1),h, true, true,NoShift)
+    //printfn "%A" b
+    //printfn "%A" c
+    //printfn "%A" h
+    //printfn "%A" i
 
     ////test code for mov Function
     //let a1 = MachineState.make()
@@ -269,3 +283,10 @@ module Instructions =
     //printfn "%A" b3
     //let c3 = logicalShift (R1, Literal(1),b3,true, Right 1)
     //printfn "%A" c3
+
+    //test code for LSL(S) Function
+    let a3 = MachineState.make()
+    let b3 = arithmeticRightShift (R0, Literal(-1), 1, a3, true)
+    printfn "%A" b3
+    let c3 = arithmeticRightShift (R1, Literal(1),1, b3,true)
+    printfn "%A" c3
