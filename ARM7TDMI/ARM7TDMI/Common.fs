@@ -60,6 +60,7 @@ module Common =
         | EOR | BIC
         | LSL | LSR
 
+    /// Conditional code types (for reading flags)
     type ConditionCode = 
         | EQ | NE | CS | HS | CC | LO | MI | PL
         | VS | VC | HI | LS | GE | LT | GT | LE
@@ -71,7 +72,7 @@ module Common =
         //| TokReg of int
         | TokInstr of InstructionKeyword
         | TokS
-        | TokCondCode of ConditionCode
+        | TokCond of ConditionCode
         | TokLabel of string
         | TokReg of RegisterID
         | TokConst of int
