@@ -45,21 +45,51 @@ module Tokeniser =
         | 14 -> TokReg(R14) | 15 -> TokReg(R15)
         | _ -> TokError("R"+id.ToString())
 
+    let getTokenConditionalCodeFrom (str:string) =
+        match str.ToUpper() with
+        | "EQ" -> TokCond(EQ) | "NE" -> TokCond(NE) 
+        | "CS" -> TokCond(CS) | "HS" -> TokCond(HS) 
+        | "CC" -> TokCond(CC) | "LO" -> TokCond(LO) 
+        | "MI" -> TokCond(MI) | "PL" -> TokCond(PL) 
+        | "VS" -> TokCond(VS) | "VC" -> TokCond(VC) 
+        | "HI" -> TokCond(HI) | "LS" -> TokCond(LS) 
+        | "GE" -> TokCond(GE) | "LT" -> TokCond(LT) 
+        | "GT" -> TokCond(GT) | "LE" -> TokCond(LE) 
+        | "AL" -> TokCond(AL) | _ -> TokError(str) 
+
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
-    let getTokenInstructionFrom (name:string) =
-        (*UNDER CONSTRUCTION*)
-        match name.ToUpper() with
-        | "ADD" -> TokInstr(ADD)
-        | "ADC" -> TokInstr(ADC)
-        | "MOV" -> TokInstr(MOV)
-        | "MVN" -> TokInstr(MVN)
-        | "ORR" -> TokInstr(ORR)
-        | "AND" -> TokInstr(AND)
-        | "EOR" -> TokInstr(EOR)
-        | "BIC" -> TokInstr(BIC)
-        | "LSL" -> TokInstr(LSL)
-        | "LSR" -> TokInstr(LSR)
-        | _ -> TokLabel(name)
+    let rec getTokenInstructionFrom (str:string) (lst:Token list) =
+        //break down string into list of tokens
+        let patternEnd = "(?=$|S|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)"
+        let Instr i =
+            System.String.Concat [|"("; i; ")"; patternEnd|]
+        match str.ToUpper() with
+        | MatchToken (Instr "ADD") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(ADD)])
+        | MatchToken (Instr "ADC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(ADC)])
+        | MatchToken (Instr "MOV") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(MOV)])
+        | MatchToken (Instr "MVN") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(MVN)])
+        | MatchToken (Instr "ORR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(ORR)])
+        | MatchToken (Instr "AND") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(AND)])
+        | MatchToken (Instr "EOR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(EOR)])
+        | MatchToken (Instr "BIC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(BIC)])
+        | MatchToken (Instr "LSL") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(LSL)])
+        | MatchToken (Instr "LSR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(LSR)])
+        | MatchToken (Instr "S") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokS])
+        | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [getTokenConditionalCodeFrom cond])
+        | "" -> lst
+        | _ -> lst @ [TokLabel(str)]
 
     ///returns a list of tokens from a string input
     let tokenise (input:string) =
@@ -84,7 +114,7 @@ module Tokeniser =
             //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
             //    strToToken (lst @ [TokIdentifier name]) leftovers
             | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
-                strToToken (lst @ [getTokenInstructionFrom name]) leftovers
+                strToToken (lst @ (getTokenInstructionFrom name [])) leftovers
             | MatchToken "," (_, leftovers) ->
                 strToToken (lst @ [TokComma]) leftovers
             | MatchToken "!" (_, leftovers) ->
@@ -244,5 +274,28 @@ module Tokeniser =
         let test5 = ";comment with random chars 354 245 ! [ ] £ # // %$ 65"
         printfn "5. %A\t->\t%A" (test5) (removeComments test5)
 
-        printfn "Using R15 identifier:\t%A" (tokenise "START MOV r15, R15, #3")
-        printfn "Using PC identifier:\t%A" (tokenise "START MOV PC, pC, #3")
+        printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
+        printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
+
+        //test conditional codes (will add robust testing later)
+        printfn "Testing conditional codes..."
+        let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"]
+        let strCond = ["EQ"; "NE"; "CS"; "HS"; "CC"; "LO"; "MI" ; "PL"; "VS"; "VC"; "HI"; "LS"; "GE"; "LT"; "GT"; "LE"; "AL"]
+        let checkTokenListLengthCond () =
+            //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
+            let getRandomItem () =  
+                let rnd = System.Random()  
+                fun (lst : string list) -> List.item (rnd.Next(lst.Length)) lst
+
+            let str1 = String.concat "" ([getRandomItem () strInstr] @ [getRandomItem () strCond])
+            let tokList1 = tokenise str1
+            let str2 = String.concat "" ([(getRandomItem () strInstr); "S"] @ [getRandomItem () strCond])
+            let tokList2 = tokenise str2
+            tokList1.Length = 2 && tokList2.Length = 3
+
+        printfn "%A" (tokenise "MOVS")
+        printfn "%A" (tokenise "MOVEQ")
+        printfn "%A" (tokenise "MOVSEQ")
+        printfn "%A" (tokenise "MOVEQ")
+        printfn "Generating random tests for conditional codes..."
+        Check.Quick(checkTokenListLengthCond())
