@@ -220,6 +220,52 @@ module Instructions =
         let finState = if setFlags then setZero result state2 else state2
 
         (^=) (regD) (result) (finState)
+
+    let subtractWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection))=
+
+        //extracting operand values
+        let regNValue = (^.) regN state
+
+        let op2Value = match shift with
+                       | NoShift -> opVal state op2
+                       | Right x -> int ((uint32 (opVal state op2)) >>> x)
+                       | Left x -> (opVal state op2) <<< x
+        
+        let carryVal = ( ^* ) C state
+
+        //including the value of carry into the first register and producing a new state : (newRegisterValue:Data,newState:MachineState)
+        let newRegVal =
+            match setFlags && includeCarry && carryVal with
+            |true ->  setCarryA (+) regNValue (Data 1) state
+            |false when includeCarry && carryVal -> fst (setCarryA (+) regNValue (Data 1) state), state
+            |false -> (regNValue, state)
+       
+        //updating the state encapsulation
+        let state1 = snd newRegVal
+
+        //Producing result of the operation, along with a state that reflects the change by the carry : (finalResult: Data, newState: MachineState)
+        //Under correct execution, the C flag of state1 should only reflect
+        let finVal = match setFlags && ( ^* ) C state1 with
+                     |true |false when not setFlags -> (fst (setCarryA (+) regNValue op2Value state1)),state1
+                     |false when setFlags -> setCarryA (+) regNValue op2Value state1
+                     | _ -> failwithf "This will never happen"
+
+        //updating the state encapsulation again     
+        let state2 = snd finVal
+
+        let result = fst finVal
+
+        //Obtaining state reflecting signed overflow
+        let state3 = if setFlags then (setOverflow regNValue op2Value state2) else state2
+
+        //Obtaining state reflecting sign of result
+        let state4 = if setFlags then setNegative result state3 else state3
+
+        //Obtaining state reflecting zero status
+        let finState = if setFlags then setZero result state4 else state4
+
+        (^=) (regD) (result) (finState)
+
     
     ////test code for addWithCarry Function
     //let a = MachineState.make()

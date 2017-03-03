@@ -23,9 +23,11 @@ module Common =
     /// Cast Function
     let Data = int
 
+    //Direction for shift in instruction
     type ShiftDirection = 
         |Left of int
-        |Right of int
+        |RightL of int
+        |RightA of int
         |NoShift
 
     /// Register ID D.U
