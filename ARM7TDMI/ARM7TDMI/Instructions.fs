@@ -35,6 +35,7 @@ module Instructions =
         if a < 0 then ( ^- ) N true state else ( ^- ) N false state
 
     //sets Carry flag by representing inputs as uint64 and applying logical operations, returns result in 32-bits
+    // NOTE: This implementation means that subtraction has to be implemented as addition of a negative
     let setCarryA operation a b state =
         let newA = uint64 (uint32 a)
         let newB = uint64 (uint32 b)
@@ -234,28 +235,15 @@ module Instructions =
                        | RightA x -> ((opVal state op2) >>> x)
                        | Left x -> (opVal state op2) <<< x
         
-        let carryVal = match ( ^* ) C state with 
-                       | true -> Data(1)
+        let carryVal = match includeCarry && (( ^* ) C state) with 
+                       | true -> Data(0)
+                       | false when includeCarry -> Data(-1)
                        | false -> Data(0)
 
-        //Applying first part of operation, Rd := Rn - 1 + C - Op2, namely Rn - 1
-        let newRegVal1 =
-            match setFlags && includeCarry with
-            |true ->  setCarryA (+) regNValue (Data -1) state
-            |false when includeCarry -> fst (setCarryA (+) regNValue (Data -1) state), state
-            |false when setFlags -> regNValue, (snd (setCarryA (+) regNValue (Data 0) state)) // clears C flag
-            |false -> (regNValue, state)
-
-        let newResult = fst newRegVal1
-
-        let state0 = snd newRegVal1
-
         let newRegVal2 =
-            match setFlags && includeCarry && (( ^* ) C state0) with
-            |true ->  fst (setCarryA (+) (newResult) (carryVal) state0),state0
-            |false when includeCarry && setFlags -> setCarryA (+) (newResult) (carryVal) state0
-            |false when includeCarry -> ((fst (setCarryA (+) (newResult) (carryVal) state0)), state0)
-            |false -> (newResult, state0)
+            match setFlags with
+            |true ->  (setCarryA (+) (regNValue) (carryVal) state)
+            |false -> ((fst (setCarryA (+) (regNValue) (carryVal) state)), state)
        
         //updating the state encapsulation
         let state1 = snd newRegVal2
@@ -286,7 +274,70 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    
+        //old version of subtract
+    //let subtractWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection)) =
+
+    //    //extracting operand values
+    //    let regNValue = (^.) regN state
+
+    //    let op2Value = match shift with
+    //                   | NoShift -> opVal state op2
+    //                   | RightL x -> int ((uint32 (opVal state op2)) >>> x)
+    //                   | RightA x -> ((opVal state op2) >>> x)
+    //                   | Left x -> (opVal state op2) <<< x
+        
+    //    let carryVal = match includeCarry && ( ^* ) C state with 
+    //                   | true |false when ( ^* ) C state -> Data(0)
+    //                   | false -> Data(-1)
+
+    //    //Applying first part of operation, Rd := Rn - 1 + C - Op2, namely Rn - 1
+    //    let newRegVal1 =
+    //        match setFlags && includeCarry with
+    //        |true ->  setCarryA (+) regNValue (Data -1) state
+    //        |false when includeCarry -> fst (setCarryA (+) regNValue (Data -1) state), state
+    //        |false when setFlags -> regNValue, (snd (setCarryA (+) regNValue (Data 0) state)) // clears C flag
+    //        |false -> (regNValue, state)
+
+    //    let newResult = fst newRegVal1
+
+    //    let state0 = snd newRegVal1
+
+    //    let newRegVal2 =
+    //        match setFlags && includeCarry && (( ^* ) C state0) with
+    //        |true ->  fst (setCarryA (+) (newResult) (carryVal) state0),state0
+    //        |false when includeCarry && setFlags -> setCarryA (+) (newResult) (carryVal) state0
+    //        |false when includeCarry -> ((fst (setCarryA (+) (newResult) (carryVal) state0)), state0)
+    //        |false -> (newResult, state0)
+       
+    //    //updating the state encapsulation
+    //    let state1 = snd newRegVal2
+
+    //    //final result containing information on the carry
+    //    let regCarryVal = fst newRegVal2
+
+    //    //Producing result of the operation, along with a state that reflects the change by the carry : (finalResult: Data, newState: MachineState)
+    //    //Under correct execution, the C flag of state1 should only reflect
+    //    let finVal = match setFlags && ( ^* ) C state1 with
+    //                 |true -> if includeCarry then (fst (setCarryA (+) regCarryVal (-1*op2Value) state1)),state1 else (setCarryA (-) regCarryVal (-1*op2Value) state1)
+    //                 |false when setFlags -> setCarryA (+) regCarryVal (-1*op2Value) state1
+    //                 |false -> (fst (setCarryA (+) regCarryVal (-1*op2Value) state1)),state1
+
+    //    //updating the state encapsulation again     
+    //    let state2 = snd finVal
+
+    //    let result = fst finVal
+
+    //    //Obtaining state reflecting signed overflow
+    //    let state3 = if setFlags then (setOverflow regNValue op2Value state2) else state2
+
+    //    //Obtaining state reflecting sign of result
+    //    let state4 = if setFlags then setNegative result state3 else state3
+
+    //    //Obtaining state reflecting zero status
+    //    let finState = if setFlags then setZero result state4 else state4
+
+    //    (^=) (regD) (result) (finState)
+           
     ////test code for addWithCarry Function
     //let a = MachineState.make()
     //let b = mov (R0, Literal(-1073741824), a, true, NoShift)
@@ -359,15 +410,15 @@ module Instructions =
 
     //test code for subtractWithCarry Function
     let a = MachineState.make()
-    let b = mov (R0, Literal(-1073741824), a, true, NoShift)
+    let b = mov (R0, Literal(0), a, true, Left 1)
     let c = (^=) R1 5 b
     let d = ( ^- ) C false c
     let e = ( ^- ) V false d
     let f = ( ^- ) N false e
     let g = ( ^- ) Z false f
-    let h = subtractWithCarryS (R3,R1,Literal 1,g, false, true,NoShift)
+    let z = mov (R0, Literal(-1), g, true, Left 1)
+    let h = subtractWithCarryS (R3,R1,ID R0,z, true, true,RightL 2)
     let i = subtractWithCarryS (R2,R4,ID(R1),h, false, true,NoShift)
-    printfn "%A" b
-    printfn "%A" c
+    printfn "%A" z
     printfn "%A" h
     printfn "%A" i
