@@ -27,9 +27,9 @@ Decomposition
 - [x] Write basic tokeniser
 - [ ] Error Handling Framework - "Printing" Monad
 - [ ] Memory Implementation
-- [ ] `MachineState` Testing
-- [ ] Basic Codemirror UI
+- [x] `MachineState` Testing
+- [x] Basic UI
 - [ ] Write basic parser
 - [ ] Write basic AST
-- [ ] Connect all basic modules together
-- [ ] Write flag-setting function
+- [x] Connect all basic modules together
+- [x] Write flag-setting function
