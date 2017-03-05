@@ -25,16 +25,17 @@ module Common =
 
     //Direction for shift in instruction
     type ShiftDirection = 
-        |Left of int
-        |RightL of int
-        |RightA of int
-        |NoShift
+        | Left of int
+        | RightL of int
+        | RightA of int
+        | NoShift
 
     /// Register ID D.U
     type RegisterID =
-        | R0 | R1 | R2 | R3 | R4
-        | R5 | R6 | R7 | R8 | R9
-        | R10 | R11 | R12 | R13 | R14 | R15
+        | R0  | R1  | R2  | R3  | R4
+        | R5  | R6  | R7  | R8  | R9
+        | R10 | R11 | R12 | R13 | R14
+        | R15
 
     /// Registers Type Abbreviation
     type Registers = Map<RegisterID, Data>

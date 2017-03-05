@@ -55,7 +55,7 @@ module Tokeniser =
         | "HI" -> TokCond(HI) | "LS" -> TokCond(LS) 
         | "GE" -> TokCond(GE) | "LT" -> TokCond(LT) 
         | "GT" -> TokCond(GT) | "LE" -> TokCond(LE) 
-        | "AL" -> TokCond(AL) | _ -> TokError(str) 
+        | "AL" -> TokCond(AL) |  _ -> TokError(str) 
 
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
     let rec getTokenInstructionFrom (str:string) (lst:Token list) =

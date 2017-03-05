@@ -9,6 +9,7 @@
     Module: Parser
     Description: Parse individual instruction and initiate correct function call
 *)
+
 open System
 //open Instructions
 //open Common
