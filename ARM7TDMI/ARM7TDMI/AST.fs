@@ -21,7 +21,7 @@ module AST =
     let ( ^* ) = Optics.get MachineState.Flag_
     let ( ^- ) = Optics.set MachineState.Flag_
 
-    ///different parameters based on instruction functions
+    ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32)
     type Parameters =
         | ParametersAdd of (RegisterID * RegisterID * Operand * bool * bool * ShiftDirection)            //(regD, regN, op2, includeCarry, setFlags, ShiftDirection)
         | ParametersSub of (RegisterID * RegisterID * Operand * bool * bool * bool * ShiftDirection)     //(regD, regN, op2, includeCarry, reverse, setFlags, ShiftDirection)
@@ -32,40 +32,40 @@ module AST =
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Replace int with MemoryLocation when Memory is done.
 
-    ///type used for specifying a conditional code. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
+    ///type used for specifying a conditional code of the form, FlagID = bool. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
     type Condition = FlagID * bool
 
     ///type representing the possible nodes in the AST
-    type InstructionNode = InstructionKeyword * Parameters * (Condition option) * Address
+    type Node = InstructionKeyword * Parameters * (Condition option) * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>
 
     ///type representing the AST (just a list of nodes as well as the map for the label mappings)
-    type AST = (InstructionNode list) * LabelMap
+    type AST = (Node list) * LabelMap
 
     ////Build the AST in the parser using these functions////
 
-    ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
-    ///usage: addInstructionNode ast addWithCarryS Parameters4(R1, R2, op2, MachineState, false, true) [-current address int value-]
-    let inline addInstructionNode (ast:AST) (f:InstructionKeyword) (p:Parameters) (c:Condition option) (addr:Address) =
+    ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
+    ///usage: addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) [-current address int value-]
+    let addInstruction (ast:AST) (f:InstructionKeyword) (p:Parameters) (c:Condition option) (addr:Address) =
         match ast with
         | lst, labelMap -> (lst @ [(f, p, c, addr)], labelMap)
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
     ///usage: addLabelNode ast LABEL1 [-current address int value-]
-    let inline addLabelNode (ast:AST) (name:string) (addr:Address) =
+    let addLabel (ast:AST) (name:string) (addr:Address) =
         match ast with
         | lst, labelMap -> (lst, labelMap.Add (name, addr))
 
     ///evaluates a condtion of type Condition and returns true or false
-    let evaluateCondition (cond:Condition option) (state:MachineState) =
+    let private evaluateCondition (cond:Condition option) (state:MachineState) =
         match cond with
         | Some(fID, eq) ->
             ( ^* ) fID state = eq
         | None -> true
-        | _ -> failwithf "invalid condition"
 
+    ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let rec reduce (ast:AST) (state:MachineState) =
         match ast with
         | (f, p, cond, addr)::t, lst ->
@@ -78,24 +78,26 @@ module AST =
             else
                 reduce (t,lst) state
         | [], lst -> state
-        | _ -> failwithf "Not a valid node"
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
     let testAST =
         printfn "Running testAST:"
         let emptyState = MachineState.make()
-        printfn "empty machine state: %A" emptyState
+        printfn "empty machine state:\n%A\n" emptyState
         let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstructionNode myAst1 (MOV) (Parameters1RegShift(R1, Literal(0), true, NoShift)) (None) 2
-        let  myAst3 = addInstructionNode myAst2 (MOV) (Parameters1RegShift(R2, Literal(342), false, NoShift)) (Some(Z, true)) 4
-        printfn "ast is: %A" myAst3
-        let resultState2 = reduce myAst3 emptyState
-        printfn "new test state is %A" resultState2
+        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1RegShift(R2, Literal(0), true, NoShift)) (None) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1RegShift(R3, Literal(342), false, NoShift)) (Some(Z, false)) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Literal(999), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
+        printfn "ast is:\n%A\n" myAst5
+        printfn "Reducing AST..."
+        let resultState2 = reduce myAst5 emptyState
+        printfn "final result state for this ast is:\n%A\n" resultState2
         printfn "Finished testAST.\n"
 
     (*------------------------------------------------------------------------------------------------------------------------*)
-    //IGNORE BELOW: if there's anything here, it should be removed
+    //IGNORE ANYTHING BELOW HERE
     (*
 
 

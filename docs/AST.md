@@ -4,16 +4,17 @@
 
 * type Parameters = D.U of tuples for paramters
 * type Address = int
-* type Node = DU of InstructionNode | LabelNode | NullNode
+* type Condition = FlagID * bool
+* type Node = InstructionKeyword * Parameters * (Condition option) * Address
 * type LabelMap = Map<string, Address>
 * type AST = (Node list) * LabelMap
 
 ---
 ## Functions
 
-* function inline addInstructionNode: AST -> InstructionKeyword -> Parameters -> Address) -> AST : adds an instruction node to the AST
-* function inline addLabelNode: AST -> string -> Address -> AST : adds a label node to the AST
-* function reduce: AST -> machineState -> MachineState : executes the AST
+* function addInstruction: AST -> InstructionKeyword -> Parameters -> Condition option -> Address -> AST : adds an instruction node to the AST
+* function addLabel: AST -> string -> Address -> AST : adds a label to the AST  with the specified address
+* function reduce: AST -> MachineState -> MachineState : executes instructions in an AST and returns the final MachineState
 ---
 ## Dependencies
 
