@@ -18,14 +18,14 @@ module Tokeniser =
     open FsCheck
 
     ///returns the first matched group of a regex and the leftovers from the input
-    let (|MatchToken|_|) pattern input =
+    let private (|MatchToken|_|) pattern input =
         let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
         if (m.Success)
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
     ///remove comments from an input string
-    let rec removeComments (input:string) =
+    let rec private removeComments (input:string) =
         let newInput = (new Regex(";[\s\s0-9\w\W]*\n")).Replace(input, "\n", 1)
         let newInput2 = (new Regex(";[\s\s0-9\w\W]*$")).Replace(newInput, "", 1)
         if newInput2 = input then newInput2
@@ -33,7 +33,7 @@ module Tokeniser =
 
 
     ///turns an integer into a TokReg token (feel free to change this mess of code)
-    let getTokenRegisterFromID (id:int) = 
+    let private getTokenRegisterFromID (id:int) = 
         match id with
         | 0 -> TokReg(R0)   | 1 -> TokReg(R1)
         | 2 -> TokReg(R2)   | 3 -> TokReg(R3)
@@ -45,7 +45,7 @@ module Tokeniser =
         | 14 -> TokReg(R14) | 15 -> TokReg(R15)
         | _ -> TokError("R"+id.ToString())
 
-    let getTokenConditionalCodeFrom (str:string) =
+    let private getTokenConditionalCodeFrom (str:string) =
         match str.ToUpper() with
         | "EQ" -> TokCond(EQ) | "NE" -> TokCond(NE) 
         | "CS" -> TokCond(CS) | "HS" -> TokCond(HS) 
@@ -58,7 +58,7 @@ module Tokeniser =
         | "AL" -> TokCond(AL) |  _ -> TokError(str) 
 
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
-    let rec getTokenInstructionFrom (str:string) (lst:Token list) =
+    let rec private getTokenInstructionFrom (str:string) (lst:Token list) =
         //break down string into list of tokens
         let patternEnd = "(?=$|S|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)"
         let Instr i =
@@ -144,6 +144,8 @@ module Tokeniser =
 
     ///prints the results for the tokenise function against a set of good, bad and random inputs
     let tokeniseTest =
+        printfn "Running tokeniseTest:"
+
         ///list of correct syntax
         let goodTests = [|  "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
@@ -167,36 +169,6 @@ module Tokeniser =
                             "MOV r1, #ab0c45";
                             "MOV R1, #0xFFFF00004"
                         |]
-
-        ///test for good syntax
-        (*let rec tryGoodTests testList count = 
-            if count < (Array.length testList) then
-                try     
-                    tokenise testList.[count] |> ignore
-                    tryGoodTests testList (count+1)
-                with
-                    | Failure msg ->
-                        printfn "%A" msg
-                        printfn "Test %A is bad input, expected good input" count
-                        count
-            else
-                count
-        
-        ///test for bad syntax
-        let rec tryBadTests testList count = 
-            if count < (Array.length testList) then
-                try     
-                    tokenise testList.[count] |> ignore
-                    //if exception is not raised by tokenise due to bad input:
-                    printfn "Test %A is good input, expected bad input" count
-                    count
-                with
-                    //if exception is raised, test is passed
-                    | Failure msg ->
-                        tryBadTests testList (count+1)
-            else
-                count
-        *)
 
         let rec tryGoodTests testList count = 
             if count < (Array.length testList) then  
@@ -299,3 +271,4 @@ module Tokeniser =
         printfn "%A" (tokenise "MOVEQ")
         printfn "Generating random tests for conditional codes..."
         Check.Quick(checkTokenListLengthCond())
+        printfn "Finished tokeniseTest\n"
