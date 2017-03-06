@@ -15,6 +15,12 @@ module AST =
     open MachineState
     open Instructions
 
+    // shortcuts
+    let ( ^. ) = Optics.get MachineState.Register_
+    let ( ^= ) = Optics.set MachineState.Register_
+    let ( ^* ) = Optics.get MachineState.Flag_
+    let ( ^- ) = Optics.set MachineState.Flag_
+
     ///different parameters based on instruction functions
     type Parameters =
         | ParametersAdd of (RegisterID * RegisterID * Operand * MachineState * bool * bool * ShiftDirection)            //(regD, regN, op2, state, includeCarry, setFlags, ShiftDirection)
@@ -26,11 +32,11 @@ module AST =
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Replace int with MemoryLocation when Memory is done.
 
+    type Condition = bool
+
     ///type representing the possible nodes in the AST
     type Node =
-        | InstructionNode of InstructionKeyword * Parameters * Address
-        | LabelNode of string * Address 
-        | NullNode
+        | InstructionNode of InstructionKeyword * Parameters * Condition * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>
@@ -42,9 +48,9 @@ module AST =
 
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
     ///usage: addInstructionNode ast addWithCarryS Parameters4(R1, R2, op2, MachineState, false, true) [-current address int value-]
-    let inline addInstructionNode (ast:AST) (f) (p) (addr:Address) =
+    let inline addInstructionNode (ast:AST) (f:InstructionKeyword) (p:Parameters) (c:Condition) (addr:Address) =
         match ast with
-        | lst, labelMap -> (lst @ [InstructionNode(f, p, addr)], labelMap)
+        | lst, labelMap -> (lst @ [InstructionNode(f, p, c, addr)], labelMap)
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
     ///usage: addLabelNode ast LABEL1 [-current address int value-]
@@ -55,13 +61,15 @@ module AST =
 
     let rec reduce (ast:AST) (state:MachineState) =
         match ast with
-        | InstructionNode(f, p, addr)::t, lst ->
-            match f, p with
-            | MOV, Parameters1RegShift(p) ->
-                let newState = Instructions.mov p
-                reduce (t,lst) newState
-            | _ -> failwithf "Could not execute instruction"
-        | NullNode::t, lst -> reduce (t, lst) state
+        | InstructionNode(f, p, cond, addr)::t, lst ->
+            if cond then
+                match f, p with
+                | MOV, Parameters1RegShift(p) ->
+                    let newState = Instructions.mov p
+                    reduce (t,lst) newState
+                | _ -> failwithf "Could not execute instruction"
+            else
+                reduce (t,lst) state
         | [], lst -> state
         | _ -> failwithf "Not a valid node"
 
@@ -71,11 +79,11 @@ module AST =
         let testState = MachineState.make()
         printfn "empty machine state: %A" testState
         let ast = ([], Map.empty<string, Address>)
-        let  myAst = addInstructionNode ast (MOV) (Parameters1RegShift(R1, Literal(13), testState, false, NoShift)) 4
+        let  myAst = addInstructionNode ast (MOV) (Parameters1RegShift(R1, Literal(13), testState, false, NoShift)) (true) 4
         //printfn "ast is: %A" myAst
         let result = reduce myAst testState
         //printfn "new test state is %A" result
-        let  myAst2 = addInstructionNode myAst (MOV) (Parameters1RegShift(R2, Literal(342), result, false, NoShift)) 4
+        let  myAst2 = addInstructionNode myAst (MOV) (Parameters1RegShift(R2, Literal(342), result, false, NoShift)) (( ^. ) R1 result = 13) 4
         printfn "ast is: %A" myAst2
         let result2 = reduce myAst2 testState
         printfn "new test state is %A" result2

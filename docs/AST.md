@@ -18,4 +18,5 @@
 ## Dependencies
 
 Common.fs
+MachineState.fs
 Instructions.fs
