@@ -5,12 +5,12 @@ module Program =
     open MachineState
     open Instructions
     open Tokeniser
+    open AST
 
     [<EntryPoint>]
     let main argv =
-        printfn "Running tokeniseTest:"
-        Tokeniser.tokeniseTest
-        printfn "Finished tokeniseTest"
+        //Tokeniser.tokeniseTest
+        AST.testAST
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x

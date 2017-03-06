@@ -5,11 +5,11 @@ Decomposition
 
 * Program [ ] - 
 * Assembler [ ] - _Youssef & Baron_
-    * Tokenizer [ ] - _Baron & Pranav_
-    * Parser [ ] - _Baron & Pranav_
-    * AST [ ] - 
-* Emulator [ ] - _Angelos & Youssef & Baron_
-    * Arithmetic Instructions [ ] - 
+    * Tokenizer [ ] - _Baron_
+    * Parser [ ] - _Pranav_
+    * AST [ ] - _Baron_
+* Emulator [ ] - _Angelos & Youssef & Baron & Pranav_
+    * Arithmetic Instructions [ ] - _Youssef_
     * Load/Store Instructions [ ] -
     * Branch Instructions [ ] - 
     * Other Instructions [ ] - 
@@ -27,9 +27,9 @@ Decomposition
 - [x] Write basic tokeniser
 - [ ] Error Handling Framework - "Printing" Monad
 - [ ] Memory Implementation
-- [ ] `MachineState` Testing
-- [ ] Basic Codemirror UI
+- [x] `MachineState` Testing
+- [x] Basic UI
 - [ ] Write basic parser
 - [ ] Write basic AST
 - [ ] Connect all basic modules together
-- [ ] Write flag-setting function
+- [x] Write flag-setting function

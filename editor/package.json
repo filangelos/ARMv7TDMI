@@ -1,0 +1,35 @@
+{
+  "name": "ARM7TDMI",
+  "version": "1.0.0",
+  "description": "ARMv7 Editor ",
+  "main": "./dist/umd/Main.js",
+  "repository": "https://github.com/filangel/HLP",
+  "author": "filangel",
+  "devDependencies": {
+    "babel-polyfill": "^6.22.0",
+    "babel-preset-env": "^1.1.8",
+    "fable-compiler": "^0.7.7",
+    "fable-core": "^0.7.6",
+    "fable-plugins-nunit": "^0.7.1",
+    "fable-powerpack": "^0.0.19",
+    "mocha": "^3.1.2"
+  },
+  "scripts": {
+    "prepublish": "yarn run build",
+    "build": "env BABEL_ENV=build fable --target umd",
+    "watch": "env BABEL_ENV=build fable --target umd --watch",
+    "test": "env BABEL_ENV=test fable --target test",
+    "start": "electron ElectronMain.js"
+  },
+  "dependencies": {
+    "dialog": "^0.2.0",
+    "electron-connect": "^0.6.1",
+    "electron-default-menu": "^1.0.0",
+    "fable-import-electron": "^0.0.6",
+    "fs": "^0.0.1-security",
+    "monaco-editor": "^0.8.2",
+    "remote": "^0.2.6",
+    "require": "^2.4.20"
+  },
+  "license": "MIT"
+}
