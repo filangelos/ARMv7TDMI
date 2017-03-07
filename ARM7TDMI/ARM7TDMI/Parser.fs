@@ -13,6 +13,7 @@
 open System
 //open Instructions
 //open Common
+open AST
 
 module Parser =
     let pchar(cToMatch,str) =
@@ -66,3 +67,48 @@ module Parser =
     let parseAndReturn (tokenList: Token List) = 
         tokenList |> instructionParse
         *)
+
+
+
+    (*IGNORE BELOW - temporary implementation for pipeline*)
+
+    //http://stackoverflow.com/questions/2071056/splitting-a-list-into-list-of-lists-based-on-predicate
+    ///divides a list L into chunks for which all elements match pred
+    let divide pred L =
+        let rec aux buf acc L =
+            match L,buf with
+            //no more input and an empty buffer -> return acc
+            | [],[] -> List.rev acc 
+            //no more input and a non-empty buffer -> return acc + rest of buffer
+            | [],buf -> List.rev (List.rev buf :: acc) 
+            //found something that matches pred: put it in the buffer and go to next in list
+            | h::t,buf when pred h -> aux (h::buf) acc t
+            //found something that doesn't match pred. Continue but don't add an empty buffer to acc
+            | h::t,[] -> aux [] acc t
+            //found input that doesn't match pred. Add buffer to acc and continue with an empty buffer
+            | h::t,buf -> aux [] (List.rev buf :: acc) t
+        aux [] [] L
+
+    let parse (lst:Token list) (ast:AST) =
+        let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
+        printfn "%A" splitLst
+        let rec parse1 (lst: Token list list) (ast:AST) =
+            match lst with
+            | line::t ->
+                match line with
+                | [TokInstr(instr); TokReg(rd); TokComma; TokConst(v)] ->
+                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, Literal(v), false, NoShift)) (None) 2)
+                | [TokInstr(instr); TokReg(rd); TokComma; TokReg(rn)] ->
+                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, ID(rn), false, NoShift)) (None) 2)
+                | _ -> failwithf "error"
+            | [] -> ast
+
+        let myAst = parse1 splitLst ast
+        printfn "ast built:\n%A" myAst
+
+
+    let testParse =
+        printfn "\nRunning testParse:\n"
+        let myAst1 = ([], Map.empty<string, Address>)
+        parse [TokInstr(MOV); TokReg(R1); TokComma; TokConst(12); TokNewLine] myAst1
+        printfn "\nFinished testParse.\n"

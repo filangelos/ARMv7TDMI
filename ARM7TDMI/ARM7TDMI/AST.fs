@@ -124,7 +124,8 @@ module AST =
     //IGNORE ANYTHING BELOW HERE
     (*
 
-
+    let parse (lst:Token list) =
+        let tokenLst = 
 
 
 
