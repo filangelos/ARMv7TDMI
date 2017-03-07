@@ -6,11 +6,13 @@ module Program =
     open Instructions
     open Tokeniser
     open AST
+    open Parser
 
     [<EntryPoint>]
     let main argv =
-        //Tokeniser.tokeniseTest
+        Tokeniser.testTokeniser
         AST.testAST
+        Parser.testParse
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x

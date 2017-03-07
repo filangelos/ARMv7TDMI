@@ -6,7 +6,7 @@
 ## Functions
 
 * function tokenise: string -> Token list
-* function tokeniseTest: unit
+* function testTokeniser: unit
 ---
 ## Dependencies
 

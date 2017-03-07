@@ -143,7 +143,7 @@ module Tokeniser =
 (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
     ///prints the results for the tokenise function against a set of good, bad and random inputs
-    let tokeniseTest =
+    let testTokeniser =
         printfn "Running tokeniseTest:"
 
         ///list of correct syntax
