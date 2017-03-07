@@ -92,8 +92,8 @@ module AST =
                     | (f, p, cond, addr) -> 
                         if evaluateCondition cond state then
                             match f, p with
-                            | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
-                                let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
+                            | MOV, Parameters1Reg((regD, op2, setFlags)) ->
+                                let newState = Instructions.mov (regD, op2, state, setFlags)
                                 reduce ast newState (pc+1) maxPC
                             | _ -> failwithf "Could not execute node: %A" currentNode
                         else
@@ -110,10 +110,10 @@ module AST =
         let emptyState = MachineState.make()
         printfn "empty machine state:\n%A\n" emptyState
         let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1RegShift(R2, Literal(0), true, NoShift)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1RegShift(R3, Literal(342), false, NoShift)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Literal(999), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
+        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Operand(Literal(13),NoShift), false, NoShift)) (None) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1RegShift(R2, Operand(Literal(0),NoShift), true, NoShift)) (None) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1RegShift(R3, Operand(Literal(342),NoShift), false, NoShift)) (Some(Z, false)) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Operand(Literal(999), Left(1)), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
         printfn "ast is:\n%A\n" myAst5
         printfn "Reducing AST..."
         let resultState2 = reduce myAst5 emptyState 0 10
