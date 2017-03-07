@@ -9,22 +9,12 @@
     Module: Parser
     Description: Parse individual instruction and initiate correct function call
 *)
-<<<<<<< HEAD
-=======
-
-open System
-//open Instructions
-//open Common
-<<<<<<< HEAD
->>>>>>> a77e12d18eecd1bd7efd3ee99970408f8df9f5e1
-=======
-open AST
-open Tokeniser
->>>>>>> 59d60e4d29d1181e020064eadb3b93b10fed5356
 
 module Parser =
 
     open System
+    open AST
+    open Tokeniser
     open Instructions
     open Common
 
@@ -32,45 +22,9 @@ module Parser =
         | Twoflags of bool*bool 
         | Oneflag of bool
 
-<<<<<<< HEAD
     type Expr = 
         | Instruction of string*RegisterID*RegisterID*Operand*FlagSet
         
-=======
-  //  let (|AND|_|) rd rn op2 =
-
-  //  let (|ANDS|_|) rd rn op2 =
-
- //   let (|ADD|_|) rd rn op2 =
-    
-
- (*  let instructionParse str  :Instructions = 
-        match str with
-        | ADD rd rn op2  -> addWithCarryS rd rn op2 MachineState false false
-        | ADDC rd rn op2  -> addWithCarryS rd rn op2 MachineState true false
-        | ADDS rd rn op2  -> addWithCarryS rd rn op2 MachineState false true
-        | ADDCS rd rn op2  -> addWithCarryS rd rn op2 MachineState true true
-        | AND rd rn op2  -> andOp rd rn op2 MachineState false
-        | ANDS rd rn op2  -> andOp rd rn op2 MachineState true
-        | MOV rd op2 -> mov rd op2 MachineState false
-        | MOVS rd op2 -> mov rd op2 MachineState true
-        | MVN rd op2 -> mvn rd op2 MachineState false
-        | MVNS rd op2 -> mvn rd op2 MachineState true
-        | OR rd rn op2 -> orr rd rn op2 MachineState false
-        | ORS rd rn op2 -> orr rd rn  op2 MachineState true
-        | XOR rd op2 -> eOr rd rn op2 MachineState false
-        | XORS rd op2 -> eOr rd rn op2 MachineState true
-        | OR rd rn op2 -> orr rd rn op2 MachineState false
-        | ORS rd rn op2 -> orr rd rn op2 MachineState true
-        | BIC rd rn op2 -> orr rd rn op2 MachineState false
-        | BICS rd rn op2 -> orr rd rn op2 MachineState true\
-
-    let parseAndReturn (tokenList: Token List) = 
-        tokenList |> instructionParse
-        *)
-
-
-
     (*IGNORE BELOW - temporary implementation for pipeline*)
 
     //http://stackoverflow.com/questions/2071056/splitting-a-list-into-list-of-lists-based-on-predicate
@@ -90,31 +44,118 @@ module Parser =
             | h::t,buf -> aux [] (List.rev buf :: acc) t
         aux [] [] L
 
-    let parse (lst:Token list) (ast:AST) =
-        let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
-        printfn "%A" splitLst
-        let rec parse1 (lst: Token list list) (ast:AST) addr =
-            match lst with
-            | line::t ->
-                match line with
-                | [TokInstr(instr); TokReg(rd); TokComma; TokConst(v)] ->
-                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, Literal(v), false, NoShift)) (None) addr) (addr+2)
-                | [TokInstr(instr); TokReg(rd); TokComma; TokReg(rn)] ->
-                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, ID(rn), false, NoShift)) (None) addr) (addr+2)
-                | _ -> failwithf "error"
-            | [] -> ast
 
-        let myAst = parse1 splitLst ast 0
-        printfn "ast built:\n%A" myAst
-        myAst
+//    let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
+
+/// Type that represents Success/Failure in parsing
+    type Result<'a> =
+        | Success of 'a
+        | Failure of string 
+
+/// Type that wraps a parsing function
+    type Parser<'T> = Parser of (Token List -> Result<'T * Token List>)
+
+/// Parse the Instruction Keyword
+    let pToken tokenToMatch = 
+        // define a nested inner function
+        let innerFn (tokenLst: Token List) =
+            match tokenLst with 
+                | [] -> Failure "Token List Parsed"
+                | h::tl -> 
+                    let token = h
+                    if token = tokenToMatch then
+                        let remaining = tl
+                        Success (tokenToMatch,remaining)
+                    else
+                        let msg = sprintf "Expecting '%A'. Got '%A'" tokenToMatch token
+                        Failure msg
+        // return the "wrapped" inner function
+        Parser innerFn 
+
+    /// Run a parser with some input
+    let run parser input = 
+        // unwrap parser to get inner function
+        let (Parser innerFn) = parser 
+        // call inner function with input
+        innerFn input
+
+    /// Combine two parsers after each other (to achieve parser pipeline)
+    let ( >>> ) parser1 parser2 =
+        let innerFn input =
+            // run parser1 with the input
+            let result1 = run parser1 input
+            
+            // test the result for Failure/Success
+            match result1 with
+            | Failure err -> 
+                // return error from parser1
+                Failure err  
+
+            | Success (value1,remaining1) -> 
+                // run parser2 with the remaining input
+                let result2 =  run parser2 remaining1
+                
+                // test the result for Failure/Success
+                match result2 with 
+                | Failure err ->
+                    // return error from parser2 
+                    Failure err 
+                
+                | Success (value2,remaining2) -> 
+                    // combine both values as a pair
+                    let newValue = (value1,value2)
+                    // return remaining input after parser2
+                    Success (newValue,remaining2)
+
+        // return the inner function
+        Parser innerFn 
+
+    /// Combine two parsers as "A orElse B"
+    let ( <|> ) parser1 parser2 =
+        let innerFn input =
+            // run parser1 with the input
+            let result1 = run parser1 input
+
+            // test the result for Failure/Success
+            match result1 with
+            | Success result -> 
+                // if success, return the original result
+                result1
+
+            | Failure err -> 
+                // if failed, run parser2 with the input
+                let result2 = run parser2 input
+
+                // return parser2's result
+                result2 
+
+        // return the inner function
+        Parser innerFn 
+
+    /// Choose any of a list of parsers
+    let choice listOfParsers = 
+        List.reduce ( <|> ) listOfParsers 
+
+    /// Choose any of a list of characters
+    
+
+    //////////////////Testing//////////////
+    let failList = [ORR; AND; EOR; BIC; LSL; LSR]
+    let testInstrList = [TokInstr(ADD); TokInstr(ADC); TokInstr(MOV); TokInstr(MVN)]
+    let testRegList = [TokReg(R0); TokReg(R1)]
+
+    let testTokenList = [TokInstr(ADD); TokReg(R0); TokReg(R1)]
+
+    let parseGroup =
+        let anyOf listOftokens = 
+            listOftokens
+            |> List.map pToken // convert into parsers
+            |> choice
+        anyOf 
+    
+    let parseEverything =
+        (parseGroup testInstrList) >>> (parseGroup testRegList) >>> (parseGroup testRegList)
+
+    printf "%A" (run parseEverything testTokenList)
 
 
-    let testParse =
-        printfn "\nRunning testParse:\n"
-        let myAst1 = ([], Map.empty<string, Address>)
-        let tokens = tokenise "MOV r1, #12 \n MOV r2, r1"
-        let myAst2 = parse tokens myAst1
-        let result = reduce myAst2 (MachineState.make()) 0 10
-        printfn "final result is %A" result
-        printfn "\nFinished testParse.\n"
->>>>>>> 59d60e4d29d1181e020064eadb3b93b10fed5356
