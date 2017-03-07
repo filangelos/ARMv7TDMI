@@ -141,10 +141,10 @@ module Parser =
 
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
 
-    let tokenOpList = enumerator<Operand> |> Array.map TokOperand |> Array.toList
+    let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
 
     let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
-    
+
     let parseGroup =
         let anyOf listOftokens = 
             listOftokens
@@ -152,8 +152,7 @@ module Parser =
             |> choice
         anyOf 
     let parseEverything =
-        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma >>> (
-           (parseGroup tokenRegList >>> pToken TokComma >>> parseGroup tokenInstrList) <|>  (parseGroup tokenInstrList)
-        ) 
-
+        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma >>> 
+           (parseGroup tokenRegList >>> pToken TokComma >>> parseGroup tokenInstrList) 
+           
     printf "%A" (run parseEverything testTokenList)
