@@ -138,20 +138,16 @@ module Parser =
 
     //////////////////Testing//////////////
     let tokenInstrList = enumerator<InstructionKeyword> |> Array.map (fun x -> TokInstr(x)) |> Array.toList
-    let tokenRegList = enumerator<RegisterID> |> Array.map (fun x -> TokReg(x)) |> Array.toList
+    let tokenRegList = enumerator<RegisterID> |> Array.map (fun x -> TokOperand(ID(x))) |> Array.toList
 
    // let tokenOpList = enumerator<Operand> |> Array.map (fun x -> Token(x)) |> Array.toList
-
-    let testTokenList = [TokInstr(ADD); TokReg(R0); TokReg(R1)]
-
+    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
     let parseGroup =
         let anyOf listOftokens = 
             listOftokens
             |> List.map pToken // convert into parsers
             |> choice
         anyOf 
-    
-    
     let parseEverything =
         parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma >>> (
            (parseGroup tokenRegList >>> pToken TokComma >>> parseGroup tokenInstrList) <|>  (parseGroup tokenInstrList)
