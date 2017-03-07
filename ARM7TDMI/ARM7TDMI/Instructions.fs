@@ -45,8 +45,9 @@ module Instructions =
     let setCarryL state a =
         (int (a &&& 4294967295uL),( ^- ) C ((a &&& (1uL <<< 32)) > 0uL) state)
 
-    let setCarryS a b state =
-        ((a + b),( ^- ) C ((abs b) > (abs a)) state)
+    let setCarryRShift state a b =
+        (a,( ^- ) C ((uint32 (b &&& (1 <<< 31))) > 0u) state)
+
 
     let opVal state (x: Operand) =  match x with
                                     | ID(register) -> (^.) register state
@@ -127,11 +128,21 @@ module Instructions =
         (^=) (regD) (op2Value) (finState)
 
     let mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
+        let op2Value1 = match shift with
+                        | NoShift when setFlags -> setCarryRShift state (opVal state op2) 0
+                        | RightL x when setFlags -> setCarryRShift state (int (uint32 (opVal state op2) >>> x)) ((opVal state op2) <<< (32 - x)) 
+                        | RightA x when setFlags -> setCarryRShift state ((opVal state op2) >>> x) ((opVal state op2) <<< (32 - x)) 
+                        | Left x when setFlags -> (uint64(uint32(opVal state op2)) <<< x) |> setCarryL state
+                        | NoShift -> (opVal state op2), state
+                        | RightL x -> int ((uint32 (opVal state op2)) >>> x), state
+                        | RightA x -> ((opVal state op2) >>> x), state
+                        | Left x -> ((opVal state op2) <<< x), state
 
-        let op2Value = ~~~ (opVal state op2)
+        let op2Value = ~~~ (fst op2Value1)
+        let state0 = snd op2Value1
         
         //Obtaining state reflecting sign of result
-        let state1 = if setFlags then setNegative op2Value state else state
+        let state1 = if setFlags then setNegative op2Value state0 else state0
 
         //Obtaining state reflecting zero status
         let finState = if setFlags then setZero op2Value state1 else state1
@@ -143,7 +154,11 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = opVal state op2
+        let op2Value = match shift with
+                       | NoShift -> opVal state op2
+                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
+                       | RightA x -> ((opVal state op2) >>> x)
+                       | Left x -> (opVal state op2) <<< x
 
         //performing ORR instruction
         let result = regNValue ||| op2Value
@@ -161,7 +176,11 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = opVal state op2
+        let op2Value = match shift with
+                       | NoShift -> opVal state op2
+                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
+                       | RightA x -> ((opVal state op2) >>> x)
+                       | Left x -> (opVal state op2) <<< x
 
         //Performing AND Instruction
         let result = regNValue &&& op2Value
@@ -178,7 +197,11 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = opVal state op2
+        let op2Value = match shift with
+                       | NoShift -> opVal state op2
+                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
+                       | RightA x -> ((opVal state op2) >>> x)
+                       | Left x -> (opVal state op2) <<< x
 
         //Performing EOR Instruction
         let result = regNValue ^^^ op2Value
@@ -195,7 +218,11 @@ module Instructions =
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = opVal state op2
+        let op2Value = match shift with
+                       | NoShift -> opVal state op2
+                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
+                       | RightA x -> ((opVal state op2) >>> x)
+                       | Left x -> (opVal state op2) <<< x
 
         printfn "%A" (~~~op2Value)
         //Performing BIC Instruction
@@ -242,7 +269,8 @@ module Instructions =
       
       let newRegVal =
           match setFlags && includeCarry && ( ^* ) C state with
-          |true |false when setFlags && not includeCarry ->  setCarryA (+) regNValue (Data 1) state
+          |true ->  setCarryA (+) regNValue (Data 1) state
+          |false when setFlags && not includeCarry ->  setCarryA (+) regNValue (Data 1) state
           |false when not setFlags && includeCarry && not (( ^* ) C state ) -> regNValue, state
           |false when not setFlags -> fst (setCarryA (+) regNValue (Data 1) state), state// implementing Rn + not(Op2) + 1
           |false -> setCarryA (+) regNValue (Data 0) state
@@ -326,20 +354,20 @@ module Instructions =
 
     //    (^=) (regD) (result) (finState)   
            
-    //test code for addWithCarry Function
-    let a = MachineState.make()
-    let b = mov (R0, Literal(-1073741824), a, true, NoShift)
-    let c = (^=) R1 -268435456 b
-    let d = ( ^- ) C false c
-    let e = ( ^- ) V false d
-    let f = ( ^- ) N false e
-    let g = ( ^- ) Z false f
-    let h = addWithCarryS (R3,R5,ID R0,g, false, true,RightA 16)
-    let i = addWithCarryS (R2,R0,ID(R1),h, true, true,NoShift)
-    printfn "%A" b
-    printfn "%A" c
-    printfn "%A" h
-    printfn "%A" i
+    ////test code for addWithCarry Function
+    //let a = MachineState.make()
+    //let b = mov (R0, Literal(-1073741824), a, true, NoShift)
+    //let c = (^=) R1 -268435456 b
+    //let d = ( ^- ) C false c
+    //let e = ( ^- ) V false d
+    //let f = ( ^- ) N false e
+    //let g = ( ^- ) Z false f
+    //let h = addWithCarryS (R3,R5,ID R0,g, false, true,RightA 16)
+    //let i = addWithCarryS (R2,R0,ID(R1),h, true, true,NoShift)
+    //printfn "%A" b
+    //printfn "%A" c
+    //printfn "%A" h
+    //printfn "%A" i
 
     ////test code for mov Function
     //let a1 = MachineState.make()
@@ -347,12 +375,12 @@ module Instructions =
     //let c1 = mov (R0, Literal(1),b1,true)
     //printfn "%A" c1
 
-    ////test code for mvn Function
-    //let a2 = MachineState.make()
-    //let b2 = mvn (R0, Literal(0), a2, true)
-    //printfn "%A" b2
-    //let c2 = mvn (R0, Literal(1),b2,true)
-    //printfn "%A" c2
+    //test code for mvn Function
+    let a2 = MachineState.make()
+    let b2 = mvn (R0, Literal(-1), a2, true, RightL 9)
+    printfn "%A" b2
+    let c2 = mvn (R0, Literal(-1),b2,true,RightA 9)
+    printfn "%A" c2
 
     ////test code for ORR Function
     //let a3 = MachineState.make()
@@ -405,7 +433,7 @@ module Instructions =
     //let f = ( ^- ) N false e
     //let g = ( ^- ) Z false f
     //let z = mov (R0, Literal(-1), g, false, NoShift)
-    //let h = subtractWithCarryS (R3,R0,Literal -1,z, true, true,NoShift)
+    //let h = subtractWithCarryS (R3,R0,Literal 0,z, true, true,NoShift)
     //let i = subtractWithCarryS (R2,R0,ID(R8),h, true, true,NoShift)
     //printfn "%A" z
     //printfn "%A" h

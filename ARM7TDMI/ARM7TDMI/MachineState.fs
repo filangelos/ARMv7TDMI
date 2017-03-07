@@ -54,7 +54,7 @@ module MachineState =
             // Enumerate all Flags
             Common.enumerator<FlagID>
             // Initialise all Status Bits to zero
-            |> Array.map ( fun id -> id, true )
+            |> Array.map ( fun id -> id, false )
             // construct Map
             |> Map.ofArray
 
