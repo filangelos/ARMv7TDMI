@@ -51,9 +51,12 @@ module Common =
     type Flags = Map<FlagID, bool>
 
     /// Operand D.U Type
-    type Operand =
+    type Input =
         | ID of RegisterID // Pass Register ID for data access
         | Literal of Data // Pass literal
+
+    type Operand = 
+        | Operand of Input*ShiftDirection
 
     /// Instruction Keyword type (please update when new instructions are added whenever possible!)
     type InstructionKeyword =

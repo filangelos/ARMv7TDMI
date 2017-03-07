@@ -57,7 +57,7 @@ module Instructions =
         (a,( ^- ) C ((uint32 (b &&& (1 <<< 31))) > 0u) state)
 
 
-    let opVal state (x: Operand) =  match x with
+    let opVal state (x: Input) =  match x with
                                     | ID(register) -> (^.) register state
                                     | Literal(data) -> data 
 
@@ -66,16 +66,16 @@ module Instructions =
     //Op2 can be either a register or a literal
     //type OP2 = Reg of Register | Op of Data
     //right now implementing adcs
-    let addWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection))=
+    let addWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool))=
 
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = match shift with
-                       | NoShift -> opVal state op2
-                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                       | RightA x -> ((opVal state op2) >>> x)
-                       | Left x -> (opVal state op2) <<< x
+        let op2Value = match op2 with
+                       | Operand(op2Val, NoShift) -> opVal state op2Val
+                       | Operand(op2Val, RightL(x)) -> int ((uint32 (opVal state op2Val)) >>> x)
+                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                       | Operand(op2Val, Left(x)) -> (opVal state op2Val) <<< x
         
         //including the value of carry into the first register and producing a new state : (newRegisterValue:Data,newState:MachineState)
         let newRegVal =
@@ -112,27 +112,28 @@ module Instructions =
         (^=) (regD) (result) (finState)
 
     let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
-        addWithCarryS (regD, regN, op2, state, false, false, shift)
+        addWithCarryS (regD, regN, op2, state, false, false)
 
     let add_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
-        addWithCarryS (regD, regN, op2, state, false, true, shift)
+        addWithCarryS (regD, regN, op2, state, false, true)
 
     let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
-        addWithCarryS (regD, regN, op2, state, true, false, shift)
+        addWithCarryS (regD, regN, op2, state, true, false)
 
     let adc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
-        addWithCarryS (regD, regN, op2, state, true, true, shift)
+        addWithCarryS (regD, regN, op2, state, true, true)
 
-    let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
+    let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
-        let op2ValTuple = match shift with 
-                          | Left x when setFlags -> (uint64(uint32(opVal state op2)) <<< x) |> setCarryL state
-                          | Left x -> ((opVal state op2) <<< x),state
-                          | RightL x when setFlags-> (uint64(uint32(opVal state op2)) >>> x) |> setCarryL state
-                          | RightL x -> ((opVal state op2) >>> x),state
-                          | NoShift when setFlags-> uint64(uint32(opVal state op2)) |> setCarryL state
-                          | NoShift -> (opVal state op2),state
-                          | _ -> failwithf "Should never happen"
+        let op2ValTuple = match op2 with 
+                          | Operand(op2Val, NoShift) when setFlags -> setCarryRShift state (opVal state op2Val) 0
+                          | Operand(op2Val, RightL x) when setFlags -> setCarryRShift state (int (uint32 (opVal state op2Val) >>> x)) ((opVal state op2Val) <<< (32 - x)) 
+                          | Operand(op2Val, RightA(x)) when setFlags -> setCarryRShift state ((opVal state op2Val) >>> x) ((opVal state op2Val) <<< (32 - x)) 
+                          | Operand(op2Val, Left x) when setFlags -> (uint64(uint32(opVal state op2Val)) <<< x) |> setCarryL state
+                          | Operand(op2Val, NoShift) -> (opVal state op2Val), state
+                          | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x), state
+                          | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x), state
+                          | Operand(op2Val, Left x) -> ((opVal state op2Val) <<< x), state
         
         let op2Value = fst op2ValTuple
 
@@ -146,16 +147,16 @@ module Instructions =
 
         (^=) (regD) (op2Value) (finState)
 
-    let mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
-        let op2Value1 = match shift with
-                        | NoShift when setFlags -> setCarryRShift state (opVal state op2) 0
-                        | RightL x when setFlags -> setCarryRShift state (int (uint32 (opVal state op2) >>> x)) ((opVal state op2) <<< (32 - x)) 
-                        | RightA x when setFlags -> setCarryRShift state ((opVal state op2) >>> x) ((opVal state op2) <<< (32 - x)) 
-                        | Left x when setFlags -> (uint64(uint32(opVal state op2)) <<< x) |> setCarryL state
-                        | NoShift -> (opVal state op2), state
-                        | RightL x -> int ((uint32 (opVal state op2)) >>> x), state
-                        | RightA x -> ((opVal state op2) >>> x), state
-                        | Left x -> ((opVal state op2) <<< x), state
+    let mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+        let op2Value1 = match op2 with
+                        | Operand(op2Val, NoShift) when setFlags -> setCarryRShift state (opVal state op2Val) 0
+                        | Operand(op2Val, RightL x) when setFlags -> setCarryRShift state (int (uint32 (opVal state op2Val) >>> x)) ((opVal state op2Val) <<< (32 - x)) 
+                        | Operand(op2Val, RightA(x)) when setFlags -> setCarryRShift state ((opVal state op2Val) >>> x) ((opVal state op2Val) <<< (32 - x)) 
+                        | Operand(op2Val, Left x) when setFlags -> (uint64(uint32(opVal state op2Val)) <<< x) |> setCarryL state
+                        | Operand(op2Val, NoShift) -> (opVal state op2Val), state
+                        | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x), state
+                        | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x), state
+                        | Operand(op2Val, Left x) -> ((opVal state op2Val) <<< x), state
 
         let op2Value = ~~~ (fst op2Value1)
         let state0 = snd op2Value1
@@ -168,16 +169,16 @@ module Instructions =
 
         (^=) (regD) (op2Value) (finState)
 
-    let orr ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
+    let orr ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = match shift with
-                       | NoShift -> opVal state op2
-                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                       | RightA x -> ((opVal state op2) >>> x)
-                       | Left x -> (opVal state op2) <<< x
+        let op2Value = match op2 with
+                       | Operand(op2Val, NoShift) -> opVal state op2Val
+                       | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                       | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
 
         //performing ORR instruction
         let result = regNValue ||| op2Value
@@ -190,16 +191,16 @@ module Instructions =
         (^=) (regD) (result) (finState)
 
 
-    let andOp ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
+    let andOp ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = match shift with
-                       | NoShift -> opVal state op2
-                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                       | RightA x -> ((opVal state op2) >>> x)
-                       | Left x -> (opVal state op2) <<< x
+        let op2Value = match op2 with
+                       | Operand(op2Val, NoShift) -> opVal state op2Val
+                       | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                       | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
 
         //Performing AND Instruction
         let result = regNValue &&& op2Value
@@ -211,16 +212,16 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    let eOR ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
+    let eOR ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = match shift with
-                       | NoShift -> opVal state op2
-                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                       | RightA x -> ((opVal state op2) >>> x)
-                       | Left x -> (opVal state op2) <<< x
+        let op2Value = match op2 with
+                       | Operand(op2Val, NoShift) -> opVal state op2Val
+                       | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                       | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
 
         //Performing EOR Instruction
         let result = regNValue ^^^ op2Value
@@ -232,16 +233,16 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    let bic ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool),(shift: ShiftDirection)) =
+    let bic ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
         //extracting operand values
         let regNValue = (^.) regN state
 
-        let op2Value = match shift with
-                       | NoShift -> opVal state op2
-                       | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                       | RightA x -> ((opVal state op2) >>> x)
-                       | Left x -> (opVal state op2) <<< x
+        let op2Value = match op2 with
+                       | Operand(op2Val, NoShift) -> opVal state op2Val
+                       | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                       | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
 
         printfn "%A" (~~~op2Value)
         //Performing BIC Instruction
@@ -257,34 +258,22 @@ module Instructions =
 
     //wrapper for LSL/LSR (S) functions
     let logicalShift ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
-        mov (regD,op2,state,setFlags,shift)
+        mov (regD,op2,state,setFlags)
 
     
-    let arithmeticRightShift ((regD: RegisterID), (op2: Operand), (shift: int), (state: MachineState), (setFlags: bool)) =
-
-        let op2Value = opVal state op2
-
-        let result = op2Value >>> shift
-
-        let state1 = if setFlags then ( ^- ) C false state else state
-
-        let state2 = if setFlags then setNegative result state1 else state1
-
-        //Obtaining state reflecting zero status
-        let finState = if setFlags then setZero result state2 else state2
-
-        (^=) (regD) (result) (finState)
+    let arithmeticRightShift ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
+        mov (regD, Operand(op2, RightA shift), state, setFlags)
 
     let subtractWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection)) =
 
       //extracting operand values
       let regNValue = (^.) regN state
 
-      let op2Value = match shift with
-                     | NoShift -> opVal state op2
-                     | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-                     | RightA x -> ((opVal state op2) >>> x)
-                     | Left x -> (opVal state op2) <<< x
+      let op2Value = match op2 with
+                     | Operand(op2Val, NoShift) -> opVal state op2Val
+                     | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                     | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                     | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
       
       let newRegVal =
           match setFlags && includeCarry && ( ^* ) C state with
@@ -375,14 +364,14 @@ module Instructions =
            
     //test code for addWithCarry Function
     let a = MachineState.make()
-    let b = mov (R0, Literal(-1), a, true, NoShift)
+    let b = mov (R0, Operand(Literal(-1),NoShift), a, true)
     let c = (^=) R1 -268435456 b
     let d = ( ^- ) C false c
     let e = ( ^- ) V false d
     let f = ( ^- ) N false e
     let g = ( ^- ) Z false f
-    let z = addWithCarryS (R3,R4,ID R0,g, false, true,NoShift)
-    let i = addWithCarryS (R3,R0,ID R0,z, false, true,NoShift)
+    let z = addWithCarryS (R3,R4,Operand(ID R0,NoShift),g, false, true)
+    let i = addWithCarryS (R3,R0,Operand(ID R0,NoShift),z, false, true)
     printfn "%A" b
     printfn "%A" c
     printfn "%A" z
