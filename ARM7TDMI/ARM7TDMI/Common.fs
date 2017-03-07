@@ -74,15 +74,13 @@ module Common =
 
     /// Token Type
     type Token =
-        //| TokIdentifier of string   //includes MOV, ADD, etc. and labels
-        //| TokReg of int
         | TokInstr of InstructionKeyword
         | TokS
         | TokCond of ConditionCode
         | TokLabel of string
         //| TokReg of RegisterID
         //| TokConst of int
-        | TokOperand of Operand
+        | TokOperand of Input
         | TokComma
         | TokExclam
         | TokSquareLeft
