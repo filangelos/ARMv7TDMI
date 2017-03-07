@@ -92,23 +92,23 @@ module Parser =
     let parse (lst:Token list) (ast:AST) =
         let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
         printfn "%A" splitLst
-        let rec parse1 (lst: Token list list) (ast:AST) =
+        let rec parse1 (lst: Token list list) (ast:AST) addr =
             match lst with
             | line::t ->
                 match line with
                 | [TokInstr(instr); TokReg(rd); TokComma; TokConst(v)] ->
-                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, Literal(v), false, NoShift)) (None) 2)
+                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, Literal(v), false, NoShift)) (None) addr) (addr+2)
                 | [TokInstr(instr); TokReg(rd); TokComma; TokReg(rn)] ->
-                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, ID(rn), false, NoShift)) (None) 2)
+                    parse1 t (addInstruction ast MOV (Parameters1RegShift(rd, ID(rn), false, NoShift)) (None) addr) (addr+2)
                 | _ -> failwithf "error"
             | [] -> ast
 
-        let myAst = parse1 splitLst ast
+        let myAst = parse1 splitLst ast 0
         printfn "ast built:\n%A" myAst
 
 
     let testParse =
         printfn "\nRunning testParse:\n"
         let myAst1 = ([], Map.empty<string, Address>)
-        parse [TokInstr(MOV); TokReg(R1); TokComma; TokConst(12); TokNewLine] myAst1
+        parse [TokInstr(MOV); TokReg(R1); TokComma; TokConst(12); TokNewLine; TokInstr(MOV); TokReg(R1); TokComma; TokReg(R1);] myAst1
         printfn "\nFinished testParse.\n"
