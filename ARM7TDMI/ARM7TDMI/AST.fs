@@ -65,21 +65,6 @@ module AST =
             ( ^* ) fID state = eq
         | None -> true
 
-    (*
-    let rec reduce (ast:AST) (state:MachineState) =
-        match ast with
-        | (f, p, cond, addr)::t, lst ->
-            if evaluateCondition cond state then
-                match f, p with
-                | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
-                    let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
-                    reduce (t,lst) newState pc maxPC
-                | _ -> failwithf "Could not execute instruction"
-            else
-                reduce (t,lst) state
-        | [], lst -> state
-    *)
-
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let rec reduce (ast:AST) (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
@@ -110,10 +95,10 @@ module AST =
         let emptyState = MachineState.make()
         printfn "empty machine state:\n%A\n" emptyState
         let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Operand(Literal(13),NoShift), false, NoShift)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1RegShift(R2, Operand(Literal(0),NoShift), true, NoShift)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1RegShift(R3, Operand(Literal(342),NoShift), false, NoShift)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Operand(Literal(999), Left(1)), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
+        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1Reg(R1, Operand(Literal(13),NoShift), false)) (None) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1Reg(R2, Operand(Literal(0),NoShift), true)) (None) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1Reg(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1Reg(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
         printfn "ast is:\n%A\n" myAst5
         printfn "Reducing AST..."
         let resultState2 = reduce myAst5 emptyState 0 10

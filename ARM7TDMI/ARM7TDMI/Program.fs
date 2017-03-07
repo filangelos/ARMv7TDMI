@@ -12,7 +12,6 @@ module Program =
     let main argv =
         Tokeniser.testTokeniser
         AST.testAST
-        Parser.testParse
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x
