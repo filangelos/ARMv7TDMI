@@ -137,11 +137,12 @@ module Parser =
         List.reduce ( <|> ) listOfParsers 
 
     /// Choose any of a list of characters
-    
 
     //////////////////Testing//////////////
+
     let failList = [ORR; AND; EOR; BIC; LSL; LSR]
     let testInstrList = [TokInstr(ADD); TokInstr(ADC); TokInstr(MOV); TokInstr(MVN)]
+
     let testRegList = [TokReg(R0); TokReg(R1)]
 
     let testTokenList = [TokInstr(ADD); TokReg(R0); TokReg(R1)]
@@ -157,5 +158,3 @@ module Parser =
         (parseGroup testInstrList) >>> (parseGroup testRegList) >>> (parseGroup testRegList)
 
     printf "%A" (run parseEverything testTokenList)
-
-
