@@ -14,6 +14,7 @@ open System
 //open Instructions
 //open Common
 open AST
+open Tokeniser
 
 module Parser =
     let pchar(cToMatch,str) =
@@ -105,10 +106,14 @@ module Parser =
 
         let myAst = parse1 splitLst ast 0
         printfn "ast built:\n%A" myAst
+        myAst
 
 
     let testParse =
         printfn "\nRunning testParse:\n"
         let myAst1 = ([], Map.empty<string, Address>)
-        parse [TokInstr(MOV); TokReg(R1); TokComma; TokConst(12); TokNewLine; TokInstr(MOV); TokReg(R1); TokComma; TokReg(R1);] myAst1
+        let tokens = tokenise "MOV r1, #12 \n MOV r2, r1"
+        let myAst2 = parse tokens myAst1
+        let result = reduce myAst2 (MachineState.make()) 0 10
+        printfn "final result is %A" result
         printfn "\nFinished testParse.\n"
