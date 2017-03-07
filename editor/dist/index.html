@@ -29,7 +29,7 @@
           </button>
         </div> <!-- btn-group -->
 
-        <button class="btn btn-default">
+        <button id="run" class="btn btn-default">
           <span class="icon icon-play icon-text"></span>
           Run
         </button> <!-- run btn -->
@@ -141,15 +141,17 @@
     // workaround monaco-typescript not understanding the environment
     self.process.browser = true;
     amdRequire(['vs/editor/editor.main'], function () {
-      var editor = monaco.editor.create(document.getElementById('editor'), {
+      window.editor = monaco.editor.create(document.getElementById('editor'), {
         value: [
-          'mov r0 r1',
-          'add r3 r5 #7 =>'
+          'mov r0 #5',
+          'mov r1 r0'
         ].join('\n'),
-        language: 'javascript',
+//        language: 'arm',
         theme: 'vs-light',
         renderWhitespace: 'all'
       });
+      const run_btn = document.getElementById('run')
+      run_btn.onclick = function() { console.log(window.editor.getValue()) }
     });
   </script>
   <script src="umd/Main.js"></script>
