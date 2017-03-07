@@ -65,7 +65,7 @@ module AST =
             ( ^* ) fID state = eq
         | None -> true
 
-    ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
+    (*
     let rec reduce (ast:AST) (state:MachineState) =
         match ast with
         | (f, p, cond, addr)::t, lst ->
@@ -73,11 +73,35 @@ module AST =
                 match f, p with
                 | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
                     let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
-                    reduce (t,lst) newState
+                    reduce (t,lst) newState pc maxPC
                 | _ -> failwithf "Could not execute instruction"
             else
                 reduce (t,lst) state
         | [], lst -> state
+    *)
+
+    ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
+    let rec reduce (ast:AST) (state:MachineState) (pc:int) (maxPC:int) =
+        if pc <= maxPC then
+            try 
+                match ast with
+                | (nodes, labels) ->
+                    let currentNode = List.find (fun x -> match x with | (_,_,_,addr) -> addr = pc) nodes
+                    printfn "executing node at pc=%A" pc
+                    match currentNode with
+                    | (f, p, cond, addr) -> 
+                        if evaluateCondition cond state then
+                            match f, p with
+                            | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
+                                let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
+                                reduce ast newState (pc+1) maxPC
+                            | _ -> failwithf "Could not execute node: %A" currentNode
+                        else
+                            reduce ast state (pc+1) maxPC
+            with
+                | _ -> reduce ast state (pc+1) maxPC
+        else
+            state
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
@@ -92,7 +116,7 @@ module AST =
         let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Literal(999), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
         printfn "ast is:\n%A\n" myAst5
         printfn "Reducing AST..."
-        let resultState2 = reduce myAst5 emptyState
+        let resultState2 = reduce myAst5 emptyState 0 10
         printfn "final result state for this ast is:\n%A\n" resultState2
         printfn "Finished testAST.\n"
 
