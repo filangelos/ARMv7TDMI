@@ -80,8 +80,9 @@ module Common =
         | TokS
         | TokCond of ConditionCode
         | TokLabel of string
-        | TokReg of RegisterID
-        | TokConst of int
+        //| TokReg of RegisterID
+        //| TokConst of int
+        | TokOperand of Operand
         | TokComma
         | TokExclam
         | TokSquareLeft
