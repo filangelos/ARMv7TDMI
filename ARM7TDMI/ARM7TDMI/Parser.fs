@@ -136,14 +136,11 @@ module Parser =
     let choice listOfParsers = 
         List.reduce ( <|> ) listOfParsers 
 
-    /// Choose any of a list of characters
-
     //////////////////Testing//////////////
+    let tokenInstrList = enumerator<InstructionKeyword> |> Array.map (fun x -> TokInstr(x)) |> Array.toList
+    let tokenRegList = enumerator<RegisterID> |> Array.map (fun x -> TokReg(x)) |> Array.toList
 
-    let failList = [ORR; AND; EOR; BIC; LSL; LSR]
-    let testInstrList = [TokInstr(ADD); TokInstr(ADC); TokInstr(MOV); TokInstr(MVN)]
-
-    let testRegList = [TokReg(R0); TokReg(R1)]
+   // let tokenOpList = enumerator<Operand> |> Array.map (fun x -> Token(x)) |> Array.toList
 
     let testTokenList = [TokInstr(ADD); TokReg(R0); TokReg(R1)]
 
@@ -154,7 +151,10 @@ module Parser =
             |> choice
         anyOf 
     
+    
     let parseEverything =
-        (parseGroup testInstrList) >>> (parseGroup testRegList) >>> (parseGroup testRegList)
+        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma >>> (
+           (parseGroup tokenRegList >>> pToken TokComma >>> parseGroup tokenInstrList) <|>  (parseGroup tokenInstrList)
+        ) 
 
     printf "%A" (run parseEverything testTokenList)
