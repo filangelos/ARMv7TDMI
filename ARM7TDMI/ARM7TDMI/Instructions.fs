@@ -111,6 +111,18 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
+    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+        addWithCarryS (regD, regN, op2, state, false, false, shift)
+
+    let add_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+        addWithCarryS (regD, regN, op2, state, false, true, shift)
+
+    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+        addWithCarryS (regD, regN, op2, state, true, false, shift)
+
+    let adc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+        addWithCarryS (regD, regN, op2, state, true, true, shift)
+
     let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
 
         let op2ValTuple = match shift with 
@@ -299,7 +311,7 @@ module Instructions =
       let result = fst finVal
 
         //Obtaining state reflecting signed overflow
-      let state3 = if setFlags then (setOverflow regNValue op2Value state2) else state2
+      let state3 = if setFlags then (setOverflow1 regNValue op2Value state2) else state2
 
         //Obtaining state reflecting sign of result
       let state4 = if setFlags then setNegative result state3 else state3
@@ -369,11 +381,11 @@ module Instructions =
     let e = ( ^- ) V false d
     let f = ( ^- ) N false e
     let g = ( ^- ) Z false f
-    let h = addWithCarryS (R3,R5,ID R1,g, false, true,NoShift)
-    let i = addWithCarryS (R2,R0,ID(R1),h, true, true,NoShift)
+    let z = addWithCarryS (R3,R4,ID R0,g, false, true,NoShift)
+    let i = addWithCarryS (R3,R0,ID R0,z, false, true,NoShift)
     printfn "%A" b
     printfn "%A" c
-    printfn "%A" h
+    printfn "%A" z
     printfn "%A" i
 
     ////test code for mov Function
