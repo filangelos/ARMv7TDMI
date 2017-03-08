@@ -257,17 +257,21 @@ module Instructions =
         (^=) (regD) (result) (finState)   
 
     //wrapper for LSL/LSR (S) functions
-    let logicalShift ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (shift: ShiftDirection)) =
+    let logicalShift ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
         mov (regD,op2,state,setFlags)
 
     
     let arithmeticRightShift ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
         mov (regD, Operand(op2, RightA shift), state, setFlags)
 
-    let subtractWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection)) =
+    let subtractWithCarryS ((regD: RegisterID), (regN: Operand), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool)) =
 
       //extracting operand values
-      let regNValue = (^.) regN state
+      let regNValue = match regN with
+                      | Operand(op2Val, NoShift) -> opVal state op2Val
+                      | Operand(op2Val, RightL x) -> int ((uint32 (opVal state op2Val)) >>> x)
+                      | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x)
+                      | Operand(op2Val, Left x) -> (opVal state op2Val) <<< x
 
       let op2Value = match op2 with
                      | Operand(op2Val, NoShift) -> opVal state op2Val
@@ -310,72 +314,44 @@ module Instructions =
 
       (^=) (regD) (result) (finState) 
 
-         
+    //wrappers for sub, sbc, cmp & rsb functions
+    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, false)
 
-    //let subtractWithCarryS ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool), (shift: ShiftDirection)) =
+    let sub_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, true)
+     
+    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, false)
 
-    //    //extracting operand values
-    //    let regNValue = (^.) regN state
+    let sbc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, true)
 
-    //    let op2Value = match shift with
-    //                   | NoShift -> opVal state op2
-    //                   | RightL x -> int ((uint32 (opVal state op2)) >>> x)
-    //                   | RightA x -> ((opVal state op2) >>> x)
-    //                   | Left x -> (opVal state op2) <<< x
-        
-    //    let carryVal = match includeCarry && (( ^* ) C state) with 
-    //                   | true -> Data(0)
-    //                   | false when includeCarry -> Data(-1)
-    //                   | false -> Data(0)
+    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, false)
 
-    //    let newRegVal2 =
-    //        match setFlags with
-    //        |true ->  (setCarryA (+) (regNValue) (carryVal) state)
-    //        |false -> ((fst (setCarryA (+) (regNValue) (carryVal) state)), state)
-       
-    //    //updating the state encapsulation
-    //    let state1 = snd newRegVal2
+    let rsb_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, true)
 
-    //    //final result containing information on the carry
-    //    let regCarryVal = fst newRegVal2
+    let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
+        let result = (^.) R10 flagState
+        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
 
-    //    //Producing result of the operation, along with a state that reflects the change by the carry : (finalResult: Data, newState: MachineState)
-    //    //Under correct execution, the C flag of state1 should only reflect
-    //    let finVal = match setFlags && ( ^* ) C state1 with
-    //                 |true -> if includeCarry then (fst (setCarryA (+) regCarryVal (-1*op2Value) state1)),state1 else (setCarryA (-) regCarryVal (-1*op2Value) state1)
-    //                 |false when setFlags -> setCarryA (+) regCarryVal (-1*op2Value) state1
-    //                 |false -> (fst (setCarryA (+) regCarryVal (-1*op2Value) state1)),state1
-
-    //    //updating the state encapsulation again     
-    //    let state2 = snd finVal
-
-    //    let result = fst finVal
-
-    //    //Obtaining state reflecting signed overflow
-    //    let state3 = if setFlags then (setOverflow regNValue op2Value state2) else state2
-
-    //    //Obtaining state reflecting sign of result
-    //    let state4 = if setFlags then setNegative result state3 else state3
-
-    //    //Obtaining state reflecting zero status
-    //    let finState = if setFlags then setZero result state4 else state4
-
-    //    (^=) (regD) (result) (finState)   
-           
-    //test code for addWithCarry Function
-    let a = MachineState.make()
-    let b = mov (R0, Operand(Literal(-1),NoShift), a, true)
-    let c = (^=) R1 -268435456 b
-    let d = ( ^- ) C false c
-    let e = ( ^- ) V false d
-    let f = ( ^- ) N false e
-    let g = ( ^- ) Z false f
-    let z = addWithCarryS (R3,R4,Operand(ID R0,NoShift),g, false, true)
-    let i = addWithCarryS (R3,R0,Operand(ID R0,NoShift),z, false, true)
-    printfn "%A" b
-    printfn "%A" c
-    printfn "%A" z
-    printfn "%A" i
+    ////test code for addWithCarry Function
+    //let a = MachineState.make()
+    //let b = mov (R0, Operand(Literal(-1),NoShift), a, true)
+    //let c = (^=) R1 2147483647 b
+    //let d = ( ^- ) C false c
+    //let e = ( ^- ) V false d
+    //let f = ( ^- ) N false e
+    //let g = ( ^- ) Z false f
+    //let z = addWithCarryS (R3,R1,Operand(ID R1,NoShift),g, false, true)
+    //let i = addWithCarryS (R3,R0,Operand(ID R0,NoShift),z, false, true)
+    //printfn "%A" b
+    //printfn "%A" c
+    //printfn "%A" z
+    //printfn "%A" i
 
     ////test code for mov Function
     //let a1 = MachineState.make()
@@ -425,7 +401,7 @@ module Instructions =
     //let c3 = logicalShift (R1, Literal(1),b3,true, Right 1)
     //printfn "%A" c3
 
-    ////test code for LSL(S) Function
+    //test code for ASR(S) Function
     //let a3 = MachineState.make()
     //let b3 = arithmeticRightShift (R0, Literal(-1), 1, a3, true)
     //printfn "%A" b3
@@ -434,15 +410,30 @@ module Instructions =
 
     ////test code for subtractWithCarry Function
     //let a = MachineState.make()
-    //let b = mov (R0, Literal(0), a, false, NoShift)
+    //let b = mov (R0, Operand(Literal(0),NoShift), a, false)
     //let c = (^=) R1 5 b
     //let d = ( ^- ) C false c
     //let e = ( ^- ) V false d
     //let f = ( ^- ) N false e
     //let g = ( ^- ) Z false f
-    //let z = mov (R0, Literal(-1), g, false, NoShift)
-    //let h = subtractWithCarryS (R3,R0,Literal 0,z, true, true,NoShift)
-    //let i = subtractWithCarryS (R2,R0,ID(R8),h, true, true,NoShift)
+    //let z = mov (R0, Operand(Literal(-1),NoShift), g, false)
+    //let h = subtractWithCarryS (R3,Operand(ID R0, NoShift),Operand(Literal 0, NoShift),z, true, true)
+    //let i = subtractWithCarryS (R2,Operand(ID(R0),NoShift),Operand(ID(R8),NoShift),h, true, true)
     //printfn "%A" z
     //printfn "%A" h
     //printfn "%A" i
+
+    //test code for rsb Function
+    let a = MachineState.make()
+    let b = mov (R0, Operand(Literal(0),NoShift), a, false)
+    let c = (^=) R1 5 b
+    let d = ( ^- ) C false c
+    let e = ( ^- ) V false d
+    let f = ( ^- ) N false e
+    let g = ( ^- ) Z false f
+    let z = mov (R0, Operand(Literal(-1),NoShift), g, false)
+    let h = cmp_ (R0,Operand(Literal 0, NoShift),z)
+    let i = cmp_ (R0,Operand(Literal -1, NoShift),h)
+    printfn "%A" z
+    printfn "%A" h
+    printfn "%A" i
