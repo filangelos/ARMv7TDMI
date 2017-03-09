@@ -25,11 +25,12 @@ Decomposition
 - [x] Write flag setting function
 - [x] Come up with machineState interface
 - [x] Write basic tokeniser
-- [ ] Error Handling Framework - "Printing" Monad
-- [ ] Memory Implementation
 - [x] `MachineState` Testing
 - [x] Basic UI
-- [ ] Write basic parser
-- [ ] Write basic AST
-- [ ] Connect all basic modules together
+- [x] Write basic parser
+- [x] Write basic AST
+- [x] Connect all basic modules together
 - [x] Write flag-setting function
+- [ ] Support for all arithmetic instructions
+- [ ] Error Handling Framework - "Printing" Monad
+- [ ] Memory Implementation
