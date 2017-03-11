@@ -335,8 +335,20 @@ module Instructions =
 
     let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
         let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
-        let result = (^.) R10 flagState
         state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+
+    let cmn_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        let flagState = addWithCarryS (R10, regN, op2, state, false, true)
+        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+
+    let tst_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        let flagState = andOp (R10, regN, op2, state, true)
+        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+     
+    let teq_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+        let flagState = eOR (R10, regN, op2, state, true)
+        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+
 
     ////test code for addWithCarry Function
     //let a = MachineState.make()
