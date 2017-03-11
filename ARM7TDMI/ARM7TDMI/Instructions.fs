@@ -111,17 +111,11 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
-        addWithCarryS (regD, regN, op2, state, false, false)
+    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+        addWithCarryS (regD, regN, op2, state, false, setFlags)
 
-    let add_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
-        addWithCarryS (regD, regN, op2, state, false, true)
-
-    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
-        addWithCarryS (regD, regN, op2, state, true, false)
-
-    let adc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
-        addWithCarryS (regD, regN, op2, state, true, true)
+    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+        addWithCarryS (regD, regN, op2, state, true, setFlags)
 
     let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
 
@@ -315,23 +309,14 @@ module Instructions =
       (^=) (regD) (result) (finState) 
 
     //wrappers for sub, sbc, cmp & rsb functions
-    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, false)
-
-    let sub_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, true)
+    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, setFlags)
      
-    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, false)
+    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
+        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, setFlags)
 
-    let sbc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, true)
-
-    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, false)
-
-    let rsb_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, true)
+    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
+        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, setFlags)
 
     let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
         let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
