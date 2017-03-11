@@ -16,33 +16,10 @@ module AST =
     open Instructions
 
     // shortcuts
-    let ( ^. ) = Optics.get MachineState.Register_
-    let ( ^= ) = Optics.set MachineState.Register_
-    let ( ^* ) = Optics.get MachineState.Flag_
-    let ( ^- ) = Optics.set MachineState.Flag_
-
-    ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32)
-    type Parameters =
-        | ParametersAdd of (RegisterID * RegisterID * Operand * bool * bool * ShiftDirection)            //(regD, regN, op2, includeCarry, setFlags, ShiftDirection)
-        | ParametersSub of (RegisterID * RegisterID * Operand * bool * bool * bool * ShiftDirection)     //(regD, regN, op2, includeCarry, reverse, setFlags, ShiftDirection)
-        | Parameters1RegShift of (RegisterID * Operand * bool * ShiftDirection)                          //(regD, op2, setFlags, ShiftDirection)
-        | Parameters1Reg of (RegisterID * Operand * bool)                                                //(regD, op2, setFlags)
-        | Parameters2Reg of (RegisterID * RegisterID * Operand * bool)                                   //(regD, regN, op2, setFlags)
-
-    ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
-    type Address = int                  //Replace int with MemoryLocation when Memory is done.
-
-    ///type used for specifying a conditional code of the form, FlagID = bool. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
-    type Condition = FlagID * bool
-
-    ///type representing the possible nodes in the AST
-    type Node = InstructionKeyword * Parameters * (Condition option) * Address
-
-    ///type representing the mapping of labels to memory addresses
-    type LabelMap = Map<string, Address>
-
-    ///type representing the AST (just a list of nodes as well as the map for the label mappings)
-    type AST = (Node list) * LabelMap
+    let private ( ^. ) = Optics.get MachineState.Register_
+    let private ( ^= ) = Optics.set MachineState.Register_
+    let private ( ^* ) = Optics.get MachineState.Flag_
+    let private ( ^- ) = Optics.set MachineState.Flag_
 
     ////Build the AST in the parser using these functions////
 
@@ -90,7 +67,7 @@ module AST =
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
-    let testAST =
+    let testAST () =
         printfn "Running testAST:"
         let emptyState = MachineState.make()
         printfn "empty machine state:\n%A\n" emptyState
@@ -103,7 +80,12 @@ module AST =
         printfn "Reducing AST..."
         let resultState2 = reduce myAst5 emptyState 0 10
         printfn "final result state for this ast is:\n%A\n" resultState2
+
+
+
         printfn "Finished testAST.\n"
+
+        
 
     (*------------------------------------------------------------------------------------------------------------------------*)
     //IGNORE ANYTHING BELOW HERE

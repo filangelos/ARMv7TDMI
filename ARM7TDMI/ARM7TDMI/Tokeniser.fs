@@ -84,6 +84,16 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr(LSL)])
         | MatchToken (Instr "LSR") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr(LSR)])
+        | MatchToken (Instr "ASR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(ASR)])
+        | MatchToken (Instr "SUB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(SUB)])
+        | MatchToken (Instr "SBC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(SBC)])
+        | MatchToken (Instr "RSB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(RSB)])
+        | MatchToken (Instr "RSC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(RSC)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
@@ -143,7 +153,7 @@ module Tokeniser =
 (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
     ///prints the results for the tokenise function against a set of good, bad and random inputs
-    let testTokeniser =
+    let testTokeniser () =
         printfn "Running tokeniseTest:"
 
         ///list of correct syntax
@@ -251,7 +261,7 @@ module Tokeniser =
 
         //test conditional codes (will add robust testing later)
         printfn "Testing conditional codes..."
-        let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"]
+        let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"; "SUB"; "RSB"; "SBC"; "RSC"]
         let strCond = ["EQ"; "NE"; "CS"; "HS"; "CC"; "LO"; "MI" ; "PL"; "VS"; "VC"; "HI"; "LS"; "GE"; "LT"; "GT"; "LE"; "AL"]
         let checkTokenListLengthCond () =
             //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f

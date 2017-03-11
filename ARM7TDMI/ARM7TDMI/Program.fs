@@ -10,8 +10,8 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        Tokeniser.testTokeniser
-        AST.testAST
+        //Tokeniser.testTokeniser ()
+        AST.testAST ()
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x

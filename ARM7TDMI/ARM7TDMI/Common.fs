@@ -64,7 +64,10 @@ module Common =
         | MOV | MVN
         | ORR | AND
         | EOR | BIC
+        | SUB | SBC
+        | RSB | RSC
         | LSL | LSR
+        | ASR
 
     /// Conditional code types (for reading flags)
     type ConditionCode = 
@@ -96,3 +99,28 @@ module Common =
         | FourOp of Token*Token*Token*bool
         | FourOp2 of Token*Token*bool*Operand
         | FourOp3 of Token*Operand*bool*Operand
+
+
+
+    ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32). Used in Parser and AST.
+    type Parameters =
+        | ParametersAdd of (RegisterID * RegisterID * Operand * bool * bool * ShiftDirection)            //(regD, regN, op2, includeCarry, setFlags, ShiftDirection)
+        | ParametersSub of (RegisterID * RegisterID * Operand * bool * bool * bool * ShiftDirection)     //(regD, regN, op2, includeCarry, reverse, setFlags, ShiftDirection)
+        | Parameters1RegShift of (RegisterID * Operand * bool * ShiftDirection)                          //(regD, op2, setFlags, ShiftDirection)
+        | Parameters1Reg of (RegisterID * Operand * bool)                                                //(regD, op2, setFlags)
+        | Parameters2Reg of (RegisterID * RegisterID * Operand * bool)                                   //(regD, regN, op2, setFlags)
+
+    ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
+    type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
+
+    ///type used for specifying a conditional code of the form, FlagID = bool. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
+    type Condition = FlagID * bool
+
+    ///type representing the possible nodes in the AST
+    type Node = InstructionKeyword * Parameters * (Condition option) * Address
+
+    ///type representing the mapping of labels to memory addresses
+    type LabelMap = Map<string, Address>
+
+    ///type representing the AST (just a list of nodes as well as the map for the label mappings)
+    type AST = (Node list) * LabelMap
