@@ -111,16 +111,16 @@ module Instructions =
 
         (^=) (regD) (result) (finState)
 
-    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
         addWithCarryS (regD, regN, op2, state, false, false)
 
-    let add_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+    let add_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
         addWithCarryS (regD, regN, op2, state, false, true)
 
-    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
         addWithCarryS (regD, regN, op2, state, true, false)
 
-    let adc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (shift: ShiftDirection)) =
+    let adc_S ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState)) =
         addWithCarryS (regD, regN, op2, state, true, true)
 
     let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
