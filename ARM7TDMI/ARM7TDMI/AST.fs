@@ -45,6 +45,7 @@ module AST =
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let rec reduce (ast:AST) (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
+            // try to find a node with address matching pc, if not found, catch exception from List.find
             try 
                 match ast with
                 | (nodes, labels) ->
@@ -52,11 +53,46 @@ module AST =
                     printfn "executing node at pc=%A" pc
                     match currentNode with
                     | (f, p, cond, addr) -> 
+                        //evaluate conditional code
                         if evaluateCondition cond state then
                             match f, p with
-                            | MOV, Parameters1Reg((regD, op2, setFlags)) ->
-                                let newState = Instructions.mov (regD, op2, state, setFlags)
-                                reduce ast newState (pc+1) maxPC
+                            | ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | MOV, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | MVN, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mvn (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ORR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.orr (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | AND, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.andOp (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | EOR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.eOR (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | BIC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.bic (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | LSL, Param_Rd_Op_Bool((regD, op2, setFlags))
+                            | LSR, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ASR, Param_Rd_Input_Int_Bool((regD, input, shift, setFlags)) ->
+                                reduce ast (Instructions.arithmeticRightShift (regD, input, shift, state, setFlags)) (pc+1) (maxPC)
+                            | SUB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.sub_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | SBC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.sbc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.rsb_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                failwithf "Please add missing implementation for node, %A" currentNode
+                            | CMP, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.cmp_ (regD, op2, state)) (pc+1) maxPC
+                            | CMN, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.cmn_ (regD, op2, state)) (pc+1) maxPC
+                            | TST, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.tst_ (regD, op2, state)) (pc+1) maxPC
+                            | TEQ, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.teq_ (regD, op2, state)) (pc+1) maxPC
                             | _ -> failwithf "Could not execute node: %A" currentNode
                         else
                             reduce ast state (pc+1) maxPC
@@ -72,10 +108,10 @@ module AST =
         let emptyState = MachineState.make()
         printfn "empty machine state:\n%A\n" emptyState
         let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1Reg(R1, Operand(Literal(13),NoShift), false)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1Reg(R2, Operand(Literal(0),NoShift), true)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1Reg(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1Reg(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
+        let  myAst2 = addInstruction myAst1 (MOV) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false)) (None) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true)) (None) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
         printfn "ast is:\n%A\n" myAst5
         printfn "Reducing AST..."
         let resultState2 = reduce myAst5 emptyState 0 10

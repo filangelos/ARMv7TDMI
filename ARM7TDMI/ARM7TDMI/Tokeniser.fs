@@ -94,6 +94,14 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr(RSB)])
         | MatchToken (Instr "RSC") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr(RSC)])
+        | MatchToken (Instr "CMP") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(CMP)])
+        | MatchToken (Instr "CMN") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(CMN)])
+        | MatchToken (Instr "TST") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(TST)])
+        | MatchToken (Instr "TEQ") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr(TEQ)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
@@ -157,7 +165,8 @@ module Tokeniser =
         printfn "Running tokeniseTest:"
 
         ///list of correct syntax
-        let goodTests = [|  "MOV R1, #24";
+        let goodTests = [|  
+                            "MOV R1, #24";
                             "MOV r12 ,R4 , #0x45";
                             "aDd r0, r2 ,#0B101100";
                             "LABEL123_ABC MOV r1, R15      ; end of line";
@@ -167,7 +176,8 @@ module Tokeniser =
                         |]
 
         ///list of incorrect syntax
-        let badTests = [|   "1MOV r1, r2";
+        let badTests = [|   
+                            "1MOV r1, r2";
                             "add rr1, r22, 1";
                             "mov r1, #abc123";
                             "aDd r0, r2 ,#0B474";
@@ -261,7 +271,7 @@ module Tokeniser =
 
         //test conditional codes (will add robust testing later)
         printfn "Testing conditional codes..."
-        let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"; "SUB"; "RSB"; "SBC"; "RSC"]
+        let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"; "SUB"; "RSB"; "SBC"; "RSC"; "CMP"; "CMN"; "TST"; "TEQ"]
         let strCond = ["EQ"; "NE"; "CS"; "HS"; "CC"; "LO"; "MI" ; "PL"; "VS"; "VC"; "HI"; "LS"; "GE"; "LT"; "GT"; "LE"; "AL"]
         let checkTokenListLengthCond () =
             //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
