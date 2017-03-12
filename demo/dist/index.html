@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Index</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/photon.css">
+  <!-- Javascript -->
+  <script src="umd/menu.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <div class="window">
+    <!-- .toolbar-header sits at the top of your app -->
+    <header class="toolbar toolbar-header">
+      <h1 class="title">ARM7TDMI</h1>
+
+      <div class="toolbar-actions">
+        <div class="btn-group">
+          <button class="btn btn-default">
+            <span class="icon icon-folder"></span>
+          </button>
+          <button class="btn btn-default">
+            <span class="icon icon-floppy"></span>
+          </button>
+          <button class="btn btn-default">
+            <span class="icon icon-code"></span>
+          </button>
+        </div> <!-- btn-group -->
+
+        <button id="run" class="btn btn-default">
+          <span class="icon icon-play icon-text"></span>
+          Run
+        </button> <!-- run btn -->
+
+        <button class="btn btn-default btn-dropdown pull-right">
+          <span class="icon icon-cog"></span>
+        </button> <!-- settings btn -->
+
+      </div>
+    </header> <!-- Header -->
+
+    <div class="window-content">
+      <div class="pane-group">
+        <div class="pane">
+          <div id="editor" style="height:100%"></div>
+        </div> <!-- editor -->
+        <div class="pane">
+          <table class="table-striped" style="text-align: center">
+            <thead>
+              <tr>
+                <th>Registers</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>R0</td>
+              </tr>
+              <tr>
+                <td>R1</td>
+              </tr>
+              <tr>
+                <td>R2</td>
+              </tr>
+              <tr>
+                <td>R3</td>
+              </tr>
+              <tr>
+                <td>R4</td>
+              </tr>
+              <tr>
+                <td>R5</td>
+              </tr>
+              <tr>
+                <td>R6</td>
+              </tr>
+              <tr>
+                <td>R7</td>
+              </tr>
+              <tr>
+                <td>R8</td>
+              </tr>
+              <tr>
+                <td>R9</td>
+              </tr>
+              <tr>
+                <td>R10</td>
+              </tr>
+              <tr>
+                <td>R11</td>
+              </tr>
+              <tr>
+                <td>R12</td>
+              </tr>
+              <tr>
+                <td>R13</td>
+              </tr>
+              <tr>
+                <td>R14</td>
+              </tr>
+              <tr>
+                <td>R15</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- table -->
+      </div> <!-- pane-group -->
+    </div> <!-- window-content -->
+    <footer class="toolbar toolbar-footer">
+      <h1 class="title">Imperial College London High Level Programming Spring 2017</h1>
+    </footer> <!-- Header -->
+  </div> <!-- window -->
+
+  <script>
+    // Monaco uses a custom amd loader that over-rides node's require.
+    // Keep a reference to node's require so we can restore it after executing the amd loader file.
+    var nodeRequire = global.require;
+  </script>
+  <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+  <script src="../src/js/Editor.js"></script>
+  <script src="umd/Main.js"></script>
+</body>
+
+</html>
