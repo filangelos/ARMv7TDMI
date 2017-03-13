@@ -6,7 +6,7 @@
 
     Contributors: Youssef Rizk
 
-    Module: Instructions
+    Module: Artihmetic Instructions
     Description: 
 *)
 
