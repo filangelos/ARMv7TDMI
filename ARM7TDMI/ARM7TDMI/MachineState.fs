@@ -16,15 +16,19 @@ module MachineState =
         // Registers
         { Registers: Registers
         // Status Bits or NZCV Flags
-          StatusBits: Flags }
+          StatusBits: Flags 
+        // Memory
+          Memory: Memory }
 
         /// Registers Optic Function
         static member Registers_ =
-            ( fun state -> state.Registers ), ( fun registers state -> { state with Registers = registers } )
+            ( fun (state: MachineState) -> state.Registers ), 
+            ( fun (registers: Registers) (state: MachineState) -> { state with Registers = registers } )
 
         /// Flags Optic Function
         static member Flags_ =
-            ( fun state -> state.StatusBits ), ( fun flags state -> { state with StatusBits = flags } )
+            ( fun (state: MachineState) -> state.StatusBits ), 
+            ( fun (flags: Flags) (state: MachineState) -> { state with StatusBits = flags } )
 
         /// Register Composition Optic Function
         static member Register_ =
@@ -39,6 +43,9 @@ module MachineState =
             ( fun (id: FlagID) (state: MachineState) -> state.StatusBits.Item id ),
             // Setter: RegisterID -> Data -> MachineState -> MachineState
             ( fun (id: FlagID) (value: bool) (state: MachineState) -> { state with StatusBits = Map.add id value state.StatusBits } )
+
+        /// Memory
+        static member Memory_ = 0
 
         /// Set V (overflow) Flag
         static member setOverflow =
@@ -61,7 +68,7 @@ module MachineState =
         /// Set N (negative) Flag
         static member setNegative =
             // Setter: Data -> MachineState -> MachineState
-            ( fun (a: Data) (state: MachineState) -> Optics.set MachineState.Flag_ Z (a < 0) state )
+            ( fun (a: Data) (state: MachineState) -> Optics.set MachineState.Flag_ N (a < 0) state )
 
         /// Set C (carry) Flag - Arithmetic Operation
         static member setCarryA =
