@@ -28,6 +28,8 @@ module Common =
         | Left of int
         | RightL of int
         | RightA of int
+        | ROR of int
+        | RRX
         | NoShift
 
     /// Register ID D.U
