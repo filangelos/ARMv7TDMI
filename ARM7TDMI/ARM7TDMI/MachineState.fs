@@ -102,6 +102,15 @@ module MachineState =
             ( fun (address: Address) (value: byte) (state: MachineState) -> 
                 { state with Memory = Optics.set Memory.Byte_ address value (Optics.get MachineState.Memory_ state) } )
 
+        /// Memory Byte Composition Optic Function
+        static member Word_ =
+            // Getter: Address -> MachineState -> Data
+            ( fun (address: Address) (state: MachineState) -> 
+                Optics.get Memory.Word_ address (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> Data -> MachineState -> MachineState
+            ( fun (address: Address) (value: Data) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.Word_ address value (Optics.get MachineState.Memory_ state) } )
+
     /// MachineState Initialisation
     let make () : MachineState =
         let registers : Registers =
