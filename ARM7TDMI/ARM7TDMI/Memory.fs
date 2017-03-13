@@ -29,10 +29,20 @@ module Memory =
             ( fun (memory: Memory) -> memory.Storage ), 
             ( fun (storage: Map<Address, byte>) (memory: Memory) -> { memory with Storage = storage } )
 
-        /// Register Composition Optic Function
+        /// Byte Access Composition Optic Function
         static member DataByte_ =
             // Getter: Address -> Memory -> byte
             ( fun (address: Address) (memory: Memory) -> memory.Storage.Item address ),
+            // Setter: Address -> byte -> Memory -> Memory
+            ( fun (address: Address) (value: byte) (memory: Memory) -> 
+                { memory with Storage = Map.add address value memory.Storage } )
+
+        /// Word Access Composition Optic Function
+        static member DataWord_ =
+            // Getter: Address -> Memory -> byte
+            ( fun (address: Address) (memory: Memory) -> 
+                if (address % 4 = 0) then memory.Storage.Item address 
+                else failwith "incorrect address passed"),
             // Setter: Address -> byte -> Memory -> MachineState
             ( fun (address: Address) (value: byte) (memory: Memory) -> 
                 { memory with Storage = Map.add address value memory.Storage } )

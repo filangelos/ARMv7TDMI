@@ -49,7 +49,6 @@ module MachineState =
             // Setter: RegisterID -> Data -> MachineState -> MachineState
             ( fun (id: FlagID) (value: bool) (state: MachineState) -> { state with StatusBits = Map.add id value state.StatusBits } )
 
-
         /// Set V (overflow) Flag
         static member setOverflow =
             // Setter: Data -> Data -> MachineState -> MachineState
@@ -93,6 +92,15 @@ module MachineState =
         static member setCarryRShift =
             ( fun (a: Data) (b: Data) (state: MachineState) ->
                 (a, Optics.set MachineState.Flag_ C ((uint32 (b &&& (1 <<< 31))) > 0u) state) )
+
+        /// Memory Byte Composition Optic Function
+        static member Byte_ =
+            // Getter: Address -> MachineState -> byte
+            ( fun (address: Address) (state: MachineState) -> 
+                Optics.get Memory.DataByte_ address (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> byte -> MachineState -> MachineState
+            ( fun (address: Address) (value: byte) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.DataByte_ address value (Optics.get MachineState.Memory_ state) } )
 
     /// MachineState Initialisation
     let make () : MachineState =
