@@ -7,7 +7,7 @@
     Contributors: Youssef Rizk
 
     Module: Artihmetic Instructions
-    Description: 
+    Description: ALU Instructions
 *)
 
 module Instructions =
@@ -351,19 +351,19 @@ module Instructions =
     //printfn "%A" c3
 
     //test code for subtractWithCarry Function
-    let a = MachineState.make()
-    let b = mov (R0, Operand(Literal(0),NoShift), a, false)
-    let c = (^=) R1 5 b
-    let d = ( ^- ) C false c
-    let e = ( ^- ) V false d
-    let f = ( ^- ) N false e
-    let g = ( ^- ) Z false f
-    let z = mov (R0, Operand(Literal(-1),NoShift), g, false)
-    let h = subtractWithCarryS (R3,Operand(ID R0, NoShift),Operand(Literal 0, NoShift),z, true, true)
-    let i = subtractWithCarryS (R2,Operand(ID(R0),NoShift),Operand(ID(R8),NoShift),h, true, true)
-    printfn "%A" z
-    printfn "%A" h
-    printfn "%A" i
+    //let a = MachineState.make()
+    //let b = mov (R0, Operand(Literal(0),NoShift), a, false)
+    //let c = (^=) R1 5 b
+    //let d = ( ^- ) C false c
+    //let e = ( ^- ) V false d
+    //let f = ( ^- ) N false e
+    //let g = ( ^- ) Z false f
+    //let z = mov (R0, Operand(Literal(-1),NoShift), g, false)
+    //let h = subtractWithCarryS (R3,Operand(ID R0, NoShift),Operand(Literal 0, NoShift),z, true, true)
+    //let i = subtractWithCarryS (R2,Operand(ID(R0),NoShift),Operand(ID(R8),NoShift),h, true, true)
+    //printfn "%A" z
+    //printfn "%A" h
+    //printfn "%A" i
 
     ////test code for rsb Function
     //let a = MachineState.make()
