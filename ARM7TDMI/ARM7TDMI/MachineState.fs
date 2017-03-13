@@ -30,6 +30,11 @@ module MachineState =
             ( fun (state: MachineState) -> state.StatusBits ), 
             ( fun (flags: Flags) (state: MachineState) -> { state with StatusBits = flags } )
 
+        /// Memory Optic Function
+        static member Memory_ =
+            ( fun (state: MachineState) -> state.Memory ), 
+            ( fun (memory: Memory) (state: MachineState) -> { state with Memory = memory } )
+
         /// Register Composition Optic Function
         static member Register_ =
             // Getter: RegisterID -> MachineState -> Data
@@ -44,8 +49,6 @@ module MachineState =
             // Setter: RegisterID -> Data -> MachineState -> MachineState
             ( fun (id: FlagID) (value: bool) (state: MachineState) -> { state with StatusBits = Map.add id value state.StatusBits } )
 
-        /// Memory
-        static member Memory_ = 0
 
         /// Set V (overflow) Flag
         static member setOverflow =
@@ -109,6 +112,6 @@ module MachineState =
             // construct Map
             |> Map.ofArray
 
-        { Registers = registers ; StatusBits = flags }
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)

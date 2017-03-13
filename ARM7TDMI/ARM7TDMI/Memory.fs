@@ -41,4 +41,7 @@ module Memory =
     let make (ast: AST) : Memory =
         { AST = ast ; Storage = Map.empty<Address, byte> }
 
+    let makeHack () : Memory =
+        { AST = ([], Map.empty<string, Address>) ; Storage = Map.empty<Address, byte> }
+
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
