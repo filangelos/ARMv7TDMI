@@ -30,7 +30,7 @@ module Memory =
             ( fun (storage: Map<Address, byte>) (memory: Memory) -> { memory with Storage = storage } )
 
         /// Byte Access Composition Optic Function
-        static member DataByte_ =
+        static member Byte_ =
             // Getter: Address -> Memory -> byte
             ( fun (address: Address) (memory: Memory) -> memory.Storage.Item address ),
             // Setter: Address -> byte -> Memory -> Memory
@@ -38,14 +38,33 @@ module Memory =
                 { memory with Storage = Map.add address value memory.Storage } )
 
         /// Word Access Composition Optic Function
-        static member DataWord_ =
-            // Getter: Address -> Memory -> byte
+        static member Word_ =
+            // Getter: Address -> Memory -> Data
             ( fun (address: Address) (memory: Memory) -> 
-                if (address % 4 = 0) then memory.Storage.Item address 
-                else failwith "incorrect address passed"),
-            // Setter: Address -> byte -> Memory -> MachineState
-            ( fun (address: Address) (value: byte) (memory: Memory) -> 
-                { memory with Storage = Map.add address value memory.Storage } )
+                match (address % 4 = 0) with
+                | true ->
+                    let raw = 
+                        [| Optics.get Memory.Byte_ address memory
+                           Optics.get Memory.Byte_ (address + 1) memory
+                           Optics.get Memory.Byte_ (address + 2) memory
+                           Optics.get Memory.Byte_ (address + 3) memory |]
+                    int raw.[0] ||| ((int raw.[1]) <<< 8) + ((int raw.[2]) <<< 16) + ((int raw.[3]) <<< 24)
+                | false -> failwith "incorrect address passed" ),
+            // Setter: Address -> Data -> Memory -> MachineState
+            ( fun (address: Address) (value: Data) (memory: Memory) ->
+                match (address % 4 = 0) with
+                | true ->
+                    // Maps Merger Function
+                    let merge (p:Map<'a,'b>) (q:seq<'a*'b>) = 
+                        Map(Seq.concat [ (Map.toSeq p) ; q ])
+                    // Raw Bytes to be copied
+                    let raw : (Address * byte) [] =
+                        [| address, byte value
+                           address + 1, byte (value >>> 8)
+                           address + 2, byte (value >>> 16)
+                           address + 3, byte (value >>> 24) |]
+                    { memory with Storage = merge memory.Storage raw }
+                | false -> failwith "incorrect address passed" )
 
     /// Memory Initialisation
     let make (ast: AST) : Memory =

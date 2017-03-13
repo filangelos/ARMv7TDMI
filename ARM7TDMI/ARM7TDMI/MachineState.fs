@@ -97,10 +97,10 @@ module MachineState =
         static member Byte_ =
             // Getter: Address -> MachineState -> byte
             ( fun (address: Address) (state: MachineState) -> 
-                Optics.get Memory.DataByte_ address (Optics.get MachineState.Memory_ state) ),
+                Optics.get Memory.Byte_ address (Optics.get MachineState.Memory_ state) ),
             // Setter: Address -> byte -> MachineState -> MachineState
             ( fun (address: Address) (value: byte) (state: MachineState) -> 
-                { state with Memory = Optics.set Memory.DataByte_ address value (Optics.get MachineState.Memory_ state) } )
+                { state with Memory = Optics.set Memory.Byte_ address value (Optics.get MachineState.Memory_ state) } )
 
     /// MachineState Initialisation
     let make () : MachineState =
