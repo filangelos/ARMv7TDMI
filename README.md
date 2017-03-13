@@ -33,4 +33,4 @@ Decomposition
 - [x] Write flag-setting function
 - [ ] Support for all arithmetic instructions
 - [ ] Error Handling Framework - "Printing" Monad
-- [ ] Memory Implementation
+- [x] Memory Implementation
