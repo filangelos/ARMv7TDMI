@@ -281,6 +281,9 @@ module Instructions =
     let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
         subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, setFlags)
 
+    let rsc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
+        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, true, setFlags)
+
     let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
         let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
         state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
