@@ -11,7 +11,7 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        //Tokeniser.testTokeniser ()
+        Tokeniser.testTokeniser ()
         MemoryInstructions.simpleLDRSTRtest
         AST.testAST ()
         let x: MachineState = MachineState.make ()
