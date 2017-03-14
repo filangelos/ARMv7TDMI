@@ -28,6 +28,8 @@ module Common =
         | Left of int
         | RightL of int
         | RightA of int
+        | ROR of int
+        | RRX
         | NoShift
 
     /// Register ID D.U
@@ -59,6 +61,7 @@ module Common =
         | Operand of Input*ShiftDirection
 
     /// Instruction Keyword type (please update when new instructions are added whenever possible!)
+    (*
     type InstructionKeyword =
         | ADD | ADC
         | MOV | MVN
@@ -70,18 +73,73 @@ module Common =
         | TST | TEQ
         | LSL | LSR
         | ASR
+        | LDR | STR
+        | ADR
+        | LDM | STM
+    *)
+        
+
+    /// Memory Instruction Prefix Type
+    type StackDirection =
+        | FD | FA | ED | EA
 
     /// Conditional code types (for reading flags)
     type ConditionCode = 
         | EQ | NE | CS | HS | CC | LO | MI | PL
         | VS | VC | HI | LS | GE | LT | GT | LE
-        | AL
+        | AL | NV
+
+    /// Instruction Types
+
+    ///dest, op1 {, SHIFT_op #expression}
+    type InstrType1 = 
+        | MOV | MVN
+
+    ///dest, expression
+    type InstrType2 = 
+        | ADR
+
+    ///dest, op1, op2 {, SHIFT_op #expression}
+    type InstrType3 = 
+        | ADD | ADC | SUB | SBC | RSB | RSC | AND
+        | EOR | BIC | ORR
+    
+    ///dest, op1, op2
+    type InstrType4 = 
+        | LSL | LSR | ASR | ROR_
+
+    ///op1, op2
+    type InstrType5 = 
+        | RRX_
+
+    ///op1, op2 {, SHIFT_op #expression}
+    type InstrType6 =
+        | CMP | CMN | TST | TEQ
+
+    ///dest, [source/dest {, OFFSET}]
+    type InstrType7 = 
+        | LDR | STR
+
+    ///source/dest, {list of registers}
+    type InstrType8 = 
+        | LDM | STM
+
+
 
     /// Token Type
     type Token =
-        | TokInstr of InstructionKeyword
+        //| TokInstr of InstrType
+        | TokInstr1 of InstrType1
+        | TokInstr2 of InstrType2
+        | TokInstr3 of InstrType3
+        | TokInstr4 of InstrType4
+        | TokInstr5 of InstrType5
+        | TokInstr6 of InstrType6
+        | TokInstr7 of InstrType7
+        | TokInstr8 of InstrType8
         | TokS
         | TokCond of ConditionCode
+        | TokStackDir of StackDirection
         | TokLabel of string
         //| TokReg of RegisterID
         //| TokConst of int
@@ -118,7 +176,7 @@ module Common =
     type Condition = FlagID * bool
 
     ///type representing the possible nodes in the AST
-    type Node = InstructionKeyword * Parameters * (Condition option) * Address
+    type Node = InstrType1 * Parameters * (Condition option) * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>

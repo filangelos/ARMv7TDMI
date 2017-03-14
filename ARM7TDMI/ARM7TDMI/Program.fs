@@ -7,10 +7,12 @@ module Program =
     open Tokeniser
     open AST
     open Parser
+    open MemoryInstructions
 
     [<EntryPoint>]
     let main argv =
-        //Tokeniser.testTokeniser ()
+        Tokeniser.testTokeniser ()
+        MemoryInstructions.simpleLDRSTRtest
         AST.testAST ()
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
