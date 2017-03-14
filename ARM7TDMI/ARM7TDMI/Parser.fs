@@ -17,13 +17,6 @@ module Parser =
     open Tokeniser
     open Instructions
     open Common
-
-    type FlagSet =
-        | Twoflags of bool*bool 
-        | Oneflag of bool
-
-    type Expr = 
-        | Instruction of string*RegisterID*RegisterID*Operand*FlagSet
         
     (*IGNORE BELOW - temporary implementation for pipeline*)
 
@@ -79,6 +72,8 @@ module Parser =
         // call inner function with input
         innerFn input
 
+    
+    
     /// Combine two parsers after each other (to achieve parser pipeline)
     let ( >>> ) parser1 parser2 =
         let innerFn input =
@@ -136,23 +131,43 @@ module Parser =
     let choice listOfParsers = 
         List.reduce ( <|> ) listOfParsers 
 
-    //////////////////Testing//////////////
-    let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
-
-    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
-
-    let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
-
-    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
-
+    /// Create a group of possibly accepted states
     let parseGroup =
         let anyOf listOftokens = 
             listOftokens
             |> List.map pToken // convert into parsers
             |> choice
         anyOf 
-    let parseEverything =
-        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma >>> 
-           (parseGroup tokenRegList >>> pToken TokComma >>> parseGroup tokenInstrList) 
+    
+    let mapP f parser = 
+        let innerFn input =
+            // run parser with the input
+            let result = run parser input
+
+            // test the result for Failure/Success
+            match result with
+            | Success (value,remaining) -> 
+                // if success, return the value transformed by f
+                let newValue = f value
+                Success (newValue, remaining)
+
+            | Failure err -> 
+                // if failed, return the error
+                Failure err
+        // return the inner function
+        Parser innerFn 
+    
+    let ( |>> ) x f = mapP f x
+    let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
+    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
+    let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
+
+    let finalPipeline =
+        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
            
-    printf "%A" (run parseEverything testTokenList)
+
+    //////////////////Testing//////////////
+
+    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
+
+    printf "%A" (run finalPipeline testTokenList)
