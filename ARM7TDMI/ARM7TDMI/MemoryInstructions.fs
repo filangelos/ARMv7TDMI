@@ -129,18 +129,18 @@ module MemoryInstructions =
         if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
 
 
-    let simpleLDRSTRtest = 
-    //testing loadInstruction
-        let a3 = MachineState.make()
-        let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
-        printfn "%A" a3
-        printfn "%A" b3
-        let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
-        printfn "%A" c3
-        let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
-        printfn "%A" d3
-        let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
-        printfn "%A" e3
+    //let simpleLDRSTRtest = 
+    ////testing loadInstruction
+    //    let a3 = MachineState.make()
+    //    let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
+    //    printfn "%A" a3
+    //    printfn "%A" b3
+    //    let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
+    //    printfn "%A" c3
+    //    let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
+    //    printfn "%A" d3
+    //    let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
+    //    printfn "%A" e3
 
 
     //let LDMtest = 
@@ -168,3 +168,16 @@ module MemoryInstructions =
     //    let e3 = loadMultiple(DA, R0, [R3;R4], d3, true)
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
+
+    let simpleLDRSTRtest = 
+    //testing loadInstruction
+        let a3 = MachineState.make()
+        let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
+        printfn "%A" a3
+        printfn "%A" b3
+        let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
+        printfn "%A" c3
+        let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 3}, c3)
+        printfn "%A" d3
+        let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
+        printfn "%A" e3
