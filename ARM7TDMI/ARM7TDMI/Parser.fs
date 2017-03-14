@@ -158,16 +158,16 @@ module Parser =
         Parser innerFn 
     
     let ( |>> ) x f = mapP f x
-    let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
+  //  let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
     let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
 
-    let finalPipeline =
-        parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
+   // let finalPipeline =
+     //   parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
            
 
     //////////////////Testing//////////////
 
-    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
+  //  let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
 
-    printf "%A" (run finalPipeline testTokenList)
+//    printf "%A" (run finalPipeline testTokenList)
