@@ -52,6 +52,8 @@ module Tokeniser =
         | "GE" -> TokCond(GE) | "LT" -> TokCond(LT) 
         | "GT" -> TokCond(GT) | "LE" -> TokCond(LE) 
         | "AL" -> TokCond(AL) |  _ -> TokError(str) 
+        
+        
 
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
     let rec private getTokenInstructionFrom (str:string) (lst:Token list) =
@@ -61,43 +63,43 @@ module Tokeniser =
             System.String.Concat [|"("; i; ")"; patternEnd|]
         match str.ToUpper() with
         | MatchToken (Instr "ADD") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(ADD)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADD)])
         | MatchToken (Instr "ADC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(ADC)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADC)])
         | MatchToken (Instr "MOV") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(MOV)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr1(MOV)])
         | MatchToken (Instr "MVN") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(MVN)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr1(MVN)])
         | MatchToken (Instr "ORR") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(ORR)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ORR)])
         | MatchToken (Instr "AND") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(AND)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(AND)])
         | MatchToken (Instr "EOR") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(EOR)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(EOR)])
         | MatchToken (Instr "BIC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(BIC)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(BIC)])
         | MatchToken (Instr "LSL") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(LSL)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr4(LSL)])
         | MatchToken (Instr "LSR") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(LSR)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr4(LSR)])
         | MatchToken (Instr "ASR") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(ASR)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr4(ASR)])
         | MatchToken (Instr "SUB") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(SUB)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SUB)])
         | MatchToken (Instr "SBC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(SBC)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SBC)])
         | MatchToken (Instr "RSB") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(RSB)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSB)])
         | MatchToken (Instr "RSC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(RSC)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSC)])
         | MatchToken (Instr "CMP") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(CMP)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr6(CMP)])
         | MatchToken (Instr "CMN") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(CMN)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr6(CMN)])
         | MatchToken (Instr "TST") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(TST)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr6(TST)])
         | MatchToken (Instr "TEQ") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr(TEQ)])
+            getTokenInstructionFrom leftovers (lst @ [TokInstr6(TEQ)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
