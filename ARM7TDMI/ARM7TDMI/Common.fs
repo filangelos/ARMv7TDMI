@@ -84,7 +84,7 @@ module Common =
     type ConditionCode = 
         | EQ | NE | CS | HS | CC | LO | MI | PL
         | VS | VC | HI | LS | GE | LT | GT | LE
-        | AL
+        | AL | NV
 
     /// Token Type
     type Token =
