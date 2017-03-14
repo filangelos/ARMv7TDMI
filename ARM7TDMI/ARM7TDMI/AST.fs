@@ -20,6 +20,7 @@ module AST =
     let private ( ^= ) = Optics.set MachineState.Register_
     let private ( ^* ) = Optics.get MachineState.Flag_
     let private ( ^- ) = Optics.set MachineState.Flag_
+    let private ( ^% ) = Optics.get MachineState.AST_
 
     ////Build the AST in the parser using these functions////
 
@@ -43,6 +44,107 @@ module AST =
         | None -> true
 
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
+    let rec reduce (state:MachineState) (pc:int) (maxPC:int) =
+        if pc <= maxPC then
+            // try to find a node with address matching pc, if not found, catch exception from List.find
+            try 
+                match (( ^% ) state) with
+                | (nodes, labels) ->
+                    let currentNode = List.find (fun x -> match x with | (_,_,_,addr) -> addr = pc) nodes
+                    printfn "executing node at pc=%A" pc
+                    match currentNode with
+                    | (f, p, cond, addr) -> 
+                        //evaluate conditional code
+                        if evaluateCondition cond state then
+                            match f, p with
+                            | ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | MOV, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | MVN, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce (Instructions.mvn (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ORR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.orr (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | AND, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.andOp (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | EOR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.eOR (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | BIC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.bic (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | LSL, Param_Rd_Op_Bool((regD, op2, setFlags))
+                            | LSR, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ASR, Param_Rd_Input_Int_Bool((regD, input, shift, setFlags)) ->
+                                reduce (Instructions.arithmeticRightShift (regD, input, shift, state, setFlags)) (pc+1) (maxPC)
+                            | SUB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.sub_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | SBC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.sbc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.rsb_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce (Instructions.rsc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | CMP, Param_Rd_Op((regD, op2)) ->
+                                reduce (Instructions.cmp_ (regD, op2, state)) (pc+1) maxPC
+                            | CMN, Param_Rd_Op((regD, op2)) ->
+                                reduce (Instructions.cmn_ (regD, op2, state)) (pc+1) maxPC
+                            | TST, Param_Rd_Op((regD, op2)) ->
+                                reduce (Instructions.tst_ (regD, op2, state)) (pc+1) maxPC
+                            | TEQ, Param_Rd_Op((regD, op2)) ->
+                                reduce (Instructions.teq_ (regD, op2, state)) (pc+1) maxPC
+                            | _ -> failwithf "Could not execute node: %A" currentNode
+                        else
+                            reduce state (pc+1) maxPC
+            with
+                | _ -> reduce state (pc+1) maxPC
+        else
+            state
+
+    let step (state:MachineState) (pc:int) =
+        reduce state pc (pc)
+
+    (*--------------------------------------------------------TESTING--------------------------------------------------------*)
+
+    let testAST () =
+        printfn "Running testAST:"
+        let myAst1 = ([], Map.empty<string, Address>)
+        let  myAst2 = addInstruction myAst1 (MOV) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false)) (None) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true)) (None) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
+        printfn "ast is:\n%A\n" myAst5
+        let stateWithAst = MachineState.init(myAst5)
+        printfn "Reducing AST..."
+        let resultState2 = reduce stateWithAst 0 10
+        //let resultState2 = step stateWithAst 2
+        printfn "final result state for this ast is:\n%A\n" resultState2
+
+
+
+        printfn "Finished testAST.\n"
+
+        
+
+    (*------------------------------------------------------------------------------------------------------------------------*)
+    //IGNORE ANYTHING BELOW HERE
+    (*
+
+    let parse (lst:Token list) =
+        let tokenLst = 
+
+
+
+
+
+
+
+    *)
+
+    (*------------------------------------------------------------------------------------------------------------------------*)
+
+        (*
     let rec reduce (ast:AST) (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
             // try to find a node with address matching pc, if not found, catch exception from List.find
@@ -100,43 +202,9 @@ module AST =
                 | _ -> reduce ast state (pc+1) maxPC
         else
             state
-
-    (*--------------------------------------------------------TESTING--------------------------------------------------------*)
-
-    let testAST () =
-        printfn "Running testAST:"
-        let emptyState = MachineState.make()
-        printfn "empty machine state:\n%A\n" emptyState
-        let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
-        printfn "ast is:\n%A\n" myAst5
-        printfn "Reducing AST..."
-        let resultState2 = reduce myAst5 emptyState 0 10
-        printfn "final result state for this ast is:\n%A\n" resultState2
-
-
-
-        printfn "Finished testAST.\n"
-
-        
-
-    (*------------------------------------------------------------------------------------------------------------------------*)
-    //IGNORE ANYTHING BELOW HERE
-    (*
-
-    let parse (lst:Token list) =
-        let tokenLst = 
-
-
-
-
-
-
-
     *)
+
+
     (*------------------------------------------------------------------------------------------------------------------------*)
 
     (* OLD AST - ONLY WORKS WITH ONE TYPE OF INSTRUCTION. This method was much more efficient so maybe come back to this method later. *)
