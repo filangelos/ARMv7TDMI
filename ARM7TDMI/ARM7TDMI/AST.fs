@@ -26,7 +26,7 @@ module AST =
 
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
     ///usage: addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) [-current address int value-]
-    let addInstruction (ast:AST) (f:InstructionKeyword) (p:Parameters) (c:Condition option) (addr:Address) =
+    let addInstruction (ast:AST) (f:InstrType1) (p:Parameters) (c:Condition option) (addr:Address) =
         match ast with
         | lst, labelMap -> (lst @ [(f, p, c, addr)], labelMap)
 
@@ -61,14 +61,15 @@ module AST =
                         //evaluate conditional code
                         if evaluateCondition cond state then
                             match f, p with
-                            | ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
-                                reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
-                            | ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
-                                reduce (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            //| ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                            //    reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            //| ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                            //    reduce (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
                             | MOV, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
                                 reduce (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
                             | MVN, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
                                 reduce (Instructions.mvn (regD, op2, state, setFlags)) (pc+1) maxPC
+                            (*
                             | ORR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
                                 reduce (Instructions.orr (regD, regN, op2, state, setFlags)) (pc+1) maxPC
                             | AND, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
@@ -98,6 +99,7 @@ module AST =
                                 reduce (Instructions.tst_ (regD, op2, state)) (pc+1) maxPC
                             | TEQ, Param_Rd_Op((regD, op2)) ->
                                 reduce (Instructions.teq_ (regD, op2, state)) (pc+1) maxPC
+                            *)
                             | _ -> failwithf "Could not execute node: %A" currentNode
                         else
                             reduce state (pc+1) maxPC
@@ -135,8 +137,7 @@ module AST =
     //IGNORE ANYTHING BELOW HERE
     (*
 
-    let parse (lst:Token list) =
-        let tokenLst = 
+    Instruction = T
 
 
 
