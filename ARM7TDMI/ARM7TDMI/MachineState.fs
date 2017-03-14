@@ -93,6 +93,15 @@ module MachineState =
             ( fun (a: Data) (b: Data) (state: MachineState) ->
                 (a, Optics.set MachineState.Flag_ C ((uint32 (b &&& (1 <<< 31))) > 0u) state) )
 
+        /// Memory AST Composition Optic Function
+        static member AST_ =
+            // Getter: Address -> MachineState -> byte
+            ( fun (state: MachineState) -> 
+                Optics.get Memory.AST_ (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> byte -> MachineState -> MachineState
+            ( fun (ast: AST) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.AST_ ast (Optics.get MachineState.Memory_ state) } )
+
         /// Memory Byte Composition Optic Function
         static member Byte_ =
             // Getter: Address -> MachineState -> byte
@@ -130,5 +139,25 @@ module MachineState =
             |> Map.ofArray
 
         { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
+
+    /// MachineState Initialisation
+    let init (ast: AST) : MachineState =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Common.enumerator<RegisterID>
+            // Initialise all Registers to zero
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
+
+        let flags : Flags =
+            // Enumerate all Flags
+            Common.enumerator<FlagID>
+            // Initialise all Status Bits to zero
+            |> Array.map ( fun id -> id, false )
+            // construct Map
+            |> Map.ofArray
+
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.make ast }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
