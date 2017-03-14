@@ -170,14 +170,15 @@ module MemoryInstructions =
     //    printfn "Memory Instruction Testing Done" 
 
     let simpleLDRSTRtest = 
-    //testing loadInstruction
-        let a3 = MachineState.make()
-        let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
-        printfn "%A" a3
-        printfn "%A" b3
-        let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
-        printfn "%A" c3
-        let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 3}, c3)
-        printfn "%A" d3
-        let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
-        printfn "%A" e3
+        printfn "%A" (MachineState.make())
+    ////testing loadInstruction
+    //    let a3 = MachineState.make()
+    //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
+    //    printfn "%A" a3
+    //    printfn "%A" b3
+    //    let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
+    //    printfn "%A" c3
+    //    let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 3}, c3)
+    //    printfn "%A" d3
+    //    let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
+    //    printfn "%A" e3
