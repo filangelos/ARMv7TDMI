@@ -43,6 +43,10 @@ module AST =
             ( ^* ) fID state = eq
         | None -> true
 
+    ///get address from label
+    let getAddress (label: string) (state: MachineState) : Address =
+        Map.find label (snd (( ^% ) state ))
+
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let rec reduce (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
