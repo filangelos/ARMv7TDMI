@@ -129,18 +129,18 @@ module MemoryInstructions =
         if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
 
 
-    //let simpleLDRSTRtest = 
-    ////testing loadInstruction
-    //    let a3 = MachineState.make()
-    //    let b3 = storeInstruction (2, {register= R0; offset= TempOffset 4}, a3)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = storeInstruction (1, {register= R1; offset= PreIndex 8}, b3)
-    //    printfn "%A" c3
-    //    let d3 = loadInstruction (R2, {register= R0; offset= TempOffset 4}, c3)
-    //    printfn "%A" d3
-    //    let e3 = loadInstruction (R1, {register= R1; offset= NoOffset}, d3)
-    //    printfn "%A" e3
+    let simpleLDRSTRtest = 
+    //testing loadInstruction
+        let a3 = MachineState.make()
+        let b3 = storeInstruction (2, {register= R0; offset= TempOffset 4}, a3)
+        printfn "%A" a3
+        printfn "%A" b3
+        let c3 = storeInstruction (1, {register= R1; offset= PreIndex 8}, b3)
+        printfn "%A" c3
+        let d3 = loadInstruction (R2, {register= R0; offset= TempOffset 4}, c3)
+        printfn "%A" d3
+        let e3 = loadInstruction (R1, {register= R1; offset= NoOffset}, d3)
+        printfn "%A" e3
 
 
     //let LDMtest = 
@@ -155,16 +155,16 @@ module MemoryInstructions =
     //    printfn "%A" d3  
     //    printfn "Memory Instruction Testing Done"    
 
-    let STMtest = 
-        printfn "Starting STM Memory Instruction Testing" 
-        let a3 = MachineState.make()
-        let b3 = mov (R5, Operand(Literal(5),NoShift), a3, false)
-        printfn "%A" a3
-        printfn "%A" b3
-        let c3 = mov (R6, Operand(Literal(6),NoShift), b3, false)
-        printfn "%A" c3
-        let d3 = storeMultiple(IB, R0, [R5;R6], c3, true) 
-        printfn "%A" d3 
-        let e3 = loadMultiple(DA, R0, [R3;R4], d3, true)
-        printfn "%A" e3  
-        printfn "Memory Instruction Testing Done" 
+    //let STMtest = 
+    //    printfn "Starting STM Memory Instruction Testing" 
+    //    let a3 = MachineState.make()
+    //    let b3 = mov (R5, Operand(Literal(5),NoShift), a3, false)
+    //    printfn "%A" a3
+    //    printfn "%A" b3
+    //    let c3 = mov (R6, Operand(Literal(6),NoShift), b3, false)
+    //    printfn "%A" c3
+    //    let d3 = storeMultiple(IB, R0, [R5;R6], c3, true) 
+    //    printfn "%A" d3 
+    //    let e3 = loadMultiple(DA, R0, [R3;R4], d3, true)
+    //    printfn "%A" e3  
+    //    printfn "Memory Instruction Testing Done" 

@@ -72,6 +72,13 @@ module Common =
         | TST | TEQ
         | LSL | LSR
         | ASR
+        | LDR | STR
+        | ADR
+        | LDM | STM
+
+    /// Memory Instruction Prefix Type
+    type StackDirection =
+        | FD | FA | ED | EA
 
     /// Conditional code types (for reading flags)
     type ConditionCode = 
@@ -84,6 +91,7 @@ module Common =
         | TokInstr of InstructionKeyword
         | TokS
         | TokCond of ConditionCode
+        | TokStackDir of StackDirection
         | TokLabel of string
         //| TokReg of RegisterID
         //| TokConst of int
