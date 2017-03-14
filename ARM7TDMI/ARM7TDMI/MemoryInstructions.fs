@@ -99,12 +99,12 @@ module MemoryInstructions =
         let addVal = (^.) addRegister state
 
         let addressList = match addMode with
-                          | ED | IB -> [(addVal + 4)..4..(addVal + 4*listSize)]
+                          | ED | IB -> [(addVal + 4).. 4 ..(addVal + 4*listSize)]
                           | EA | DB -> [(addVal - 4*listSize).. 4 ..(addVal - 4)]
-                          | FD | IA -> [(addVal)..4..(addVal + 4*(listSize - 1))]
+                          | FD | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | FA | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList regList
+        let combinedList = List.zip addressList (List.sort regList)
 
         let finstate = List.fold (fun st (a,b) -> (^=) b ((gw) a st) st) state combinedList
 
@@ -117,12 +117,12 @@ module MemoryInstructions =
         let addVal = (^.) addRegister state
 
         let addressList = match addMode with
-                          | FA | IB -> [(addVal + 4)..4..(addVal + 4*listSize)]
+                          | FA | IB -> [(addVal + 4).. 4 ..(addVal + 4*listSize)]
                           | FD | DB -> [(addVal - 4*listSize).. 4 ..(addVal - 4)]
-                          | EA | IA -> [(addVal)..4..(addVal + 4*(listSize - 1))]
+                          | EA | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | ED | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList regList
+        let combinedList = List.zip addressList (List.sort regList)
 
         let finstate = List.fold (fun st (a,b) -> (sw) a ((^.) b st) st) state combinedList
 
