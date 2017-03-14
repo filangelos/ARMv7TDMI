@@ -158,6 +158,24 @@ module Parser =
         Parser innerFn 
     
     let ( |>> ) x f = mapP f x
+
+    let returnP x = 
+        let innerFn input =
+            // ignore the input and return x
+            Success (x,input )
+        // return the inner function
+        Parser innerFn 
+
+    let applyP fP xP = 
+        // create a Parser containing a pair (f,x)
+        (fP >>> xP) 
+        // map the pair by applying f to x
+        |> mapP (fun (f,x) -> f x)
+
+    let lift2 f xP yP =
+        returnP f <*> xP <*> yP
+
+  
   //  let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
     let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
