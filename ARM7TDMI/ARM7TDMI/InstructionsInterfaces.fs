@@ -36,7 +36,12 @@ module InstructionsInterfaces =
         | None -> true
         | _ -> false
 
+       
+    let mov_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
+        mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool))
 
+    let mvn_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
+        mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool))
 
     let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
         if (executeOrNot (cond) state) then addWithCarryS (regD, regN, op2, state, false, setFlags) else state
