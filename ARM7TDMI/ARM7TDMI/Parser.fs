@@ -230,10 +230,12 @@ module Parser =
         List.reduce ( <|> ) listOfParsers 
 
     /// Choose any of a list of characters
-    let anyOf listOfTokens = 
-        listOfTokens
+    let anyOf tokenList = 
+        let label = sprintf "anyOf %A" tokenList
+        tokenList
         |> List.map pToken // convert into parsers
         |> choice
+        <?> label
     /// Convert a list of Parsers into a Parser of a list
     let rec sequence parserList =
         // define the "cons" function, which is a two parameter function
@@ -331,6 +333,8 @@ module Parser =
         let pInstr1 = anyOf tokenInstrList <?> "Type 1 Instruction"
         let pCond = anyOf tokenCondList <?> "Conditional Code"
         let pReg = anyOf tokenRegList <?> "Register"
+        0
+        //let label = "Instruction Type 1"
         
 
 
@@ -345,6 +349,6 @@ module Parser =
 
     //////////////////Testing//////////////
 
-    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
+    let testTokenList = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
 
 //    printf "%A" (run finalPipeline testTokenList)
