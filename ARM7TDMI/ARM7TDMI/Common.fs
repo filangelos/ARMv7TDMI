@@ -159,7 +159,7 @@ module Common =
         | Instr6 of InstrType6
         | Instr7 of InstrType7
         | Instr8 of InstrType8
-        | Label
+        | Label of string
 
     type Operation = 
         | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
