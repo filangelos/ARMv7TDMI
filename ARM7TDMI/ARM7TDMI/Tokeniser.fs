@@ -34,11 +34,23 @@ module Tokeniser =
 
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let private getTokenRegisterFromID (id:int) = 
+        match id with
+        | 0 -> TokOperand(ID(R0))   | 1 -> TokOperand(ID(R1))
+        | 2 -> TokOperand(ID(R2))   | 3 -> TokOperand(ID(R3))
+        | 4 -> TokOperand(ID(R4))   | 5 -> TokOperand(ID(R5))
+        | 6 -> TokOperand(ID(R6))   | 7 -> TokOperand(ID(R7))
+        | 8 -> TokOperand(ID(R8))   | 9 -> TokOperand(ID(R9))
+        | 10 -> TokOperand(ID(R10)) | 11 -> TokOperand(ID(R11))
+        | 12 -> TokOperand(ID(R12)) | 13 -> TokOperand(ID(R13))
+        | 14 -> TokOperand(ID(R14)) | 15 -> TokOperand(ID(R15))
+        | _ -> TokError("R"+id.ToString())
+        (*
         try 
             let regArr = enumerator<RegisterID>
             TokOperand(ID(regArr.[id]))
         with
             | _ -> TokError("R"+id.ToString())
+        *)
 
 
     let private getTokenConditionalCodeFrom (str:string) =
@@ -252,7 +264,7 @@ module Tokeniser =
 
 
         //temporary testing, will add robust testing later
-        printfn "Testing Comments Removal... (will improve testing later)\ninput\t->\toutput:"
+        printfn "Testing Comments Removal...\ninput\t->\toutput:"
         let test = "; This is a comment"
         printfn "1. %A\t->\t%A" (test) (removeComments test)
         let test2 = "MOV r1, r2 ;End of line comment"

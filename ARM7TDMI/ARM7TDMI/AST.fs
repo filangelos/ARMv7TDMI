@@ -22,19 +22,23 @@ module AST =
     let private ( ^- ) = Optics.set MachineState.Flag_
     let private ( ^% ) = Optics.get MachineState.AST_
 
-    ////Build the AST in the parser using these functions////
-
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
-    ///usage: addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) [-current address int value-]
     let addInstruction (ast:AST) (f:Instruction) (p:Parameters) (addr:Address) =
         match ast with
         | lst, labelMap -> (lst @ [(f, p, addr)], labelMap)
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
-    ///usage: addLabelNode ast LABEL1 [-current address int value-]
     let addLabel (ast:AST) (name:string) (addr:Address) =
         match ast with
         | lst, labelMap -> (lst, labelMap.Add (name, addr))
+
+    ///Build the AST from the list given by Parser
+    let buildAST (lst:((Instruction * Parameters) list)) =
+        //let rec addNode (ast:AST) (lst:((Instruction * Parameters) list)) =
+            //([], Map.empty())
+            //match lst with
+            //| node::t -> addInstruction
+        ([], Map.empty<string, Address>)
 
     ///evaluates a condtion of type Condition and returns true or false
     (*
@@ -136,8 +140,9 @@ module AST =
         let resultState2 = reduce stateWithAst 0 10
         printfn "final result state for this ast is:\n%A\n" resultState2
         *)
-
-
+        printfn "Running testAST:"
+        let myAst1 = ([], Map.empty<string, Address>)
+        //let  myAst2 = addInstruction myAst1 (Instr1(MOV)) (Param_Rd_Op_Bool_Cond(R1, Operand(Literal(13),NoShift), false, None)) 2
 
 
         printfn "Finished testAST.\n"

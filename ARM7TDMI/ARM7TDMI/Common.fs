@@ -128,7 +128,6 @@ module Common =
 
     /// Token Type
     type Token =
-        //| TokInstr of InstrType
         | TokInstr1 of InstrType1
         | TokInstr2 of InstrType2
         | TokInstr3 of InstrType3
@@ -141,8 +140,6 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        //| TokReg of RegisterID
-        //| TokConst of int
         | TokOperand of Input
         | TokComma
         | TokExclam
@@ -162,6 +159,7 @@ module Common =
         | Instr6 of InstrType6
         | Instr7 of InstrType7
         | Instr8 of InstrType8
+        | Label
 
     type Operation = 
         | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
@@ -178,6 +176,7 @@ module Common =
         | Param_Rd_Rn_Op_Bool_Cond of (RegisterID * RegisterID * Operand * bool * (ConditionCode option))                //(regD, regN, op2, setFlags)
         | Param_Rd_Input_Int_Bool_Cond of (RegisterID * Input * int * bool * (ConditionCode option))                      //(regD, regN, op2, shift, setFlags)
         | Param_Rd_Op_Cond of (RegisterID * Operand * (ConditionCode option))                                            //(regD, op2)
+        | NoParam
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
