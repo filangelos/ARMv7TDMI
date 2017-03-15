@@ -330,11 +330,14 @@ module Parser =
         let tokenInstrList = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
         let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
         let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
-        let pInstr1 = anyOf tokenInstrList <?> "Type 1 Instruction"
+        let pInstr1 = anyOf tokenInstrList <?> "Type 1 Opcode"
+        let pS = pToken (TokS S) <?> "Set Flag Variable"
         let pCond = anyOf tokenCondList <?> "Conditional Code"
         let pReg = anyOf tokenRegList <?> "Register"
-        0
-        //let label = "Instruction Type 1"
+        let label = "Instruction Type 1"
+
+        pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg <?> "Instruction Type 1"
+
         
 
 
@@ -350,5 +353,4 @@ module Parser =
     //////////////////Testing//////////////
 
     let testTokenList = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
-
-//    printf "%A" (run finalPipeline testTokenList)
+    printf "%A" (run instType1 testTokenList)
