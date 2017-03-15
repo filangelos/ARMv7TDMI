@@ -32,6 +32,12 @@ module Common =
         | RRX
         | NoShift
 
+    type StackDirection = 
+        | FA
+        | FD
+        | EA
+        | ED
+
     /// Register ID D.U
     type RegisterID =
         | R0  | R1  | R2  | R3  | R4
@@ -125,6 +131,7 @@ module Common =
         | LDM | STM
 
     type SType = | S
+    type BType = | B
 
     /// Token Type
     type Token =
@@ -137,6 +144,7 @@ module Common =
         | TokInstr7 of InstrType7
         | TokInstr8 of InstrType8
         | TokS of SType
+        | TokB of BType
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string

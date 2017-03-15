@@ -320,37 +320,29 @@ module Parser =
         p |>> (fun _ -> x)
 
     type Instr =
-        |  JInstr1 of InstrType1*Option<Token>*Option<ConditionCode>*RegisterID*RegisterID
-        |  JInstr2
-        |  JInstr3
-        |  JInstr4
-
-        
+        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID
+        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
+        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
+        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
+        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
+        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Input
+        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
+     //   |  JInstr8 of InstrType8*StackDirection*Option<ConditionCode>
+     // Need to Sort out Instructions 7 and 8 because of weird Source Dest Thing
+    let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
+    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
     let instType1 = 
-        let tokenInstrList = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
-        let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
-        let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
-        let pInstr1 = anyOf tokenInstrList <?> "Type 1 Opcode"
+        let tokenInstrList1 = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
+        let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let pS = pToken (TokS S) <?> "Set Flag Variable"
         let pCond = anyOf tokenCondList <?> "Conditional Code"
         let pReg = anyOf tokenRegList <?> "Register"
         let label = "Instruction Type 1"
 
-        pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg <?> "Instruction Type 1"
-
-        
-
-
-
-    //  let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
-    //   let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
-    //   let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
-
-    // let finalPipeline =
-    //   parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
+        ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg >>% JInstr1 )<?> label
            
 
     //////////////////Testing//////////////
 
     let testTokenList = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
-    printf "%A" (run instType1 testTokenList)
+    printf "%A" (run instType1 testTokenList) 
