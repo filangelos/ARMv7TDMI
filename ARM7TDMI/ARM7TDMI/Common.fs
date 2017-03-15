@@ -85,10 +85,6 @@ module Common =
     *)
         
 
-    /// Memory Instruction Prefix Type
-    type StackDirection =
-        | FD | FA | ED | EA
-
     /// Conditional code types (for reading flags)
     type ConditionCode = 
         | EQ | NE | CS | HS | CC | LO | MI | PL
