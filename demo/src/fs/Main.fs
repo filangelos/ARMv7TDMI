@@ -14,7 +14,7 @@ open App.Message
 
 let main () =
     Browser.console.log message
-    Browser.console.log editorR
+    Browser.console.log (x(5))
 
 do
     main ()

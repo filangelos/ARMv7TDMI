@@ -28,8 +28,13 @@ module MemoryInstructions =
     type AddressRegister = 
         {register: RegisterID; offset: Offset}
 
+    type Expression = 
+        | Label of string
+        | Number of int
+
     open MachineState
     open Instructions
+    open AST
 
     //Memory-specific shortcuts
     let ( gb ) = Optics.get MachineState.Byte_
@@ -40,6 +45,34 @@ module MemoryInstructions =
     //let ( ^= ) = Optics.set MachineState.Register_
     //let ( ^* ) = Optics.get MachineState.Flag_
     //let ( ^- ) = Optics.set MachineState.Flag_
+
+    let sortRegister regList =
+
+        let numberRegister = 
+            function
+            | R0 -> 0
+            | R1 -> 1
+            | R2 -> 2
+            | R3 -> 3
+            | R4 -> 4
+            | R5 -> 5
+            | R6 -> 6
+            | R7 -> 7
+            | R8 -> 8
+            | R9 -> 9
+            | R10 -> 10
+            | R11 -> 11
+            | R12 -> 12
+            | R13 -> 13
+            | R14 -> 14
+            | R15 -> 15
+
+
+        let combinedList = List.map (fun a -> (a,numberRegister a)) regList
+
+        let sortList = List.sortBy (fun a -> snd a) combinedList
+
+        List.map (fun a -> fst a) sortList
 
     let addressWithOffset state = function
                                   | {register = R_; offset = PreIndex x} | {register = R_; offset = TempOffset x} -> ((^.) R_ state) + x
@@ -99,12 +132,12 @@ module MemoryInstructions =
         let addVal = (^.) addRegister state
 
         let addressList = match addMode with
-                          | ED | IB -> [(addVal + 4)..4..(addVal + 4*listSize)]
+                          | ED | IB -> [(addVal + 4).. 4 ..(addVal + 4*listSize)]
                           | EA | DB -> [(addVal - 4*listSize).. 4 ..(addVal - 4)]
-                          | FD | IA -> [(addVal)..4..(addVal + 4*(listSize - 1))]
+                          | FD | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | FA | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList regList
+        let combinedList = List.zip addressList (sortRegister regList)
 
         let finstate = List.fold (fun st (a,b) -> (^=) b ((gw) a st) st) state combinedList
 
@@ -117,30 +150,38 @@ module MemoryInstructions =
         let addVal = (^.) addRegister state
 
         let addressList = match addMode with
-                          | FA | IB -> [(addVal + 4)..4..(addVal + 4*listSize)]
+                          | FA | IB -> [(addVal + 4).. 4 ..(addVal + 4*listSize)]
                           | FD | DB -> [(addVal - 4*listSize).. 4 ..(addVal - 4)]
-                          | EA | IA -> [(addVal)..4..(addVal + 4*(listSize - 1))]
+                          | EA | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | ED | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList regList
+        let combinedList = List.zip addressList (sortRegister regList)
 
         let finstate = List.fold (fun st (a,b) -> (sw) a ((^.) b st) st) state combinedList
 
         if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
 
+    //not tested yet
+    let ldrPseudo ((regD: RegisterID), (expr: Expression), (state: MachineState)) =
 
-    let simpleLDRSTRtest = 
-    //testing loadInstruction
-        let a3 = MachineState.make()
-        let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
-        printfn "%A" a3
-        printfn "%A" b3
-        let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
-        printfn "%A" c3
-        let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
-        printfn "%A" d3
-        let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
-        printfn "%A" e3
+        let exprValue = match expr with
+                        | Number x -> x
+                        | Label x -> AST.getAddress x state
+
+        mov (regD, Operand(Literal exprValue, NoShift), state, false)
+
+    //let simpleLDRSTRtest = 
+    ////testing loadInstruction
+    //    let a3 = MachineState.make()
+    //    let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
+    //    printfn "%A" a3
+    //    printfn "%A" b3
+    //    let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
+    //    printfn "%A" c3
+    //    let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
+    //    printfn "%A" d3
+    //    let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
+    //    printfn "%A" e3
 
 
     //let LDMtest = 
@@ -168,3 +209,17 @@ module MemoryInstructions =
     //    let e3 = loadMultiple(DA, R0, [R3;R4], d3, true)
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
+
+    let simpleLDRSTRtest = 
+        printfn "%A" (sortRegister [R10; R12; R1; R3])
+    ////testing loadInstruction
+    //    let a3 = MachineState.make()
+    //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
+    //    printfn "%A" a3
+    //    printfn "%A" b3
+    //    let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
+    //    printfn "%A" c3
+    //    let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 3}, c3)
+    //    printfn "%A" d3
+    //    let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
+    //    printfn "%A" e3

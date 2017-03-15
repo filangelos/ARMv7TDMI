@@ -128,7 +128,6 @@ module Common =
 
     /// Token Type
     type Token =
-        //| TokInstr of InstrType
         | TokInstr1 of InstrType1
         | TokInstr2 of InstrType2
         | TokInstr3 of InstrType3
@@ -141,8 +140,6 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        //| TokReg of RegisterID
-        //| TokConst of int
         | TokOperand of Input
         | TokComma
         | TokExclam
@@ -152,6 +149,17 @@ module Common =
         | TokCurlyRight
         | TokNewLine
         | TokError of string
+
+    type Instruction = 
+        | Instr1 of InstrType1
+        | Instr2 of InstrType2
+        | Instr3 of InstrType3
+        | Instr4 of InstrType4
+        | Instr5 of InstrType5
+        | Instr6 of InstrType6
+        | Instr7 of InstrType7
+        | Instr8 of InstrType8
+        | Label of string
 
     type Operation = 
         | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
@@ -164,19 +172,17 @@ module Common =
 
     ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32). Used in Parser and AST.
     type Parameters =
-        | Param_Rd_Op_Bool of (RegisterID * Operand * bool)                                //(regD, op2, setFlags)
-        | Param_Rd_Rn_Op_Bool of (RegisterID * RegisterID * Operand * bool)                //(regD, regN, op2, setFlags)
-        | Param_Rd_Input_Int_Bool of (RegisterID * Input * int * bool)                      //(regD, regN, op2, shift, setFlags)
-        | Param_Rd_Op of (RegisterID * Operand)                                            //(regD, op2)
+        | Param_Rd_Op_Bool_Cond of (RegisterID * Operand * bool * (ConditionCode option))                                //(regD, op2, setFlags)
+        | Param_Rd_Rn_Op_Bool_Cond of (RegisterID * RegisterID * Operand * bool * (ConditionCode option))                //(regD, regN, op2, setFlags)
+        | Param_Rd_Input_Int_Bool_Cond of (RegisterID * Input * int * bool * (ConditionCode option))                      //(regD, regN, op2, shift, setFlags)
+        | Param_Rd_Op_Cond of (RegisterID * Operand * (ConditionCode option))                                            //(regD, op2)
+        | NoParam
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
 
-    ///type used for specifying a conditional code of the form, FlagID = bool. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
-    type Condition = FlagID * bool
-
     ///type representing the possible nodes in the AST
-    type Node = InstrType1 * Parameters * (Condition option) * Address
+    type Node = Instruction * Parameters * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>

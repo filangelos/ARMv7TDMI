@@ -7,6 +7,11 @@
 * `Registers` type abbreviation of `Map<RegisterID, Data>` representing the register index and content
 * `FlagID` D.U `| N | V | C | Z` representing the status bits
 * `Flags` type abbreviation of `Map<FlagID, bool>` representing the status bits and content
+* Parameters = D.U of tuples for paramters
+* Address = int
+* type Node = Instruction * Parameters * Address
+* type LabelMap = Map<string, Address>
+* type AST = (Node list) * LabelMap
 ---
 ## Functions
 * `Data` "cast" operator : int -> Data

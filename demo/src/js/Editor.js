@@ -29,11 +29,14 @@ amdRequire(['vs/editor/editor.main'], function () {
     renderWhitespace: 'all'
   });
   const run_btn = document.getElementById('run')
-  run_btn.onclick = function () {
-    message = window.editor.getValue()
-    console.log(message);
+  const btn = run_btn.onclick = function () {
+    return window.editor.getValue()
   }
 });
 
-export var message = "message variable";
-export var editorR = "window.editor"
+const message = "message variable";
+const editorR = "window.editor"
+
+function x(y) { console.log( y*y ); null;}
+
+export { message, editorR, x, btn };
