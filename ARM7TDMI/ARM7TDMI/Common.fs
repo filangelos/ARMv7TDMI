@@ -124,7 +124,7 @@ module Common =
     type InstrType8 = 
         | LDM | STM
 
-
+    type SType = | S
 
     /// Token Type
     type Token =
@@ -136,7 +136,7 @@ module Common =
         | TokInstr6 of InstrType6
         | TokInstr7 of InstrType7
         | TokInstr8 of InstrType8
-        | TokS
+        | TokS of SType
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
