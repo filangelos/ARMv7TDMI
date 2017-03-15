@@ -40,76 +40,171 @@ module Parser =
 
 //    let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
 
-/// Type that represents Success/Failure in parsing
+    /// Type that represents Success/Failure in parsing
+    type PLabel = string
+    type PError = string
+
     type Result<'a> =
         | Success of 'a
-        | Failure of string 
+        | Failure of PLabel * PError
 
-/// Type that wraps a parsing function
-    type Parser<'T> = Parser of (Token List -> Result<'T * Token List>)
+    /// Type that wraps a parsing function
+    type Parser<'T> = {
+        parseFunc : (List<Token> -> Result<'T * List<Token>>)
+        pLabel:  PLabel
+        }
 
-/// Parse the Instruction Keyword
-    let pToken tokenToMatch = 
-        // define a nested inner function
+    type Position = {
+        line : int
+        column : int
+    }
+
+    /// define an initial position
+    let initialPos = {line=0; column=0}
+
+    /// increment the column number
+    let incrCol pos = 
+        {pos with column=pos.column + 1}
+
+    /// increment the line number and set the column to 0
+    let incrLine pos = 
+        {line=pos.line + 1; column=0}
+
+    type InputState = {
+        lines : List<Token>[]
+        position : Position
+    }
+
+    // Create a new InputState from a Token List for a specific Line
+    let rec convTokList tokenLst = 
+         match tokenLst with 
+                | [] -> {lines = [||]; position=initialPos}
+            //    | h::tl -> if h = TokNewLine then 
+            //                {lines=h; position=initialPos}
+            //                convTokList tl
+            //                else
+            //                convTokList tl
+
+            
+
+
+    let printOutcome result =
+        match result with
+        | Success (value,input) -> 
+            printfn "%A" value
+        | Failure (label,error) -> 
+            printfn "Error parsing %s\n%s" label error
+
+    let setLabel parser newLabel = 
+        // change the inner function to use the new label
+        let newInnerFn input = 
+            let result = parser.parseFunc input
+            match result with
+            | Success s ->
+                // if Success, do nothing
+                Success s 
+            | Failure (oldLabel,err) -> 
+                // if Failure, return new label
+                Failure (newLabel,err)        // <====== use newLabel here
+        // return the Parser
+        {parseFunc=newInnerFn; pLabel=newLabel}
+
+    
+    let ( <?> ) = setLabel
+    
+    let satisfy predicate label =
         let innerFn (tokenLst: Token List) =
             match tokenLst with 
-                | [] -> Failure "Token List Parsed"
+                | [] -> Failure ("Token List Parsed", "Finished")
                 | h::tl -> 
                     let token = h
-                    if token = tokenToMatch then
+                    if predicate token then
                         let remaining = tl
-                        Success (tokenToMatch,remaining)
-                    else
-                        let msg = sprintf "Expecting '%A'. Got '%A'" tokenToMatch token
-                        Failure msg
-        // return the "wrapped" inner function
-        Parser innerFn 
+                        Success (token,remaining)
+                     else
+                        let err = sprintf "Unexpected %A" token
+                        Failure (label, err)
+        // return the parser
+        {parseFunc=innerFn; pLabel=label}
+
+    // TODO: Split this up into important subtoken structures
+    let pToken tokenToMatch = 
+        let predicate tk = (tk = tokenToMatch) 
+        let label = sprintf "%A" tokenToMatch 
+        satisfy predicate label 
 
     /// Run a parser with some input
     let run parser input = 
         // unwrap parser to get inner function
-        let (Parser innerFn) = parser 
+        let {parseFunc =innerFn; pLabel=label} = parser
         // call inner function with input
         innerFn input
 
-    
-    
-    /// Combine two parsers after each other (to achieve parser pipeline)
-    let ( >>> ) parser1 parser2 =
+    /// "bindP" takes a parser-producing function f, and a parser p
+    /// and passes the output of p into f, to create a new parser
+    let bindP f p =
+        let label = "Empty"
         let innerFn input =
-            // run parser1 with the input
-            let result1 = run parser1 input
-            
-            // test the result for Failure/Success
+            let result1 = run p input 
             match result1 with
-            | Failure err -> 
+            | Failure (label, err) -> 
                 // return error from parser1
-                Failure err  
+                Failure (label, err) 
+            | Success (value1,remainingInput) ->
+                // apply f to get a new parser
+                let p2 = f value1
+                // run parser with remaining input
+                run p2 remainingInput
+        {parseFunc =innerFn; pLabel=label }
 
-            | Success (value1,remaining1) -> 
-                // run parser2 with the remaining input
-                let result2 =  run parser2 remaining1
-                
-                // test the result for Failure/Success
-                match result2 with 
-                | Failure err ->
-                    // return error from parser2 
-                    Failure err 
-                
-                | Success (value2,remaining2) -> 
-                    // combine both values as a pair
-                    let newValue = (value1,value2)
-                    // return remaining input after parser2
-                    Success (newValue,remaining2)
+    /// Infix version of bindP
+    let ( >>= ) p f = bindP f p
 
+    /// Lift a value to a Parser
+    let returnP x = 
+        let innerFn input =
+            // ignore the input and return x
+            Success (x,input)
         // return the inner function
-        Parser innerFn 
+        {parseFunc =innerFn; pLabel= "Success"} 
+
+    /// apply a function to the value inside a parser
+    let mapP f = 
+        bindP (f >> returnP)
+
+    /// infix version of mapP
+    let ( <!> ) = mapP
+
+    /// "piping" version of mapP
+    let ( |>> ) x f = mapP f x
+
+    /// apply a wrapped function to a wrapped value
+    let applyP fP xP =         
+        fP >>= (fun f -> xP >>= (fun x -> returnP (f x) ))
+
+    /// infix version of apply
+    let ( <*> ) = applyP
+
+    /// lift a two parameter function to Parser World
+    let lift2 f xP yP =
+        returnP f <*> xP <*> yP
+
+    /// Combine two parsers as "A andThen B"
+    let andThen p1 p2 =   
+        let label = sprintf "%A andThen %A" (setLabel p1) (setLabel p2)      
+        p1 >>= (fun p1Result -> 
+        p2 >>= (fun p2Result -> 
+            returnP (p1Result,p2Result) ))
+        <?> label
+
+    /// Infix version of andThen
+    let ( .>>. ) = andThen
 
     /// Combine two parsers as "A orElse B"
-    let ( <|> ) parser1 parser2 =
+    let orElse p1 p2 =
         let innerFn input =
             // run parser1 with the input
-            let result1 = run parser1 input
+            let result1 = run p1 input
 
             // test the result for Failure/Success
             match result1 with
@@ -117,75 +212,139 @@ module Parser =
                 // if success, return the original result
                 result1
 
-            | Failure err -> 
+            | Failure (err, label) -> 
                 // if failed, run parser2 with the input
-                let result2 = run parser2 input
+                let result2 = run p2 input
 
                 // return parser2's result
                 result2 
 
         // return the inner function
-        Parser innerFn 
+        {parseFunc =innerFn; pLabel = p1.pLabel;}
+
+    /// Infix version of orElse
+    let ( <|> ) = orElse
 
     /// Choose any of a list of parsers
     let choice listOfParsers = 
         List.reduce ( <|> ) listOfParsers 
 
-    /// Create a group of possibly accepted states
-    let parseGroup =
-        let anyOf listOftokens = 
-            listOftokens
-            |> List.map pToken // convert into parsers
-            |> choice
-        anyOf 
+    /// Choose any of a list of characters
+    let anyOf listOfTokens = 
+        listOfTokens
+        |> List.map pToken // convert into parsers
+        |> choice
+    /// Convert a list of Parsers into a Parser of a list
+    let rec sequence parserList =
+        // define the "cons" function, which is a two parameter function
+        let cons head tail = head::tail
+
+        // lift it to Parser World
+        let consP = lift2 cons
+
+        // process the list of parsers recursively
+        match parserList with
+        | [] -> 
+            returnP []
+        | head::tail ->
+            consP head (sequence tail)
+
+    /// (helper) match zero or more occurences of the specified parser
+    let rec parseZeroOrMore parser input =
+        // run parser with the input
+        let firstResult = run parser input 
+        // test the result for Failure/Success
+        match firstResult with
+        | Failure (err, label) -> 
+            // if parse fails, return empty list
+            ([],input)  
+        | Success (firstValue,inputAfterFirstParse) -> 
+            // if parse succeeds, call recursively
+            // to get the subsequent values
+            let (subsequentValues,remainingInput) = 
+                parseZeroOrMore parser inputAfterFirstParse
+            let values = firstValue::subsequentValues
+            (values,remainingInput)  
+
+    /// matches zero or more occurences of the specified parser
+    let many parser = 
+        let rec innerFn input =
+            // parse the input -- wrap in Success as it always succeeds
+            Success (parseZeroOrMore parser input)
+
+        {parseFunc =innerFn; pLabel="Success"}
+
+    /// matches one or more occurences of the specified parser
+    let many1 p =         
+        p      >>= (fun head -> 
+        many p >>= (fun tail -> 
+            returnP (head::tail) ))
+
+    /// Parses an optional occurrence of p and returns an option value.
+    let opt p = 
+        let some = p |>> Some
+        let none = returnP None
+        some <|> none
+
+    /// Keep only the result of the left side parser
+    let (.>>) p1 p2 = 
+        // create a pair
+        p1 .>>. p2 
+        // then only keep the first value
+        |> mapP (fun (a,b) -> a) 
+
+    /// Keep only the result of the right side parser
+    let (>>.) p1 p2 = 
+        // create a pair
+        p1 .>>. p2 
+        // then only keep the second value
+        |> mapP (fun (a,b) -> b) 
     
-    let mapP f parser = 
-        let innerFn input =
-            // run parser with the input
-            let result = run parser input
+ /// Keep only the result of the middle parser
+    let between p1 p2 p3 = 
+        p1 >>. p2 .>> p3 
 
-            // test the result for Failure/Success
-            match result with
-            | Success (value,remaining) -> 
-                // if success, return the value transformed by f
-                let newValue = f value
-                Success (newValue, remaining)
+    /// Parses one or more occurrences of p separated by sep
+    let sepBy1 p sep =
+        let sepThenP = sep >>. p            
+        p .>>. many sepThenP 
+        |>> fun (p,pList) -> p::pList
 
-            | Failure err -> 
-                // if failed, return the error
-                Failure err
-        // return the inner function
-        Parser innerFn 
-    
-    let ( |>> ) x f = mapP f x
+    /// Parses zero or more occurrences of p separated by sep
+    let sepBy p sep =
+        sepBy1 p sep <|> returnP []
 
-    let returnP x = 
-        let innerFn input =
-            // ignore the input and return x
-            Success (x,input )
-        // return the inner function
-        Parser innerFn 
+    let (>>%) p x =
+        p |>> (fun _ -> x)
 
-    let applyP fP xP = 
-        // create a Parser containing a pair (f,x)
-        (fP >>> xP) 
-        // map the pair by applying f to x
-        |> mapP (fun (f,x) -> f x)
+    type Instr =
+        |  JInstr1 of InstrType1*Option<Token>*Option<ConditionCode>*RegisterID*RegisterID
+        |  JInstr2
+        |  JInstr3
+        |  JInstr4
 
-    let lift2 f xP yP =
-        returnP f <*> xP <*> yP
+        
+    let instType1 = 
+        let tokenInstrList = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
+        let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
+        let tokenRegList = enumerator<RegisterID> |> Array.map ID |> Array.toList
+        0
+      //  let pInstr1 = anyOf tokenInstrList >>% JInstr1
 
-  
-  //  let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
-    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
-    let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
 
-   // let finalPipeline =
-     //   parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
+
+
+
+    //  let tokenInstrList = enumerator<InstructionKeyword> |> Array.map TokInstr |> Array.toList
+    //   let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
+    //   let tokenOpList = enumerator<Input> |> Array.map TokOperand |> Array.toList
+
+    // let finalPipeline =
+    //   parseGroup tokenInstrList >>> parseGroup tokenRegList >>> pToken TokComma 
            
 
     //////////////////Testing//////////////
 
-  //  let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
+    let testTokenList = [TokInstr(ADD); TokOperand(ID(R0)); TokOperand(ID(R1))]
 
 //    printf "%A" (run finalPipeline testTokenList)
