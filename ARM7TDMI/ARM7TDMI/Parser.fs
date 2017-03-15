@@ -327,11 +327,11 @@ module Parser =
     let instType1 = 
         let tokenInstrList = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
         let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
-        let tokenRegList = enumerator<RegisterID> |> Array.map ID |> Array.toList
-        0
-      //  let pInstr1 = anyOf tokenInstrList >>% JInstr1
-
-
+        let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
+        let pInstr1 = anyOf tokenInstrList <?> "Type 1 Instruction"
+        let pCond = anyOf tokenCondList <?> "Conditional Code"
+        let pReg = anyOf tokenRegList <?> "Register"
+        
 
 
 
