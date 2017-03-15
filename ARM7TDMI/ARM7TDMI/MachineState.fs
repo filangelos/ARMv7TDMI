@@ -160,4 +160,7 @@ module MachineState =
 
         { Registers = registers ; StatusBits = flags ; Memory = Memory.make ast }
 
+    let getAddress (label: string) (state: MachineState) : Address =
+        Map.find label (snd (Optics.get MachineState.AST_ state ))
+
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
