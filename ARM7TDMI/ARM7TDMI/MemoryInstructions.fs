@@ -166,7 +166,7 @@ module MemoryInstructions =
 
         let exprValue = match expr with
                         | Number x -> x
-                        | Label x -> AST.getAddress x state
+                        | Label x -> MachineState.getAddress x state
 
         mov (regD, Operand(Literal exprValue, NoShift), state, false)
 
