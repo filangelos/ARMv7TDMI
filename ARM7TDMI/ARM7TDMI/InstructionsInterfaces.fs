@@ -38,52 +38,52 @@ module InstructionsInterfaces =
 
 
 
-    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
-        addWithCarryS (regD, regN, op2, state, false, setFlags)
+    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then addWithCarryS (regD, regN, op2, state, false, setFlags) else state
 
-    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
-        addWithCarryS (regD, regN, op2, state, true, setFlags)
+    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then addWithCarryS (regD, regN, op2, state, true, setFlags) else state
 
-    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, setFlags)
+    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, setFlags) else state 
      
-    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, setFlags)
+    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, setFlags) else state
 
-    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, setFlags)
+    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, setFlags) else state
 
-    let rsc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, true, setFlags)
+    let rsc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, true, setFlags) else state
 
-    let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+    let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState), (cond: ConditionCode option)) = 
         let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
-        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+        if (executeOrNot (cond) state) then state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
 
-    let cmn_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+    let cmn_ ((regN: RegisterID), (op2: Operand), (state: MachineState), (cond: ConditionCode option)) = 
         let flagState = addWithCarryS (R10, regN, op2, state, false, true)
-        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+        if (executeOrNot (cond) state) then state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
 
-    let tst_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+    let tst_ ((regN: RegisterID), (op2: Operand), (state: MachineState), (cond: ConditionCode option)) = 
         let flagState = andOp (R10, regN, op2, state, true)
-        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+        if (executeOrNot (cond) state) then state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
      
-    let teq_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
+    let teq_ ((regN: RegisterID), (op2: Operand), (state: MachineState), (cond: ConditionCode option)) = 
         let flagState = eOR (R10, regN, op2, state, true)
-        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
+        if (executeOrNot (cond) state) then state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
 
-    let ror_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2,ROR shift),state,setFlags)
+    let ror_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, Operand(op2,ROR shift),state,setFlags) else state
 
-    let rrx_ ((regD: RegisterID), (op2: Input), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2,RRX),state,setFlags)
+    let rrx_ ((regD: RegisterID), (op2: Input), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, Operand(op2,RRX),state,setFlags) else state
 
-    let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = //op2 must have Left shift
-        mov (regD,op2,state,setFlags)
+    let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Left shift
+        if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = //op2 must have Right shift
-        mov (regD,op2,state,setFlags)
+    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Right shift
+        if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let asr_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2, RightA shift), state, setFlags)
+    let asr_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, Operand(op2, RightA shift), state, setFlags) else state
 
