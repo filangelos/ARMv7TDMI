@@ -145,8 +145,8 @@ module AST =
         let ast = buildAST parseList
         printfn "ast is:\n%A\n" ast
         let state = MachineState.init(ast)
-
-
+        let result = reduce state 0 20
+        printfn "final result state for this ast is:\n%A\n" result
         printfn "Finished testAST.\n"
 
         

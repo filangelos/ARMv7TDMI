@@ -34,7 +34,7 @@ module MemoryInstructions =
 
     open MachineState
     open Instructions
-    open AST
+    //open AST
 
     //Memory-specific shortcuts
     let ( gb ) = Optics.get MachineState.Byte_
