@@ -113,7 +113,7 @@ module Tokeniser =
         | MatchToken (Instr "TEQ") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr6(TEQ)])
         | MatchToken (Instr "S") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokS])
+            getTokenInstructionFrom leftovers (lst @ [TokS(S)])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenConditionalCodeFrom cond])
         | "" -> lst
