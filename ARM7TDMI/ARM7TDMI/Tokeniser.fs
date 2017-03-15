@@ -4,11 +4,11 @@
     High Level Programming @ Imperial College London # Spring 2017
     Project: A user-friendly ARM7TDMI assembler and simulator in F# and Web Technologies ( Github Electron & Fable Compliler )
 
-    Contributors: Baron Khan & Pranav Prabhu
+    Contributors: Baron Khan
 
     Module: Tokeniser
     Description: Takes a string input representing the programs and produces a list of tokens.
-    e.g. the string, "MOV R1, R2" will become [TokInstr(MOV); TokReg(R1); TokComma; TokReg(R2)]
+    e.g. the string, "MOV R1, R2" will become [TokInstr3(MOV); TokReg(R1); TokComma; TokReg(R2)]
 *)
 
 module Tokeniser =

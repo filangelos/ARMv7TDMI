@@ -26,9 +26,9 @@ module AST =
 
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
     ///usage: addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) [-current address int value-]
-    let addInstruction (ast:AST) (f:InstrType1) (p:Parameters) (c:Condition option) (addr:Address) =
+    let addInstruction (ast:AST) (f:Instruction) (p:Parameters) (addr:Address) =
         match ast with
-        | lst, labelMap -> (lst @ [(f, p, c, addr)], labelMap)
+        | lst, labelMap -> (lst @ [(f, p, addr)], labelMap)
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
     ///usage: addLabelNode ast LABEL1 [-current address int value-]
@@ -63,7 +63,7 @@ module AST =
                 | (f, p, cond, addr) -> 
                     //evaluate conditional code
                     if evaluateCondition cond state then
-                        match f, p with
+                        match f, p wiht
                         //| ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
                         //    reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
                         //| ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
@@ -123,17 +123,20 @@ module AST =
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
     let testAST () =
+        (*
         printfn "Running testAST:"
         let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false)) (Some(Z, true)) 8
+        let  myAst2 = addInstruction myAst1 (Instr1(MOV)) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false, None)) 2
+        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true, None)) 4
+        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false, Some(NE))) 6    //shouldn't execute this
+        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false, Some(EQ))) 8
         printfn "ast is:\n%A\n" myAst5
         let stateWithAst = MachineState.init(myAst5)
         printfn "Reducing AST..."
         let resultState2 = reduce stateWithAst 0 10
         printfn "final result state for this ast is:\n%A\n" resultState2
+        *)
+
 
 
 
