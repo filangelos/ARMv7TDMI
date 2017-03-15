@@ -42,9 +42,9 @@
     <Compile Include="MachineState.fs" />
     <Compile Include="Tokeniser.fs" />
     <Compile Include="Instructions.fs" />
+    <Compile Include="AST.fs" />
     <Compile Include="MemoryInstructions.fs" />
     <Compile Include="InstructionsInterfaces.fs" />
-    <Compile Include="AST.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />

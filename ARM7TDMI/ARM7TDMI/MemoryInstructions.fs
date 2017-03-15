@@ -28,8 +28,13 @@ module MemoryInstructions =
     type AddressRegister = 
         {register: RegisterID; offset: Offset}
 
+    type Expression = 
+        | Label of string
+        | Number of int
+
     open MachineState
     open Instructions
+    open AST
 
     //Memory-specific shortcuts
     let ( gb ) = Optics.get MachineState.Byte_
@@ -40,6 +45,34 @@ module MemoryInstructions =
     //let ( ^= ) = Optics.set MachineState.Register_
     //let ( ^* ) = Optics.get MachineState.Flag_
     //let ( ^- ) = Optics.set MachineState.Flag_
+
+    let sortRegister regList =
+
+        let numberRegister = 
+            function
+            | R0 -> 0
+            | R1 -> 1
+            | R2 -> 2
+            | R3 -> 3
+            | R4 -> 4
+            | R5 -> 5
+            | R6 -> 6
+            | R7 -> 7
+            | R8 -> 8
+            | R9 -> 9
+            | R10 -> 10
+            | R11 -> 11
+            | R12 -> 12
+            | R13 -> 13
+            | R14 -> 14
+            | R15 -> 15
+
+
+        let combinedList = List.map (fun a -> (a,numberRegister a)) regList
+
+        let sortList = List.sortBy (fun a -> snd a) combinedList
+
+        List.map (fun a -> fst a) sortList
 
     let addressWithOffset state = function
                                   | {register = R_; offset = PreIndex x} | {register = R_; offset = TempOffset x} -> ((^.) R_ state) + x
@@ -104,7 +137,7 @@ module MemoryInstructions =
                           | FD | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | FA | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList (List.sort regList)
+        let combinedList = List.zip addressList (sortRegister regList)
 
         let finstate = List.fold (fun st (a,b) -> (^=) b ((gw) a st) st) state combinedList
 
@@ -122,12 +155,20 @@ module MemoryInstructions =
                           | EA | IA -> [(addVal).. 4 ..(addVal + 4*(listSize - 1))]
                           | ED | DA -> [(addVal - 4*(listSize - 1)).. 4 ..(addVal)]
 
-        let combinedList = List.zip addressList (List.sort regList)
+        let combinedList = List.zip addressList (sortRegister regList)
 
         let finstate = List.fold (fun st (a,b) -> (sw) a ((^.) b st) st) state combinedList
 
         if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
 
+    //not tested yet
+    let ldrPseudo ((regD: RegisterID), (expr: Expression), (state: MachineState)) =
+
+        let exprValue = match expr with
+                        | Number x -> x
+                        | Label x -> AST.getAddress x state
+
+        mov (regD, Operand(Literal exprValue, NoShift), state, false)
 
     //let simpleLDRSTRtest = 
     ////testing loadInstruction
@@ -170,7 +211,7 @@ module MemoryInstructions =
     //    printfn "Memory Instruction Testing Done" 
 
     let simpleLDRSTRtest = 
-        printfn "%A" (MachineState.make())
+        printfn "%A" (sortRegister [R10; R12; R1; R3])
     ////testing loadInstruction
     //    let a3 = MachineState.make()
     //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
