@@ -1,20 +1,36 @@
-﻿module App.Main
+﻿namespace ARM7TDMI
 
-// This must be before everything else
-Fable.Core.JsInterop.importAll("babel-polyfill") |> ignore
+(* 
+    High Level Programming @ Imperial College London # Spring 2017
+    Project: A user-friendly ARM7TDMI assembler and simulator in F# and Web Technologies ( Github Electron & Fable Compliler )
 
-open ARM7TDMI.MachineState
-open ARM7TDMI.Instructions
-open ARM7TDMI.Tokeniser
-open ARM7TDMI.AST
-open ARM7TDMI.Parser
+    Contributors: Youssef Rizk
 
-open Fable.Import
-open App.Message
+    Module: Instructions
+    Description: 
+*)
 
-let main () =
-    Browser.console.log message
-    Browser.console.log (x(5))
+module Main =
 
-do
-    main ()
+    // Fable Configuration
+    Fable.Core.JsInterop.importAll("babel-polyfill") |> ignore
+
+    // Back End
+    open MachineState
+    open Instructions
+    open Tokeniser
+    open AST
+    open Parser
+
+    // Front End
+    open Fable.Import
+    open View
+
+    let main () =
+        let sand : MachineState = MachineState.make ()
+        initUI sand
+        Browser.console.log (R2 > R10)
+        actions ()
+
+    do
+        main ()

@@ -27,12 +27,12 @@ module AST =
         ast @ [(f, p, addr)]
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
-    let private addLabel (labelMap:Map<string, Address>) (name:string) (addr:Address) =
+    let private addLabel (labelMap: LabelMap) (name:string) (addr:Address) =
         labelMap.Add (name, addr)
 
     ///Build the AST and label map from the list given by Parser
     let buildAST (parseLst:((Instruction * Parameters) list)) =
-        let rec addNode (lst:((Instruction * Parameters) list)) (ast:AST) (labelMap:Map<string,Address>) (pc:int) =
+        let rec addNode (lst:((Instruction * Parameters) list)) (ast:AST) (labelMap: LabelMap) (pc:int) =
             match lst with
             | [] -> ast, labelMap
             | node::t ->
@@ -111,7 +111,7 @@ module AST =
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
-    let testAST () =
+//    let testAST () =
         (*
         printfn "Running testAST:"
         let myAst1 = ([], Map.empty<string, Address>)
@@ -275,9 +275,10 @@ module AST =
             reduce (t,lst) newState
         | NullNode::t, lst -> reduce (t, lst) state
         | [], lst -> state
-        | _ -> failwithf "Not a valid node"
+        | _ -> failwithf "Not a valid node" *)
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
+    (*
     let testAST =
         printfn "Running testAST:"
         let testState = MachineState.make()
@@ -292,5 +293,4 @@ module AST =
         let result2 = reduce myAst2 testState
         printfn "new test state is %A" result2
         printfn "Finished testAST.\n"
-
-    *)
+*)

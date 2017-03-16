@@ -19,7 +19,7 @@ self.module = undefined;
 // workaround monaco-typescript not understanding the environment
 self.process.browser = true;
 amdRequire(['vs/editor/editor.main'], function () {
-  window.editor = monaco.editor.create(document.getElementById('editor'), {
+  window.code = monaco.editor.create(document.getElementById('editor'), {
     value: [
       'mov r0 #5',
       'mov r1 r0'
@@ -28,15 +28,4 @@ amdRequire(['vs/editor/editor.main'], function () {
     theme: 'vs-light',
     renderWhitespace: 'all'
   });
-  const run_btn = document.getElementById('run')
-  const btn = run_btn.onclick = function () {
-    return window.editor.getValue()
-  }
 });
-
-const message = "message variable";
-const editorR = "window.editor"
-
-function x(y) { console.log( y*y ); null;}
-
-export { message, editorR, x, btn };

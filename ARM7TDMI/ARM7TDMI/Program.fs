@@ -12,8 +12,8 @@ module Program =
     [<EntryPoint>]
     let main argv =
         Tokeniser.testTokeniser ()
-        MemoryInstructions.simpleLDRSTRtest
-        AST.testAST ()
+//        MemoryInstructions.simpleLDRSTRtest
+//        AST.testAST ()
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x

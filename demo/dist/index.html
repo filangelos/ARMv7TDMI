@@ -18,99 +18,73 @@
 
       <div class="toolbar-actions">
         <div class="btn-group">
-          <button class="btn btn-default">
+          <button id="explore" class="btn btn-default">
             <span class="icon icon-folder"></span>
           </button>
-          <button class="btn btn-default">
+          <!-- open btn -->
+          <button id="save" class="btn btn-default">
             <span class="icon icon-floppy"></span>
           </button>
-          <button class="btn btn-default">
+          <!-- save btn -->
+          <button id="indent" class="btn btn-default">
             <span class="icon icon-code"></span>
           </button>
-        </div> <!-- btn-group -->
+          <!-- indent btn -->
+        </div>
+        <!-- btn-group -->
+
+        <button id="debug" class="btn btn-default">
+          <span class="icon icon-leaf icon-text"></span>
+          Debug
+        </button>
+        <!-- debug btn -->
 
         <button id="run" class="btn btn-default">
           <span class="icon icon-play icon-text"></span>
           Run
-        </button> <!-- run btn -->
+        </button>
+        <!-- run btn -->
 
-        <button class="btn btn-default btn-dropdown pull-right">
-          <span class="icon icon-cog"></span>
-        </button> <!-- settings btn -->
+        <div class="btn-group pull-right">
+          <button id="docs" class="btn btn-default">
+            <span class="icon icon-book"></span>
+          </button>
+          <!-- docs btn -->
+          <button id="warn" class="btn btn-default">
+            <span class="icon icon-traffic-cone"></span>
+          </button>
+          <!-- warn btn -->
+          <button id="theme" class="btn btn-default">
+            <span class="icon icon-feather"></span>
+          </button>
+          <!-- theme btn -->
+        </div>
+        <!-- btn-group -->
 
       </div>
-    </header> <!-- Header -->
+    </header>
+    <!-- Header -->
 
     <div class="window-content">
       <div class="pane-group">
         <div class="pane">
           <div id="editor" style="height:100%"></div>
-        </div> <!-- editor -->
-        <div class="pane">
-          <table class="table-striped" style="text-align: center">
-            <thead>
-              <tr>
-                <th>Registers</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>R0</td>
-              </tr>
-              <tr>
-                <td>R1</td>
-              </tr>
-              <tr>
-                <td>R2</td>
-              </tr>
-              <tr>
-                <td>R3</td>
-              </tr>
-              <tr>
-                <td>R4</td>
-              </tr>
-              <tr>
-                <td>R5</td>
-              </tr>
-              <tr>
-                <td>R6</td>
-              </tr>
-              <tr>
-                <td>R7</td>
-              </tr>
-              <tr>
-                <td>R8</td>
-              </tr>
-              <tr>
-                <td>R9</td>
-              </tr>
-              <tr>
-                <td>R10</td>
-              </tr>
-              <tr>
-                <td>R11</td>
-              </tr>
-              <tr>
-                <td>R12</td>
-              </tr>
-              <tr>
-                <td>R13</td>
-              </tr>
-              <tr>
-                <td>R14</td>
-              </tr>
-              <tr>
-                <td>R15</td>
-              </tr>
-            </tbody>
-          </table>
-        </div> <!-- table -->
-      </div> <!-- pane-group -->
-    </div> <!-- window-content -->
+        </div>
+        <!-- editor -->
+        <div id="dashboard" class="pane">
+          
+        </div>
+        <!-- table -->
+      </div>
+      <!-- pane-group -->
+    </div>
+    <!-- window-content -->
     <footer class="toolbar toolbar-footer">
       <h1 class="title">Imperial College London High Level Programming Spring 2017</h1>
-    </footer> <!-- Header -->
-  </div> <!-- window -->
+    </footer>
+    <!-- Header -->
+  </div>
+  <!-- window -->
 
   <script>
     // Monaco uses a custom amd loader that over-rides node's require.

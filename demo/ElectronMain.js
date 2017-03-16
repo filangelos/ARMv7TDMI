@@ -60,7 +60,8 @@ app.on('ready', function () {
     width: 800,
     height: 600,
     frame: true,
-    titleBarStyle: 'hidden'
+    titleBarStyle: 'hidden',
+    resizable: false
   });
 
   console.log('ElectronMain.js has created the main window')
