@@ -329,7 +329,7 @@ h6 {
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+/*  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06); */
   -webkit-app-region: no-drag;
 }
 .btn:focus {
@@ -369,9 +369,15 @@ h6 {
 .btn-primary,
 .btn-positive,
 .btn-negative,
+.btn-reg,
+.btn-enc,
 .btn-warning {
   color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+/*  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); */
+}
+
+.btn-con {
+  color: #333;
 }
 
 .btn-primary {
@@ -434,6 +440,43 @@ h6 {
   background-image: linear-gradient(to bottom, #fdbc40 0%, #ee9d02 100%);
 }
 
+.btn-reg, .btn-reg:active {
+  background-color: #6d6c6d;
+  border: 1px solid #c2c0c2;
+  width: 4em;
+}
+
+.btn-enc, .btn-enc:active {
+  background-color: #6d6c6d;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-con, .btn-con:active {
+  background-color: #fff;
+  border: 1px solid #c2c0c2;
+  width: 55%;
+}
+
+.btn-con:focus, .btn-con:active {
+  z-index: 3;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-reg:focus, .btn-reg:active {
+  z-index: 3;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-enc:focus, .btn-enc:active {
+  z-index: 3;
+  background-color: red;
+  border: 1px solid #c2c0c2;
+}
+
+.full-width {
+  width: 100%;
+}
+
 .btn .icon {
   float: left;
   width: 14px;
@@ -489,14 +532,14 @@ h6 {
 .btn-group > .btn:not(:first-child):not(:last-child) {
   border-radius: 0;
 }
-.btn-group .btn + .btn {
-  border-left: 1px solid #c2c0c2;
-}
+/*.btn-group .btn + .btn {
+  border: 1px solid #c2c0c2;
+}*/
 .btn-group .btn + .btn.active {
   border-left: 0;
 }
 .btn-group .active {
-  color: #fff;
+/*  color: #fff; */
   border: 1px solid transparent;
   background-color: #6d6c6d;
   background-image: none;
@@ -2250,7 +2293,7 @@ tbody {
 tr:active,
 .table-striped tr:active:nth-child(even) {
   color: #fff;
-  background-color: #116cd6;
+  /*background-color: #116cd6; */
 }
 
 thead tr:active {

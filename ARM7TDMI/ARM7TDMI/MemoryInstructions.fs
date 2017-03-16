@@ -166,14 +166,14 @@ module MemoryInstructions =
 
         let exprValue = match expr with
                         | Number x -> x
-                        | Label x -> MachineState.getAddress x state
+                        | Label x -> Optics.get MachineState.Label_ x state
 
         mov (regD, Operand(Literal exprValue, NoShift), state, false)
 
     //Not Tested!!! (Needs AST to be working)
     let fillInstruction ((label: string), (space: int), (state: MachineState)) =
 
-        let labelAddress = MachineState.getAddress label state
+        let labelAddress = Optics.get MachineState.Label_ label state
 
         let addressList = [labelAddress .. labelAddress + (space - 1)]
 
@@ -184,7 +184,7 @@ module MemoryInstructions =
     //Not Tested!!! (Needs AST to be working)
     let dcdInstruction ((label: string), (data: int list), (state: MachineState)) =
 
-        let labelAddress = MachineState.getAddress label state
+        let labelAddress = Optics.get MachineState.Label_ label state
 
         let addressList = [labelAddress .. 4 .. labelAddress + 4*((List.length data) - 1)]
 
@@ -237,6 +237,7 @@ module MemoryInstructions =
 
     let simpleLDRSTRtest = 
         printfn "%A" (MachineState.make())
+//    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()
     //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)

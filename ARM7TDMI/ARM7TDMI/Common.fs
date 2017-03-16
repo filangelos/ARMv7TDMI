@@ -13,11 +13,6 @@
 [<AutoOpen>]
 module Common =
 
-    /// enumerate all values of a D.U. 
-    let enumerator<'T> =
-        FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
-        |> Array.map (fun c ->  Reflection.FSharpValue.MakeUnion(c,[||]) :?> 'T)
-
     /// Raw data Type
     type Data = int
     /// Cast Function
@@ -165,15 +160,16 @@ module Common =
         | Instr8 of InstrType8
         | Label of string
 
+    (*
     type Operation = 
         | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
         | SixOp of Token*Token*Token*Operand*bool*bool
         | FourOp of Token*Token*Token*bool
         | FourOp2 of Token*Token*bool*Operand
         | FourOp3 of Token*Operand*bool*Operand
+    *)
 
-
-
+    (*
     ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32). Used in Parser and AST.
     type Parameters =
         | Param_Rd_Op_Bool_Cond of (RegisterID * Operand * bool * (ConditionCode option))                                //(regD, op2, setFlags)
@@ -182,14 +178,26 @@ module Common =
         | Param_Rd_Op_Cond of (RegisterID * Operand * (ConditionCode option))                                            //(regD, op2)
         | NoParam
 
+    *)
+
+    type Instr =
+        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*Operand
+        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
+        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Operand
+        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
+        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
+        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Operand
+        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
+        |  Label of string
+
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
 
     ///type representing the possible nodes in the AST
-    type Node = Instruction * Parameters * Address
+    type Node = Instr * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>
 
     ///type representing the AST (just a list of nodes as well as the map for the label mappings)
-    type AST = (Node list) * LabelMap
+    type AST = (Node list)
