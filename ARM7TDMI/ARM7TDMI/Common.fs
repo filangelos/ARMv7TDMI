@@ -83,11 +83,7 @@ module Common =
         | ADR
         | LDM | STM
     *)
-        
 
-    /// Memory Instruction Prefix Type
-    type StackDirection =
-        | FD | FA | ED | EA
 
     /// Conditional code types (for reading flags)
     type ConditionCode = 
