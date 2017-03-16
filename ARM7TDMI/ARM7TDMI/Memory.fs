@@ -17,22 +17,38 @@ module Memory =
         // AST
         { AST: AST
         // Raw memory storage
-          Storage: Map<Address, byte> }
+          Storage: Map<Address, byte>
+        // Label map
+          Labels: LabelMap }
 
         /// AST Optic Function
         static member AST_ =
             ( fun (memory: Memory) -> memory.AST ), 
-            ( fun (ast:AST) (memory: Memory) -> { memory with AST = ast } )
+            ( fun (ast: AST) (memory: Memory) -> { memory with AST = ast } )
 
         /// Storage Optic Function
         static member Storage_ =
             ( fun (memory: Memory) -> memory.Storage ), 
             ( fun (storage: Map<Address, byte>) (memory: Memory) -> { memory with Storage = storage } )
 
+        /// Labels Optic Function
+        static member Labels_ =
+            ( fun (memory: Memory) -> memory.Labels ), 
+            ( fun (labels: LabelMap) (memory: Memory) -> { memory with Labels = labels } )
+
+        /// initialise a memory location with zero if not accessed before
+        static member private cleanGet (address: Address) (storage: Map<Address, byte>) : byte =
+            // check if this address is accessed before
+            match Map.containsKey address storage with
+            // if already in the storage return true value
+            | true -> storage.Item address
+            // else return 0
+            | false -> 0uy
+
         /// Byte Access Composition Optic Function
         static member Byte_ =
             // Getter: Address -> Memory -> byte
-            ( fun (address: Address) (memory: Memory) -> memory.Storage.Item address ),
+            ( fun (address: Address) (memory: Memory) -> Memory.cleanGet address memory.Storage),
             // Setter: Address -> byte -> Memory -> Memory
             ( fun (address: Address) (value: byte) (memory: Memory) -> 
                 { memory with Storage = Map.add address value memory.Storage } )
@@ -66,11 +82,19 @@ module Memory =
                     { memory with Storage = merge memory.Storage raw }
                 | false -> failwith "incorrect address passed" )
 
+        /// Address Composition Optic Function
+        static member Label_ =
+            // Getter: Label -> Memory -> Address
+            ( fun (label: string) (memory: Memory) -> Map.find label (Optics.get Memory.Labels_ memory) ),
+            // Setter: Label -> Address -> Memory -> Memory
+            ( fun (label: string) (value: Address) (memory: Memory) -> { memory with Labels = Map.add label value memory.Labels } )
+
     /// Memory Initialisation
-    let make (ast: AST) : Memory =
-        { AST = ast ; Storage = Map.empty<Address, byte> }
+    let make ((ast, labels): AST*LabelMap) : Memory =
+        { AST = ast ; Storage = Map.empty<Address, byte> ; Labels = labels }
 
     let makeHack () : Memory =
-        { AST = ([], Map.empty<string, Address>) ; Storage = Map.empty<Address, byte> }
+        // init with empty data structures
+        { AST = [] ; Storage = Map.empty<Address, byte> ; Labels = Map.empty<string, Address> }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)

@@ -308,6 +308,12 @@ module Parser =
     let (>>%) p x =
         p |>> (fun _ -> x)
 
+<<<<<<< HEAD
+=======
+    
+     //   |  JInstr8 of InstrType8*StackDirection*Option<ConditionCode>
+     // Need to Sort out Instructions 7 and 8 because of weird Source Dest Thing
+>>>>>>> 2f624185bb3cf931c7415669ee20ad3ffb85476d
     let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
     let pS = pToken (TokS S) <?> "Set Flag Variable"

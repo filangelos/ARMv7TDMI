@@ -34,7 +34,7 @@ module MemoryInstructions =
 
     open MachineState
     open Instructions
-    open AST
+    //open AST
 
     //Memory-specific shortcuts
     let ( gb ) = Optics.get MachineState.Byte_
@@ -166,9 +166,34 @@ module MemoryInstructions =
 
         let exprValue = match expr with
                         | Number x -> x
-                        | Label x -> AST.getAddress x state
+                        | Label x -> Optics.get MachineState.Label_ x state
 
         mov (regD, Operand(Literal exprValue, NoShift), state, false)
+
+    //Not Tested!!! (Needs AST to be working)
+    let fillInstruction ((label: string), (space: int), (state: MachineState)) =
+
+        let labelAddress = Optics.get MachineState.Label_ label state
+
+        let addressList = [labelAddress .. labelAddress + (space - 1)]
+
+        let combinedList = List.zip addressList (List.map (fun a -> byte 0) addressList)
+
+        List.fold (fun st (a,b) -> (sb) a b st) state combinedList
+
+    //Not Tested!!! (Needs AST to be working)
+    let dcdInstruction ((label: string), (data: int list), (state: MachineState)) =
+
+        let labelAddress = Optics.get MachineState.Label_ label state
+
+        let addressList = [labelAddress .. 4 .. labelAddress + 4*((List.length data) - 1)]
+
+        let combinedList = List.zip addressList data
+
+        List.fold (fun st (a,b) -> (sw) a b st) state combinedList
+
+
+
 
     //let simpleLDRSTRtest = 
     ////testing loadInstruction
@@ -210,8 +235,7 @@ module MemoryInstructions =
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
 
-    let simpleLDRSTRtest = 
-        printfn "%A" (sortRegister [R10; R12; R1; R3])
+//    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()
     //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
@@ -219,7 +243,7 @@ module MemoryInstructions =
     //    printfn "%A" b3
     //    let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
     //    printfn "%A" c3
-    //    let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 3}, c3)
+    //    let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 2}, c3)
     //    printfn "%A" d3
     //    let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
     //    printfn "%A" e3

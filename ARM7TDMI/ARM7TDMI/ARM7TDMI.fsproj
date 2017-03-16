@@ -36,15 +36,16 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Toolkit.fs" />
     <Compile Include="Optics.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="Memory.fs" />
     <Compile Include="MachineState.fs" />
     <Compile Include="Tokeniser.fs" />
     <Compile Include="Instructions.fs" />
-    <Compile Include="AST.fs" />
     <Compile Include="MemoryInstructions.fs" />
     <Compile Include="InstructionsInterfaces.fs" />
+    <Compile Include="AST.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />

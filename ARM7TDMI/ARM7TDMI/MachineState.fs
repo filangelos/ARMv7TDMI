@@ -20,6 +20,8 @@ module MachineState =
         // Memory
           Memory: Memory }
 
+        (* Core Optics MachineState Functions *)
+
         /// Registers Optic Function
         static member Registers_ =
             ( fun (state: MachineState) -> state.Registers ), 
@@ -38,16 +40,54 @@ module MachineState =
         /// Register Composition Optic Function
         static member Register_ =
             // Getter: RegisterID -> MachineState -> Data
-            ( fun (id: RegisterID) (state: MachineState) -> state.Registers.Item id ),
+            ( fun (id: RegisterID) (state: MachineState) -> Map.find id (Optics.get MachineState.Registers_ state) ),
             // Setter: RegisterID -> Data -> MachineState -> MachineState
             ( fun (id: RegisterID) (value: Data) (state: MachineState) -> { state with Registers = Map.add id value state.Registers } )
 
         /// Flag Composition Optic Function
         static member Flag_ =
             // Getter: RegisterID -> MachineState -> Data
-            ( fun (id: FlagID) (state: MachineState) -> state.StatusBits.Item id ),
+            ( fun (id: FlagID) (state: MachineState) -> Map.find id (Optics.get MachineState.Flags_ state) ),
             // Setter: RegisterID -> Data -> MachineState -> MachineState
             ( fun (id: FlagID) (value: bool) (state: MachineState) -> { state with StatusBits = Map.add id value state.StatusBits } )
+
+        /// Memory AST Composition Optic Function
+        static member AST_ =
+            // Getter: Address -> MachineState -> byte
+            ( fun (state: MachineState) -> 
+                Optics.get Memory.AST_ (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> byte -> MachineState -> MachineState
+            ( fun (ast: AST) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.AST_ ast (Optics.get MachineState.Memory_ state) } )
+
+        /// Memory Byte Composition Optic Function
+        static member Byte_ =
+            // Getter: Address -> MachineState -> byte
+            ( fun (address: Address) (state: MachineState) -> 
+                Optics.get Memory.Byte_ address (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> byte -> MachineState -> MachineState
+            ( fun (address: Address) (value: byte) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.Byte_ address value (Optics.get MachineState.Memory_ state) } )
+
+        /// Memory Byte Composition Optic Function
+        static member Word_ =
+            // Getter: Address -> MachineState -> Data
+            ( fun (address: Address) (state: MachineState) -> 
+                Optics.get Memory.Word_ address (Optics.get MachineState.Memory_ state) ),
+            // Setter: Address -> Data -> MachineState -> MachineState
+            ( fun (address: Address) (value: Data) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.Word_ address value (Optics.get MachineState.Memory_ state) } )
+
+        /// LabelMap Composition Optic Function
+        static member Label_ =
+            // Getter: Label -> MachineState -> Address
+            ( fun (label: string) (state: MachineState) -> 
+                Optics.get Memory.Label_ label (Optics.get MachineState.Memory_ state) ),
+            // Setter: label -> Address -> MachineState -> MachineState
+            ( fun (label: string) (value: Address) (state: MachineState) -> 
+                { state with Memory = Optics.set Memory.Label_ label value (Optics.get MachineState.Memory_ state) } )
+
+        // Instruction-specific MachineState manipulation functions
 
         /// Set V (overflow) Flag
         static member setOverflow =
@@ -93,38 +133,14 @@ module MachineState =
             ( fun (a: Data) (b: Data) (state: MachineState) ->
                 (a, Optics.set MachineState.Flag_ C ((uint32 (b &&& (1 <<< 31))) > 0u) state) )
 
-        /// Memory AST Composition Optic Function
-        static member AST_ =
-            // Getter: Address -> MachineState -> byte
-            ( fun (state: MachineState) -> 
-                Optics.get Memory.AST_ (Optics.get MachineState.Memory_ state) ),
-            // Setter: Address -> byte -> MachineState -> MachineState
-            ( fun (ast: AST) (state: MachineState) -> 
-                { state with Memory = Optics.set Memory.AST_ ast (Optics.get MachineState.Memory_ state) } )
 
-        /// Memory Byte Composition Optic Function
-        static member Byte_ =
-            // Getter: Address -> MachineState -> byte
-            ( fun (address: Address) (state: MachineState) -> 
-                Optics.get Memory.Byte_ address (Optics.get MachineState.Memory_ state) ),
-            // Setter: Address -> byte -> MachineState -> MachineState
-            ( fun (address: Address) (value: byte) (state: MachineState) -> 
-                { state with Memory = Optics.set Memory.Byte_ address value (Optics.get MachineState.Memory_ state) } )
-
-        /// Memory Byte Composition Optic Function
-        static member Word_ =
-            // Getter: Address -> MachineState -> Data
-            ( fun (address: Address) (state: MachineState) -> 
-                Optics.get Memory.Word_ address (Optics.get MachineState.Memory_ state) ),
-            // Setter: Address -> Data -> MachineState -> MachineState
-            ( fun (address: Address) (value: Data) (state: MachineState) -> 
-                { state with Memory = Optics.set Memory.Word_ address value (Optics.get MachineState.Memory_ state) } )
+    // Initialisers
 
     /// MachineState Initialisation
     let make () : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Common.enumerator<RegisterID>
+            Toolkit.enumerator<RegisterID>
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -132,7 +148,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            Common.enumerator<FlagID>
+            Toolkit.enumerator<FlagID>
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
@@ -141,10 +157,10 @@ module MachineState =
         { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
 
     /// MachineState Initialisation
-    let init (ast: AST) : MachineState =
+    let init ((ast, labels): AST*LabelMap) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Common.enumerator<RegisterID>
+            Toolkit.enumerator<RegisterID>
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -152,12 +168,44 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            Common.enumerator<FlagID>
+            Toolkit.enumerator<FlagID>
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
             |> Map.ofArray
 
-        { Registers = registers ; StatusBits = flags ; Memory = Memory.make ast }
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.make (ast,labels) }
+
+
+
+
+
+    /// MachineState Initialisation - Necessary for smooth interface with VisUAL testing framework provided
+    let initWithFlags (flags: string) : MachineState =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Toolkit.enumerator<RegisterID>
+            // Initialise all Registers to zero
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
+
+        let fstr : bool array =
+            let f : char[] = [|for c in flags -> c|]
+            Array.map ( fun c -> 
+                match c with
+                | '0' -> false
+                | '1' -> true
+                | _ -> failwithf "wrong flags string" ) f
+
+        let flags : Flags =
+            // Enumerate all Flags
+            let cases = Toolkit.enumerator<FlagID>
+            // Initialise Status Bits
+            Array.zip cases fstr
+            // construct Map
+            |> Map.ofArray
+
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
