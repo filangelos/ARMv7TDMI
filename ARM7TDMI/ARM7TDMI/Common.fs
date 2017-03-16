@@ -13,11 +13,6 @@
 [<AutoOpen>]
 module Common =
 
-    /// enumerate all values of a D.U. 
-    let enumerator<'T> =
-        FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
-        |> Array.map (fun c ->  Reflection.FSharpValue.MakeUnion(c,[||]) :?> 'T)
-
     /// Raw data Type
     type Data = int
     /// Cast Function
