@@ -13,7 +13,7 @@
 module AST =
     open MachineState
     open InstructionsInterfaces
-(*
+
     // shortcuts
     let private ( ^. ) = Optics.get MachineState.Register_
     let private ( ^= ) = Optics.set MachineState.Register_
@@ -22,49 +22,47 @@ module AST =
     let private ( ^% ) = Optics.get MachineState.AST_
 
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
-    let private addInstruction (ast:AST) (f:Instruction) (p:Parameters) (addr:Address) =
-        ast @ [(f, p, addr)]
+    let private addInstruction (ast:AST) (f:Instr) (addr:Address) =
+        ast @ [(f, addr)]
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
     let private addLabel (labelMap: LabelMap) (name:string) (addr:Address) =
         labelMap.Add (name, addr)
 
     ///Build the AST and label map from the list given by Parser
-    let buildAST (parseLst:((Instruction * Parameters) list)) =
-        let rec addNode (lst:((Instruction * Parameters) list)) (ast:AST) (labelMap: LabelMap) (pc:int) =
+    let buildAST (parseLst:(Instr list)) =
+        let rec addNode (lst:(Instr list)) (ast:AST) (labelMap: LabelMap) (pc:int) =
             match lst with
             | [] -> ast, labelMap
             | node::t ->
                 match node with
-                | (Label(s), NoParam) -> addNode t ast (addLabel labelMap s pc) (pc+4)
-                | (instr, p) -> addNode t (addInstruction ast instr p pc) labelMap (pc+4)
+                | (Label(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
+                | instr -> addNode t (addInstruction ast instr pc) labelMap (pc+4)
         addNode parseLst [] Map.empty<string, Address> 0
-    
-    let InstructionMap = dict[
-                                Instr1(MOV), mov_;
-                                Instr1(MVN), mvn_;
-                             ]
 
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let step (state:MachineState) =
         // try to find a node with address matching pc, if not found, catch exception from List.find
         let pc = ( ^. ) R15 state
         try 
-            let currentNode = List.find (fun x -> match x with | (_,_,addr) -> addr = pc) (( ^% ) state)
+            let currentNode = List.find (fun x -> match x with | (_,addr) -> addr = pc) (( ^% ) state)
             printfn "executing node at pc=%A" pc
             match currentNode with
-            | (f, p, addr) -> 
-                match f, p with
-                    
-                //| ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
-                //    reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
-                //| ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
-                //    reduce (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+            | (f, addr) -> 
+                match f with
+                | JInstr1(MOV, setFlags, cond, rd, rn) ->
+                    InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
+                | JInstr1(MVN, setFlags, cond, rd, rn) ->
+                    InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
+                (*
+                | ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                    reduce (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                | ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                    reduce (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
                 | Instr1(MOV), Param_Rd_Op_Bool_Cond((regD, op2, setFlags, cond)) ->
                     InstructionsInterfaces.mov_ (regD, op2, state, setFlags, cond)
                 | Instr1(MVN), Param_Rd_Op_Bool_Cond((regD, op2, setFlags, cond)) ->
                     InstructionsInterfaces.mvn_ (regD, op2, state, setFlags, cond)
-                (*
                 | ORR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
                     reduce (Instructions.orr (regD, regN, op2, state, setFlags)) (pc+1) maxPC
                 | AND, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
@@ -108,33 +106,19 @@ module AST =
         else
             state
 
-*)
+
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
-//    let testAST () =
-        (*
-        printfn "Running testAST:"
-        let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (Instr1(MOV)) (Param_Rd_Op_Bool(R1, Operand(Literal(13),NoShift), false, None)) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Param_Rd_Op_Bool(R2, Operand(Literal(0),NoShift), true, None)) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Param_Rd_Op_Bool(R3, Operand(Literal(342),NoShift), false, Some(NE))) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Param_Rd_Op_Bool(R4, Operand(Literal(999), Left(1)), false, Some(EQ))) 8
-        printfn "ast is:\n%A\n" myAst5
-        let stateWithAst = MachineState.init(myAst5)
-        printfn "Reducing AST..."
-        let resultState2 = reduce stateWithAst 0 10
-        printfn "final result state for this ast is:\n%A\n" resultState2
-        *)
-        (*
+    let testAST () =
         printfn "Running testAST:"
         let parseList = [
-                            (Label("START"), NoParam);
-                            (Instr1(MOV), Param_Rd_Op_Bool_Cond(R1, Operand(Literal(13),NoShift), false, None));
-                            (Instr1(MOV), Param_Rd_Op_Bool_Cond(R2, Operand(Literal(0),NoShift), true, None));
-                            (Label("HALFWAY"), NoParam);
-                            (Instr1(MOV), Param_Rd_Op_Bool_Cond(R3, Operand(Literal(342),NoShift), false, Some(NE)));
-                            (Instr1(MOV), Param_Rd_Op_Bool_Cond(R4, Operand(Literal(999), Left(1)), false, Some(EQ)))
+                            (Label("START"));
+                            (JInstr1(MOV, None, None, R1, Operand(Literal(13), NoShift)));
+                            (JInstr1(MOV, Some(S), None, R2, Operand(Literal(0), NoShift)));
+                            (Label("HALFWAY"));
+                            (JInstr1(MOV, None, Some(NE), R3, Operand(Literal(342), NoShift)));
+                            (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
                         ]
 
         let ast = buildAST parseList
@@ -143,7 +127,7 @@ module AST =
         let result = reduce state 0 20
         printfn "final result state for this ast is:\n%A\n" result
         printfn "Finished testAST.\n"
-        *)
+
         
 
     (*------------------------------------------------------------------------------------------------------------------------*)
