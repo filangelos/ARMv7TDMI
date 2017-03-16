@@ -78,11 +78,6 @@ module Common =
         | ADR
         | LDM | STM
     *)
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 2f624185bb3cf931c7415669ee20ad3ffb85476d
     /// Conditional code types (for reading flags)
     type ConditionCode = 
         | EQ | NE | CS | HS | CC | LO | MI | PL
