@@ -140,7 +140,7 @@ module MachineState =
     let make () : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Common.enumerator<RegisterID>
+            Toolkit.enumerator<RegisterID>
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -148,7 +148,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            Common.enumerator<FlagID>
+            Toolkit.enumerator<FlagID>
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
@@ -160,7 +160,7 @@ module MachineState =
     let init ((ast, labels): AST*LabelMap) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Common.enumerator<RegisterID>
+            Toolkit.enumerator<RegisterID>
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -168,7 +168,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            Common.enumerator<FlagID>
+            Toolkit.enumerator<FlagID>
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
@@ -184,7 +184,7 @@ module MachineState =
     let initWithFlags (flags: string) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Common.enumerator<RegisterID>
+            Toolkit.enumerator<RegisterID>
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -200,7 +200,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            let cases = Common.enumerator<FlagID>
+            let cases = Toolkit.enumerator<FlagID>
             // Initialise Status Bits
             Array.zip cases fstr
             // construct Map
