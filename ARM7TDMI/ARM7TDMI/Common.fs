@@ -173,7 +173,7 @@ module Common =
         | FourOp3 of Token*Operand*bool*Operand
 
 
-
+    (*
     ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32). Used in Parser and AST.
     type Parameters =
         | Param_Rd_Op_Bool_Cond of (RegisterID * Operand * bool * (ConditionCode option))                                //(regD, op2, setFlags)
@@ -182,11 +182,22 @@ module Common =
         | Param_Rd_Op_Cond of (RegisterID * Operand * (ConditionCode option))                                            //(regD, op2)
         | NoParam
 
+    *)
+
+    type Instr =
+        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID
+        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
+        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
+        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
+        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
+        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Input
+        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
+
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
 
     ///type representing the possible nodes in the AST
-    type Node = Instruction * Parameters * Address
+    type Node = Instr * Address
 
     ///type representing the mapping of labels to memory addresses
     type LabelMap = Map<string, Address>

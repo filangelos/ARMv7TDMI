@@ -11,10 +11,9 @@
 *)
 
 module AST =
-
     open MachineState
     open InstructionsInterfaces
-
+(*
     // shortcuts
     let private ( ^. ) = Optics.get MachineState.Register_
     let private ( ^= ) = Optics.set MachineState.Register_
@@ -108,6 +107,8 @@ module AST =
             reduce (newState) (pc+1) maxPC
         else
             state
+
+*)
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 

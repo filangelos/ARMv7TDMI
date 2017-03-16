@@ -319,14 +319,7 @@ module Parser =
     let (>>%) p x =
         p |>> (fun _ -> x)
 
-    type Instr =
-        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID
-        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
-        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
-        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
-        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
-        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Input
-        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
+    
      //   |  JInstr8 of InstrType8*StackDirection*Option<ConditionCode>
      // Need to Sort out Instructions 7 and 8 because of weird Source Dest Thing
     let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
