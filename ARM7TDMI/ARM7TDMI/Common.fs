@@ -192,4 +192,4 @@ module Common =
     type LabelMap = Map<string, Address>
 
     ///type representing the AST (just a list of nodes as well as the map for the label mappings)
-    type AST = (Node list) * LabelMap
+    type AST = (Node list)

@@ -11,7 +11,7 @@
 * Address = int
 * type Node = Instruction * Parameters * Address
 * type LabelMap = Map<string, Address>
-* type AST = (Node list) * LabelMap
+* type AST = Node list
 ---
 ## Functions
 * `Data` "cast" operator : int -> Data
