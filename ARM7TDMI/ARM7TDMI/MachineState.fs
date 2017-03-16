@@ -163,4 +163,33 @@ module MachineState =
     let getAddress (label: string) (state: MachineState) : Address =
         Map.find label (snd (Optics.get MachineState.AST_ state ))
 
+    /// MachineState Initialisation
+    let initWithFlags (flags: string) : MachineState =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Common.enumerator<RegisterID>
+            // Initialise all Registers to zero
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
+
+        let fstr : bool array =
+            let f : char[] = [|for c in flags -> c|]
+            Array.map ( fun c -> 
+                match c with
+                | '0' -> false
+                | '1' -> true
+                | _ -> failwithf "wrong flags string" ) f
+
+
+        let flags : Flags =
+            // Enumerate all Flags
+            let cases = Common.enumerator<FlagID>
+            // Initialise Status Bits
+            Array.zip cases fstr
+            // construct Map
+            |> Map.ofArray
+
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
+
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
