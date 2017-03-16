@@ -7,7 +7,7 @@
     Contributors: Pranav Prabhu
 
     Module: Parser
-    Description: Parse individual instruction and initiate correct function call
+    Description: Parse individual instruction and pass parsed list of Result Types to AST. 
 *)
 
 module Parser =
@@ -17,29 +17,7 @@ module Parser =
     open Tokeniser
     open Instructions
     open Common
-        
-    (*IGNORE BELOW - temporary implementation for pipeline*)
-
-    //http://stackoverflow.com/questions/2071056/splitting-a-list-into-list-of-lists-based-on-predicate
-    ///divides a list L into chunks for which all elements match pred
-    let divide pred L =
-        let rec aux buf acc L =
-            match L,buf with
-            //no more input and an empty buffer -> return acc
-            | [],[] -> List.rev acc 
-            //no more input and a non-empty buffer -> return acc + rest of buffer
-            | [],buf -> List.rev (List.rev buf :: acc) 
-            //found something that matches pred: put it in the buffer and go to next in list
-            | h::t,buf when pred h -> aux (h::buf) acc t
-            //found something that doesn't match pred. Continue but don't add an empty buffer to acc
-            | h::t,[] -> aux [] acc t
-            //found input that doesn't match pred. Add buffer to acc and continue with an empty buffer
-            | h::t,buf -> aux [] (List.rev buf :: acc) t
-        aux [] [] L
-
-
-//    let splitLst = divide (fun x -> match x with | TokNewLine -> false | _ -> true) lst
-
+    
     /// Type that represents Success/Failure in parsing
     type PLabel = string
     type PError = string
@@ -47,6 +25,13 @@ module Parser =
     type Result<'a> =
         | Success of 'a
         | Failure of PLabel * PError
+    let printResult result =
+        match result with
+        | Success (value,input) -> 
+            printfn "%A" value
+        | Failure (label,error) -> 
+            printfn "Error parsing %s\n%s" label error
+    // Prints result of parsing
 
     /// Type that wraps a parsing function
     type Parser<'T> = {
@@ -76,16 +61,20 @@ module Parser =
     }
 
     // Create a new InputState from a Token List for a specific Line
-    let rec convTokList tokenLst = 
-         match tokenLst with 
+    let fromToken tokenLst = 
+        let totalLst = []
+        let rec innerfn remTokenLst = 
+            let innerLst = []
+            match remTokenLst with 
                 | [] -> {lines = [||]; position=initialPos}
-            //    | h::tl -> if h = TokNewLine then 
-            //                {lines=h; position=initialPos}
-            //                convTokList tl
-            //                else
-            //                convTokList tl
-
-            
+                | h::tl -> match h with 
+                            | TokNewLine -> innerfn tl
+                            | _ -> let x = innerLst::h
+        innerfn tokenLst 
+                            
+    
+        
+        //    {lines=lines; position=initialPos}
 
 
     let printOutcome result =
@@ -319,30 +308,59 @@ module Parser =
     let (>>%) p x =
         p |>> (fun _ -> x)
 
-    type Instr =
-        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID
-        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
-        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
-        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
-        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
-        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Input
-        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
-     //   |  JInstr8 of InstrType8*StackDirection*Option<ConditionCode>
-     // Need to Sort out Instructions 7 and 8 because of weird Source Dest Thing
     let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
+    let pS = pToken (TokS S) <?> "Set Flag Variable"
+    let pCond = anyOf tokenCondList <?> "Conditional Code"
+    let pReg = anyOf tokenRegList <?> "Register"
+   
+    let pInput = pReg
+    // fix to include pInt literal 
     let instType1 = 
         let tokenInstrList1 = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
         let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
-        let pS = pToken (TokS S) <?> "Set Flag Variable"
-        let pCond = anyOf tokenCondList <?> "Conditional Code"
-        let pReg = anyOf tokenRegList <?> "Register"
         let label = "Instruction Type 1"
-
         ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg >>% JInstr1 )<?> label
-           
+
+    let instType2 = 
+        let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
+        let pInstr2 = anyOf tokenInstrList2 <?> "Type 2 Opcode"
+        let label = "Instruction Type 2"
+        (pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  >>% JInstr2) <?> label
+
+    let instType3 = 
+        let tokenInstrList3 = enumerator<InstrType3> |> Array.map TokInstr3 |> Array.toList
+        let pInstr3 = anyOf tokenInstrList3 <?> "Type 3 Opcode"
+        let label = "Instruction Type 3"
+        (pInstr3 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg .>>. pInput >>% JInstr3) <?> label
+
+    let instType4 = 
+        let tokenInstrList4 = enumerator<InstrType4> |> Array.map TokInstr4 |> Array.toList
+        let pInstr4 = anyOf tokenInstrList4 <?> "Type 4 Opcode"
+        let label = "Instruction Type 4"
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg .>>. pInput >>% JInstr4) <?> label
+
+    let instType5 = 
+        let tokenInstrList5 = enumerator<InstrType5> |> Array.map TokInstr5 |> Array.toList
+        let pInstr4 = anyOf tokenInstrList5 <?> "Type 5 Opcode"
+        let label = "Instruction Type 5"
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pInput >>% JInstr5) <?> label
+    
 
     //////////////////Testing//////////////
 
-    let testTokenList = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
-    printf "%A" (run instType1 testTokenList) 
+    let testInstrType1List1 = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
+    let testInstrType1List2 = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(Literal(10))]
+
+    let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokOperand(ID(R0)); TokOperand(ID(R1))]
+
+    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokOperand(ID(R0)); TokOperand(Literal(10))]
+
+    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokOperand(Literal(10))]
+    let testInstrType1ListFail2 = [TokInstr1(MVN); TokError("R16"); TokError("R20");]
+
+    let testInstrType1ListFail3 = [TokInstr1(MOV); TokError("B"); TokOperand(ID(R0)); TokOperand(ID(R1))]
+
+    let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokOperand(ID(R0)); TokOperand(Literal(10))]
+
+   // printf "%A" (run instType1 testTokenList) 
