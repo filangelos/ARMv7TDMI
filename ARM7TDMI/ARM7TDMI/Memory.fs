@@ -29,10 +29,18 @@ module Memory =
             ( fun (memory: Memory) -> memory.Storage ), 
             ( fun (storage: Map<Address, byte>) (memory: Memory) -> { memory with Storage = storage } )
 
+        /// initialise a memory location with zero if not accessed before
+        static member private cleanGet (address: Address) (storage: Map<Address, byte>) : byte =
+            match Map.containsKey address storage with
+            // if already in the storage return true value
+            | true -> storage.Item address
+            // else return 0
+            | false -> 0uy
+
         /// Byte Access Composition Optic Function
         static member Byte_ =
             // Getter: Address -> Memory -> byte
-            ( fun (address: Address) (memory: Memory) -> memory.Storage.Item address ),
+            ( fun (address: Address) (memory: Memory) -> Memory.cleanGet address memory.Storage),
             // Setter: Address -> byte -> Memory -> Memory
             ( fun (address: Address) (value: byte) (memory: Memory) -> 
                 { memory with Storage = Map.add address value memory.Storage } )
