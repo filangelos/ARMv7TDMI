@@ -236,6 +236,7 @@ module MemoryInstructions =
     //    printfn "Memory Instruction Testing Done" 
 
     let simpleLDRSTRtest = 
+        printfn "%A" (MachineState.make())
     ////testing loadInstruction
     //    let a3 = MachineState.make()
     //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)

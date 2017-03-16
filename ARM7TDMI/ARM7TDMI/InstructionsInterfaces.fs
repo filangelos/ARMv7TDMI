@@ -92,3 +92,9 @@ module InstructionsInterfaces =
     let asr_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
         if (executeOrNot (cond) state) then mov (regD, Operand(op2, RightA shift), state, setFlags) else state
 
+
+// test to check against VisUAL 
+    let a = MachineState.initWithFlags "0110"
+    let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true, None)
+    printfn "Quic Test"
+    printfn "%A" b

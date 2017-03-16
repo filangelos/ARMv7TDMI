@@ -420,20 +420,24 @@ module Instructions =
 
     //Testing add{s} instruction
     let test_add () = 
-        printf "Starting Testing of Add Instruction. Compare against visUAL."
-        let a_add = MachineState.make()
-        let b_add = mov (R0, Operand(Literal(-1073741824),NoShift), a_add, false) //Moving preliminary values
-        let c_add = mov (R1, Operand(Literal 1,NoShift),b_add,false)
-        let d_add = add_ (R2, R1, Operand(ID R0,NoShift),c_add,false) //Correct addition [x]
-        printfn "%A" d_add
-        let e_add = add_ (R2, R0, Operand(ID R0,NoShift),d_add,true) //Sets C flag [x]
-        printfn "%A" e_add
-        let f_add = add_ (R2, R2, Operand(ID R2, NoShift),e_add,true) //Sets V flag [x]
-        printfn "%A" f_add
-        let g_add = add_ (R2, R2, Operand(ID R2, NoShift),f_add,true) //Sets Z flag [x]
-        printfn "%A" g_add
-        let h_add = add_ (R2, R0, Operand(ID R2, NoShift),g_add,true)//Sets N flag [x]
-        printfn "%A" h_add
+        printfn "Starting Testing of Add Instruction. Compare against visUAL."
+        let a = MachineState.initWithFlags "0110"
+        let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true)
+        printfn "Quick Test"
+        printfn "%A" b
+        //let a_add = MachineState.make()
+        //let b_add = mov (R0, Operand(Literal(-1073741824),NoShift), a_add, false) //Moving preliminary values
+        //let c_add = mov (R1, Operand(Literal 1,NoShift),b_add,false)
+        //let d_add = add_ (R2, R1, Operand(ID R0,NoShift),c_add,false) //Correct addition [x]
+        //printfn "%A" d_add
+        //let e_add = add_ (R2, R0, Operand(ID R0,NoShift),d_add,true) //Sets C flag [x]
+        //printfn "%A" e_add
+        //let f_add = add_ (R2, R2, Operand(ID R2, NoShift),e_add,true) //Sets V flag [x]
+        //printfn "%A" f_add
+        //let g_add = add_ (R2, R2, Operand(ID R2, NoShift),f_add,true) //Sets Z flag [x]
+        //printfn "%A" g_add
+        //let h_add = add_ (R2, R0, Operand(ID R2, NoShift),g_add,true)//Sets N flag [x]
+        //printfn "%A" h_add
         printfn "End of Add testing"
 
     test_add ()
