@@ -38,8 +38,8 @@ module Parser =
     let incrLine pos = 
         {lineNo=pos.lineNo + 1; tokenNo=0}
 
-    // Create a new InputState from a Token List for a specific Line
-    let x tokenLst = 
+    // Create a new InitState from a Token List for a specific Line
+    let tokenToInit tokenLst = 
         let y = splitBy TokNewLine tokenLst        
         match y with
             | [] -> {lineList = [||]; position = initPos;}
@@ -100,25 +100,25 @@ module Parser =
         | Failure of PLabel * PError * PPosition
 
     type Parser<'T> = {
-        parseFunc : (List<Token> -> Outcome<'T * List<Token>>)
+        parseFunc : (InitState -> Outcome<'T * InitState>)
         pLabel:  PLabel
         }
-    let parserPositionFromInputState (initState:Input) = {
+    let parserPosfromInitState(initState:Input) = {
         currLine =  currLine initState
         lineNo = initState.position.lineNo
         tokenNo = initState.position.tokenNo
     }
-    let resultPrinter result =
+    let printOutcome result =
         match result with
         | Success (value,input) -> 
             printfn "%A" value
-        | Failure (label,error, parPos) -> 
+        | Failure (label, err, parPos) -> 
             let errorLine = parPos.currLine
             let tokPos = parPos.tokenNo
             let linePos = parPos.lineNo
-            let failureLine = sprintf "%*s^%s" tokPos "" error
-            printfn "LineNo:%i TokenNo:%i Error parsing %A\n%A\n%s" linePos tokPos label errorLine failureCaret 
-        
+            let failureLine = sprintf "%*s^%s" tokPos "" err
+            printfn "Line:%i - TokenNo:%i Error parsing %A\n %A\n %s" linePos tokPos label errorLine failureLine
+    //convert Error Line to String....
     let rec readAllTokens input =
         [
             let remainingInput,tokenOpt = nextToken input 
@@ -133,13 +133,6 @@ module Parser =
                 yield! readAllTokens remainingInput
         ]
 
-    let printOutcome result =
-        match result with
-        | Success (value,input) -> 
-            printfn "%A" value
-        | Failure (label,error) -> 
-            printfn "Error parsing %s\n%s" label error
-
     let setLabel parser newLabel = 
         // change the inner function to use the new label
         let newInnerFn input = 
@@ -148,9 +141,9 @@ module Parser =
             | Success s ->
                 // if Success, do nothing
                 Success s 
-            | Failure (oldLabel,err) -> 
+            | Failure (oldLabel,err, parPos) -> 
                 // if Failure, return new label
-                Failure (newLabel,err)        // <====== use newLabel here
+                Failure (newLabel,err, parPos)        // <====== use newLabel here
         // return the Parser
         {parseFunc=newInnerFn; pLabel=newLabel}
 
@@ -158,17 +151,19 @@ module Parser =
     let ( <?> ) = setLabel
 
     let satisfy predicate label =
-        let innerFn (tokenLst: Token List) =
-            match tokenLst with 
-                | [] -> Failure ("Token List Parsed", "Finished")
-                | h::tl -> 
-                    let token = h
-                    if predicate token then
-                        let remaining = tl
-                        Success (token,remaining)
-                        else
-                        let err = sprintf "Unexpected %A" token
-                        Failure (label, err)
+        let innerFn tokenLst=
+            let remainInput, tokenOpt = nextToken tokenLst
+            match tokenOpt with 
+                | None -> let err = "No more input"
+                          let pos = parserPosfromInitState tokenLst
+                          Failure (label,err,pos) 
+                | Some first -> 
+                    if predicate first then
+                        Success (first,remainInput)
+                    else
+                        let err = sprintf "Unexpected '%A'" first
+                        let pos = parserPosfromInitState tokenLst
+                        Failure (label,err,pos)
         // return the parser
         {parseFunc=innerFn; pLabel=label}
 
@@ -178,28 +173,28 @@ module Parser =
         let label = sprintf "%A" tokenToMatch 
         satisfy predicate label 
 
+    let runInput parser input = 
+        parser.parseFunc input
     /// Run a parser with some input
-    let run parser input = 
-        // unwrap parser to get inner function
-        let {parseFunc =innerFn; pLabel=label} = parser
-        // call inner function with input
-        innerFn input
+
+    let run parser inputTokenLst = 
+        runInput parser (tokenToInit inputTokenLst)
 
     /// "bindP" takes a parser-producing function f, and a parser p
     /// and passes the output of p into f, to create a new parser
     let bindP f p =
         let label = "Empty"
         let innerFn input =
-            let result1 = run p input 
-            match result1 with
-            | Failure (label, err) -> 
+            let res1 = runInput p input 
+            match res1 with
+            | Failure (label, err, pos) -> 
                 // return error from parser1
-                Failure (label, err) 
+                Failure (label, err, pos) 
             | Success (value1,remainingInput) ->
                 // apply f to get a new parser
                 let p2 = f value1
                 // run parser with remaining input
-                run p2 remainingInput
+                runInput p2 remainingInput
         {parseFunc =innerFn; pLabel=label }
 
     /// Infix version of bindP
@@ -249,7 +244,7 @@ module Parser =
     let orElse p1 p2 =
         let innerFn input =
             // run parser1 with the input
-            let result1 = run p1 input
+            let result1 = runInput p1 input
 
             // test the result for Failure/Success
             match result1 with
@@ -257,9 +252,9 @@ module Parser =
                 // if success, return the original result
                 result1
 
-            | Failure (err, label) -> 
+            | Failure (label, err, pos) -> 
                 // if failed, run parser2 with the input
-                let result2 = run p2 input
+                let result2 = runInput p2 input
 
                 // return parser2's result
                 result2 
@@ -299,10 +294,10 @@ module Parser =
     /// (helper) match zero or more occurences of the specified parser
     let rec parseZeroOrMore parser input =
         // run parser with the input
-        let firstResult = run parser input 
+        let firstResult = runInput parser input 
         // test the result for Failure/Success
         match firstResult with
-        | Failure (err, label) -> 
+        | Failure (labe,err,pos) -> 
             // if parse fails, return empty list
             ([],input)  
         | Success (firstValue,inputAfterFirstParse) -> 
