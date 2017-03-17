@@ -86,12 +86,23 @@ module InstructionsInterfaces =
     let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Left shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Right shift
+    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have RightL shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let asr_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2, RightA shift), state, setFlags) else state
+    let asr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have RightA shift
+        if (executeOrNot (cond) state) then mov (regD, op2, state, setFlags) else state
 
+    let orr_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then orr (regD, regN, op2, state, setFlags) else state
+  
+    let and_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then andOp (regD, regN, op2, state, setFlags) else state
+
+    let eor_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then eOR (regD, regN, op2, state, setFlags) else state
+
+    let bic_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then bic (regD, regN, op2, state, setFlags) else state
 
 // test to check against VisUAL 
     let a = MachineState.initWithFlags "0110"
