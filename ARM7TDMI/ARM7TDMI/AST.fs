@@ -55,7 +55,7 @@ module AST =
                 | JInstr1(MVN, setFlags, cond, rd, rn) ->
                     InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
                 | JInstr2(ADR, setFlags, cond, rd) ->
-                    failwithf "not done yet"
+                    failwithf "ADR not done yet"
                 | JInstr3(ADD, setFlags, cond, rd, rn, op2) ->
                     InstructionsInterfaces.add_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
                 | JInstr3(ADC, setFlags, cond, rd, rn, op2) ->
@@ -129,12 +129,14 @@ module AST =
         printfn "Running testAST:"
         let parseList = [
                             (JLabel("START"));
-                            (JInstr1(MOV, None, None, R1, Operand(Literal(13), NoShift)));
+                            (JInstr1(MOV, None, None, R1, Operand(Literal(1), NoShift)));
                             (JInstr1(MOV, Some(S), None, R2, Operand(Literal(0), NoShift)));
                             (JLabel("LABEL2"));
                             (JInstr1(MOV, None, Some(NE), R3, Operand(Literal(342), NoShift)));
                             (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
-                            (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)))
+                            (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)));
+                            (JInstr4(LSL, None, None, R6, R5, Literal(2)));
+                            (JInstr4(LSL, None, None, R7, R5, ID(R1)))
                         ]
 
         let astLabelMap = buildAST parseList
