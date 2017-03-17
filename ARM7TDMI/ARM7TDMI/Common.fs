@@ -79,9 +79,7 @@ module Common =
         | LDR | STR
         | ADR
         | LDM | STM
-    *)
-<<<<<<< HEAD
-=======
+*)
 
     type Offset = 
         | TempOffset of int // LDR     R8, [R10, #4] 
@@ -184,7 +182,6 @@ module Common =
         | Instr7 of InstrType7
         | Instr8 of InstrType8
         | Label of string
-    *)
 
     (*
     type Operation = 
