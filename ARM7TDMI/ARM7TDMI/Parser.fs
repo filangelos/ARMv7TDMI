@@ -7,7 +7,12 @@
     Contributors: Pranav Prabhu
 
     Module: Parser
-    Description: Parse individual instruction and pass parsed list of Result Types to AST. 
+
+    Description: Take in a Token List, Parse and return a List of InstrType or Error (and associated Error information)
+    to AST for processing onwards to actual implementation. Parsing done using monadic parser combinators. 
+    
+
+    Sources: fsharpforfunandprofit.com, 
 *)
 
 module Parser =
