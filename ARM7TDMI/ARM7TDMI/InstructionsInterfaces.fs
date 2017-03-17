@@ -36,7 +36,9 @@ module InstructionsInterfaces =
         | None -> true
         | _ -> false
 
-       
+    
+    //ALU Instructions
+           
     let mov_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = 
         if (executeOrNot (cond) state) then mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) else state
 
@@ -86,9 +88,54 @@ module InstructionsInterfaces =
     let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Left shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Right shift
+    let lsr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have RightL shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
 
-    let asr_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2, RightA shift), state, setFlags) else state
+    let asr_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have RightA shift
+        if (executeOrNot (cond) state) then mov (regD, op2, state, setFlags) else state
 
+    let orr_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then orr (regD, regN, op2, state, setFlags) else state
+  
+    let and_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then andOp (regD, regN, op2, state, setFlags) else state
+
+    let eor_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then eOR (regD, regN, op2, state, setFlags) else state
+
+    let bic_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then bic (regD, regN, op2, state, setFlags) else state
+
+
+    //Memory Instructions
+
+    let ldr_ ((regD: RegisterID), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then loadInstructionW (regD, regN, state) else state
+
+    let ldrb_ ((regD: RegisterID), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then loadInstructionB (regD, regN, state) else state
+
+    let str_ ((result: Data), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then storeInstructionW (result, regN, state) else state
+    
+    let strb_ ((result: Data), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then storeInstructionB (result, regN, state) else state
+
+    let ldm_ ((addMode: AddressMode), (addRegister: RegisterID), (regList: RegisterID list), (state: MachineState), (writeBack: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then loadMultiple (addMode, addRegister, regList, state, writeBack) else state
+
+    let stm_ ((addMode: AddressMode), (addRegister: RegisterID), (regList: RegisterID list), (state: MachineState), (writeBack: bool), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then storeMultiple (addMode, addRegister, regList, state, writeBack) else state
+
+    let pseudo_ldr_ ((regD: RegisterID), (expr: Expression), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
+
+    let adr_ ((regD: RegisterID), (expr: Expression), (state: MachineState), (cond: ConditionCode option)) = //expr has to be label
+        if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
+
+
+// test to check against VisUAL 
+    let a = MachineState.initWithFlags "0110"
+    let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true, None)
+    printfn "Quic Test"
+    printfn "%A" b

@@ -14,24 +14,6 @@
 module MemoryInstructions =
 
 
-    type Offset = 
-        | TempOffset of int // LDR     R8, [R10, #4] 
-        | PreIndex of int // LDR     R8, [R10, #4]!
-        | PostIndex of int // LDR     R8, [R10], #4
-        | NoOffset // syntax: LDR     R8, [R10] 
-
-
-    type AddressMode = 
-        | IA | IB | DA | DB 
-        | ED | FD | EA | FA
-
-    type AddressRegister = 
-        {register: RegisterID; offset: Offset}
-
-    type Expression = 
-        | Label of string
-        | Number of int
-
     open MachineState
     open Instructions
     //open AST
@@ -46,7 +28,7 @@ module MemoryInstructions =
     //let ( ^* ) = Optics.get MachineState.Flag_
     //let ( ^- ) = Optics.set MachineState.Flag_
 
-    let sortRegister regList =
+    let sortRegister regList = // implemented like this because List.sort does not operate correctly under Fable
 
         let numberRegister = 
             function
@@ -235,6 +217,7 @@ module MemoryInstructions =
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
 
+    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
 //    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()
