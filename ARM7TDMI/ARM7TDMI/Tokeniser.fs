@@ -35,14 +35,14 @@ module Tokeniser =
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let private getTokenRegisterFromID (id:int) = 
         match id with
-        | 0 -> TokInput(ID(R0))   | 1 -> TokInput(ID(R1))
-        | 2 -> TokInput(ID(R2))   | 3 -> TokInput(ID(R3))
-        | 4 -> TokInput(ID(R4))   | 5 -> TokInput(ID(R5))
-        | 6 -> TokInput(ID(R6))   | 7 -> TokInput(ID(R7))
-        | 8 -> TokInput(ID(R8))   | 9 -> TokInput(ID(R9))
-        | 10 -> TokInput(ID(R10)) | 11 -> TokInput(ID(R11))
-        | 12 -> TokInput(ID(R12)) | 13 -> TokInput(ID(R13))
-        | 14 -> TokInput(ID(R14)) | 15 -> TokInput(ID(R15))
+        | 0 -> TokReg(R0)   | 1 -> TokReg(R1)
+        | 2 -> TokReg(R2)   | 3 -> TokReg(R3)
+        | 4 -> TokReg(R4)   | 5 -> TokReg(R5)
+        | 6 -> TokReg(R6)   | 7 -> TokReg(R7)
+        | 8 -> TokReg(R8)   | 9 -> TokReg(R9)
+        | 10 -> TokReg(R10) | 11 -> TokReg(R11)
+        | 12 -> TokReg(R12) | 13 -> TokReg(R13)
+        | 14 -> TokReg(R14) | 15 -> TokReg(R15)
         | _ -> TokError("R"+id.ToString())
 
 
@@ -145,18 +145,18 @@ module Tokeniser =
                 match str with
                 //str may contain several tokens, so recursively call MatchToken until str is empty
                 | MatchToken "([pP][cC])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                           //pc (R15)
-                    strToToken (lst @ [TokInput(ID((R15)))]) leftovers
+                    strToToken (lst @ [TokReg(R15)]) leftovers
                 | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                     strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
                 | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                     //printfn "hex: %A" hexVal
-                    strToToken (lst @ [TokInput(Literal (int hexVal))]) leftovers
+                    strToToken (lst @ [TokLiteral (int hexVal)]) leftovers
                 | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                     //printfn "bin: %A" binVal
-                    strToToken (lst @ [TokInput(Literal (int binVal))]) leftovers
+                    strToToken (lst @ [TokLiteral (int binVal)]) leftovers
                 | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
-                    strToToken (lst @ [TokInput(Literal(value |> int))]) leftovers
+                    strToToken (lst @ [TokLiteral(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
                 | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword

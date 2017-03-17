@@ -165,7 +165,9 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        | TokInput of Input
+        //| TokInput of Input
+        | TokReg of RegisterID
+        | TokLiteral of int
         | TokComma
         | TokExclam
         | TokSquareLeft
