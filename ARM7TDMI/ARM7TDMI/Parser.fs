@@ -103,6 +103,7 @@ module Parser =
         parseFunc : (InitState -> Outcome<'T * InitState>)
         pLabel:  PLabel
         }
+        
     let parserPosfromInitState(initState:Input) = {
         currLine =  currLine initState
         lineNo = initState.position.lineNo
@@ -383,10 +384,7 @@ module Parser =
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokInput) |> Array.toList
     let pS = pToken (TokS S) <?> "Set Flag Variable"
     let pCond = anyOf tokenCondList <?> "Conditional Code"
-    let pReg = anyOf tokenRegList <?> "Register"
-
-
-    let pOperand = anyOf  
+    let pReg = anyOf tokenRegList <?> "Register" 
 
     // ======================================
     // Forward reference
@@ -394,11 +392,11 @@ module Parser =
 
     /// Create a forward reference
     let instType1 = 
-        let tokenInstrList1 = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
+        let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
         let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let label = "Instruction Type 1"
         ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr1 <?> label
-
+(*
     let instType2 = 
         let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
         let pInstr2 = anyOf tokenInstrList2 <?> "Type 2 Opcode"
@@ -423,6 +421,8 @@ module Parser =
         let label = "Instruction Type 5"
         (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5) <?> label
 
+    *)
+
    // parseInstrForRef := choice 
        // [
     //     instType1
@@ -446,5 +446,5 @@ module Parser =
 
     let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokInput(ID(R0)); TokInput(Literal(10))]
 
-    let testParser =
-         printf "%A" testInstrType1List1 
+    let testParser() =
+         printf "10"// (run instType1 testInstrType1List1)
