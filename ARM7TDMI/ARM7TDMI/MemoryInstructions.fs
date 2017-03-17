@@ -148,7 +148,7 @@ module MemoryInstructions =
 
         let exprValue = match expr with
                         | Number x -> x
-                        | Label x -> Optics.get MachineState.Label_ x state
+                        | Lab x -> Optics.get MachineState.Label_ x state
 
         mov (regD, Operand(Literal exprValue, NoShift), state, false)
 
