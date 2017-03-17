@@ -11,3 +11,7 @@
 ## Dependencies
 
 Common.fs
+
+## Notes
+
+A label token will ALWAYS precede a newline.
