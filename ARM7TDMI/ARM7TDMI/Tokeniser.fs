@@ -62,14 +62,16 @@ module Tokeniser =
     let private getTokenStackDirectionFrom (str:string) =
         match str.ToUpper() with
         | "FA" -> TokStackDir(FA) | "FD" -> TokStackDir(FD) 
-        | "EA" -> TokStackDir(EA) | "ED" -> TokStackDir(ED) 
+        | "EA" -> TokStackDir(EA) | "ED" -> TokStackDir(ED)
+        | "IA" -> TokStackDir(IA) | "IB" -> TokStackDir(IB)
+        | "DA" -> TokStackDir(DA) | "DB" -> TokStackDir(DB)
         | _ -> TokError(str) 
  
 
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
     let rec private getTokenInstructionFrom (str:string) (lst:Token list) =
         //break down string into list of tokens
-        let patternEnd = "(?=$|S|B|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|FA|FD|EA|ED)"
+        let patternEnd = "(?=$|S|B|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|FA|FD|EA|ED|IA|IB|DA|DB)"
         let Instr i =
             System.String.Concat [|"("; i; ")"; patternEnd|]
         match str.ToUpper() with
@@ -127,7 +129,7 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokS(S)])
         | MatchToken (Instr "B") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokB(B)])
-        | MatchToken (Instr "ED|EA|FD|FA") (dir, leftovers) ->
+        | MatchToken (Instr "ED|EA|FD|FA|IA|IB|DA|DB") (dir, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenStackDirectionFrom dir])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenConditionalCodeFrom cond])
@@ -321,7 +323,7 @@ module Tokeniser =
         Check.Quick(checkTokenListLengthCond())
 
         let strInstr = ["LDM"; "STM"]
-        let strCond = ["FD"; "FA"; "ED"; "EA"]
+        let strCond = ["FD"; "FA"; "ED"; "EA"; "DA"; "DB"; "IA"; "IB"]
         let checkTokenListLengthMem () =
             //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
             let getRandomItem () =  
@@ -336,6 +338,7 @@ module Tokeniser =
         printfn "%A" (tokenise "STMFA")
         printfn "%A" (tokenise "STMEA")
         printfn "%A" (tokenise "STMFD")
+        printfn "%A" (tokenise "STMDA")
         printfn "Generating random tests for stack direction codes..."
         Check.Quick(checkTokenListLengthMem())
 
