@@ -261,9 +261,9 @@ module Tokeniser =
             let subStr = String.concat separator subList
             let tokList = tokenise subStr
             if isSeparatorAToken then 
-                tokList.Length = (subList.Length * 2) - 1
+                tokList.Length = (subList.Length * 2) - 1 + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
             else
-                tokList.Length = subList.Length
+                tokList.Length = subList.Length + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
 
 
         //perform valid input tests
