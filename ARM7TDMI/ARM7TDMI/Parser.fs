@@ -380,22 +380,23 @@ module Parser =
     let parseInstr,parseInstrForRef = createParserForwardedToRef<Instr>()
 
     /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM /////////////////////////////////////
-    let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
-    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokInput) |> Array.toList
+   // let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
+  //  let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokInput) |> Array.toList
     let pS = pToken (TokS S) <?> "Set Flag Variable"
-    let pCond = anyOf tokenCondList <?> "Conditional Code"
-    let pReg = anyOf tokenRegList <?> "Register" 
+  //  let pCond = anyOf tokenCondList <?> "Conditional Code"
+//    let pReg = anyOf tokenRegList <?> "Register" 
 
     // ======================================
     // Forward reference
     // ======================================
 
     /// Create a forward reference
-    let instType1 = 
+(*    let instType1 = 
         let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
         let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let label = "Instruction Type 1"
         ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr1 <?> label
+*)
 (*
     let instType2 = 
         let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
