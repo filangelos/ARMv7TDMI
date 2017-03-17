@@ -172,12 +172,8 @@ module Common =
         | TokCurlyRight
         | TokNewLine
         | TokError of string
-<<<<<<< HEAD
         | TokEOF
 
-=======
-    (*
->>>>>>> 9865f0a9486fe03901659969c437ec4ef8437107
     type Instruction = 
         | Instr1 of InstrType1
         | Instr2 of InstrType2
