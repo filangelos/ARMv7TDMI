@@ -11,78 +11,165 @@
 *)
 
 module AST =
-
     open MachineState
-    open Instructions
+    open InstructionsInterfaces
 
     // shortcuts
-    let ( ^. ) = Optics.get MachineState.Register_
-    let ( ^= ) = Optics.set MachineState.Register_
-    let ( ^* ) = Optics.get MachineState.Flag_
-    let ( ^- ) = Optics.set MachineState.Flag_
-
-    ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32)
-    type Parameters =
-        | ParametersAdd of (RegisterID * RegisterID * Operand * bool * bool * ShiftDirection)            //(regD, regN, op2, includeCarry, setFlags, ShiftDirection)
-        | ParametersSub of (RegisterID * RegisterID * Operand * bool * bool * bool * ShiftDirection)     //(regD, regN, op2, includeCarry, reverse, setFlags, ShiftDirection)
-        | Parameters1RegShift of (RegisterID * Operand * bool * ShiftDirection)                          //(regD, op2, setFlags, ShiftDirection)
-        | Parameters1Reg of (RegisterID * Operand * bool)                                                //(regD, op2, setFlags)
-        | Parameters2Reg of (RegisterID * RegisterID * Operand * bool)                                   //(regD, regN, op2, setFlags)
-
-    ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
-    type Address = int                  //Replace int with MemoryLocation when Memory is done.
-
-    ///type used for specifying a conditional code of the form, FlagID = bool. Usage: Z = 1 -> (Z, true); V = 0 -> (V, false)
-    type Condition = FlagID * bool
-
-    ///type representing the possible nodes in the AST
-    type Node = InstructionKeyword * Parameters * (Condition option) * Address
-
-    ///type representing the mapping of labels to memory addresses
-    type LabelMap = Map<string, Address>
-
-    ///type representing the AST (just a list of nodes as well as the map for the label mappings)
-    type AST = (Node list) * LabelMap
-
-    ////Build the AST in the parser using these functions////
+    let private ( ^. ) = Optics.get MachineState.Register_
+    let private ( ^= ) = Optics.set MachineState.Register_
+    let private ( ^* ) = Optics.get MachineState.Flag_
+    let private ( ^- ) = Optics.set MachineState.Flag_
+    let private ( ^% ) = Optics.get MachineState.AST_
 
     ///adds an instruction node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. and label parsed).
-    ///usage: addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) [-current address int value-]
-    let addInstruction (ast:AST) (f:InstructionKeyword) (p:Parameters) (c:Condition option) (addr:Address) =
-        match ast with
-        | lst, labelMap -> (lst @ [(f, p, c, addr)], labelMap)
+    let private addInstruction (ast:AST) (f:Instr) (addr:Address) =
+        ast @ [(f, addr)]
 
     ///adds a label node to the AST, address should be an int and assigned in the parser (increase addr by 4 bytes for each instr. parsed).
-    ///usage: addLabelNode ast LABEL1 [-current address int value-]
-    let addLabel (ast:AST) (name:string) (addr:Address) =
-        match ast with
-        | lst, labelMap -> (lst, labelMap.Add (name, addr))
+    let private addLabel (labelMap: LabelMap) (name:string) (addr:Address) =
+        labelMap.Add (name, addr)
 
-    ///evaluates a condtion of type Condition and returns true or false
-    let private evaluateCondition (cond:Condition option) (state:MachineState) =
-        match cond with
-        | Some(fID, eq) ->
-            ( ^* ) fID state = eq
-        | None -> true
-
-    (*
-    let rec reduce (ast:AST) (state:MachineState) =
-        match ast with
-        | (f, p, cond, addr)::t, lst ->
-            if evaluateCondition cond state then
-                match f, p with
-                | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
-                    let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
-                    reduce (t,lst) newState pc maxPC
-                | _ -> failwithf "Could not execute instruction"
-            else
-                reduce (t,lst) state
-        | [], lst -> state
-    *)
+    ///Build the AST and label map from the list given by Parser
+    let buildAST (parseLst:(Instr list)) =
+        let rec addNode (lst:(Instr list)) (ast:AST) (labelMap: LabelMap) (pc:int) =
+            match lst with
+            | [] -> ast, labelMap
+            | node::t ->
+                match node with
+                | (JLabel(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
+                | instr -> addNode t (addInstruction ast instr pc) labelMap (pc+4)
+        addNode parseLst [] Map.empty<string, Address> 0
 
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
+    let step (state:MachineState) =
+        // try to find a node with address matching pc, if not found, catch exception from List.find
+        let pc = ( ^. ) R15 state
+        try 
+            let currentNode = List.find (fun x -> match x with | (_,addr) -> addr = pc) (( ^% ) state)
+            printfn "executing node at pc=%A" pc
+            match currentNode with
+            | (f, addr) -> 
+                match f with
+                | JInstr1(MOV, setFlags, cond, rd, rn) ->
+                    InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
+                | JInstr1(MVN, setFlags, cond, rd, rn) ->
+                    InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
+                | JInstr2(ADR, setFlags, cond, rd) ->
+                    failwithf "not done yet"
+                | JInstr3(ADD, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.add_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(ADC, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.adc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(SUB, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.sub_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(SBC, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.sbc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(RSB, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.rsb_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(RSC, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.rsc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(AND, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.and_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(EOR, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.eor_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(BIC, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.bic_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr3(ORR, setFlags, cond, rd, rn, op2) ->
+                    InstructionsInterfaces.orr_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr4(LSL, setFlags, cond, rd, rn, Literal(shift)) ->
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSL, setFlags, cond, rd, rn, ID(shift)) ->
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSR, setFlags, cond, rd, rn, Literal(shift)) ->
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSR, setFlags, cond, rd, rn, ID(shift)) ->
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ASR, setFlags, cond, rd, rn, Literal(shift)) ->
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ASR, setFlags, cond, rd, rn, ID(shift)) ->
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ROR_, setFlags, cond, rd, rn, Literal(shift)) ->
+                    InstructionsInterfaces.ror_ (rd, ID(rn), shift, state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ROR_, setFlags, cond, rd, rn, ID(shift)) ->
+                    InstructionsInterfaces.ror_ (rd, ID(rn), (( ^. ) shift state), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr5(RRX_, setFlags, cond, rd, op2) ->
+                    InstructionsInterfaces.rrx_ (rd, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr6(CMP, cond, rd, op2) ->
+                    InstructionsInterfaces.cmp_ (rd, op2, state, cond)
+                | JInstr6(CMN, cond, rd, op2) ->
+                    InstructionsInterfaces.cmn_ (rd, op2, state, cond)
+                | JInstr6(TST, cond, rd, op2) ->
+                    InstructionsInterfaces.tst_ (rd, op2, state, cond)
+                | JInstr6(TEQ, cond, rd, op2) ->
+                    InstructionsInterfaces.teq_ (rd, op2, state, cond)
+                | _ -> failwithf "Could not execute node in the ast: %A" currentNode
+                    
+        with
+            | _ -> state
+
+    ///reduces an ast in a MachineState by executing the nodes between pc and maxPC
+    let rec reduce (state:MachineState) (pc:int) (maxPC) =
+        if pc <= maxPC then
+            let updateStateR15 = ( ^= ) R15 pc state
+            let newState = step updateStateR15
+            reduce (newState) (pc+1) maxPC
+        else
+            state
+
+    ///execute an entire ast in a MachineState
+    let execute (state:MachineState) = 
+     //get address of last node
+     let ast = ( ^% ) state
+     let maxPC = snd (ast |> List.rev |> List.head)
+     reduce state 0 maxPC
+
+    (*--------------------------------------------------------TESTING--------------------------------------------------------*)
+
+    let testAST () =
+        printfn "Running testAST:"
+        let parseList = [
+                            (JLabel("START"));
+                            (JInstr1(MOV, None, None, R1, Operand(Literal(13), NoShift)));
+                            (JInstr1(MOV, Some(S), None, R2, Operand(Literal(0), NoShift)));
+                            (JLabel("LABEL2"));
+                            (JInstr1(MOV, None, Some(NE), R3, Operand(Literal(342), NoShift)));
+                            (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
+                            (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)))
+                        ]
+
+        let astLabelMap = buildAST parseList
+        printfn "ast and label map are:\n%A\n" astLabelMap
+        let state = MachineState.init(astLabelMap)
+        //let result = reduce state 0 24
+        let result = execute state
+        printfn "final result state for this ast is:\n%A\n" result
+
+
+
+        printfn "Finished testAST.\n"
+
+        
+
+    (*------------------------------------------------------------------------------------------------------------------------*)
+    //IGNORE ANYTHING BELOW HERE
+    (*
+
+    Instruction = T
+
+
+
+
+
+
+
+    *)
+
+    (*------------------------------------------------------------------------------------------------------------------------*)
+
+        (*
     let rec reduce (ast:AST) (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
+            // try to find a node with address matching pc, if not found, catch exception from List.find
             try 
                 match ast with
                 | (nodes, labels) ->
@@ -90,11 +177,46 @@ module AST =
                     printfn "executing node at pc=%A" pc
                     match currentNode with
                     | (f, p, cond, addr) -> 
+                        //evaluate conditional code
                         if evaluateCondition cond state then
                             match f, p with
-                            | MOV, Parameters1RegShift((regD, op2, setFlags, shiftDirection)) ->
-                                let newState = Instructions.mov (regD, op2, state, setFlags, shiftDirection)
-                                reduce ast newState (pc+1) maxPC
+                            | ADD, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.add_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | ADC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.adc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | MOV, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | MVN, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mvn (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ORR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.orr (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | AND, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.andOp (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | EOR, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.eOR (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | BIC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.bic (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | LSL, Param_Rd_Op_Bool((regD, op2, setFlags))
+                            | LSR, Param_Rd_Op_Bool((regD, op2, setFlags)) ->
+                                reduce ast (Instructions.mov (regD, op2, state, setFlags)) (pc+1) maxPC
+                            | ASR, Param_Rd_Input_Int_Bool((regD, input, shift, setFlags)) ->
+                                reduce ast (Instructions.arithmeticRightShift (regD, input, shift, state, setFlags)) (pc+1) (maxPC)
+                            | SUB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.sub_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | SBC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.sbc_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSB, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                reduce ast (Instructions.rsb_ (regD, regN, op2, state, setFlags)) (pc+1) maxPC
+                            | RSC, Param_Rd_Rn_Op_Bool((regD, regN, op2, setFlags)) ->
+                                failwithf "Please add missing implementation for node, %A" currentNode
+                            | CMP, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.cmp_ (regD, op2, state)) (pc+1) maxPC
+                            | CMN, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.cmn_ (regD, op2, state)) (pc+1) maxPC
+                            | TST, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.tst_ (regD, op2, state)) (pc+1) maxPC
+                            | TEQ, Param_Rd_Op((regD, op2)) ->
+                                reduce ast (Instructions.teq_ (regD, op2, state)) (pc+1) maxPC
                             | _ -> failwithf "Could not execute node: %A" currentNode
                         else
                             reduce ast state (pc+1) maxPC
@@ -102,38 +224,9 @@ module AST =
                 | _ -> reduce ast state (pc+1) maxPC
         else
             state
-
-    (*--------------------------------------------------------TESTING--------------------------------------------------------*)
-
-    let testAST =
-        printfn "Running testAST:"
-        let emptyState = MachineState.make()
-        printfn "empty machine state:\n%A\n" emptyState
-        let myAst1 = ([], Map.empty<string, Address>)
-        let  myAst2 = addInstruction myAst1 (MOV) (Parameters1RegShift(R1, Literal(13), false, NoShift)) (None) 2
-        let  myAst3 = addInstruction myAst2 (MOV) (Parameters1RegShift(R2, Literal(0), true, NoShift)) (None) 4
-        let  myAst4 = addInstruction myAst3 (MOV) (Parameters1RegShift(R3, Literal(342), false, NoShift)) (Some(Z, false)) 6    //shouldn't execute this
-        let  myAst5 = addInstruction myAst4 (MOV) (Parameters1RegShift(R4, Literal(999), false, ShiftDirection.Left(1))) (Some(Z, true)) 8
-        printfn "ast is:\n%A\n" myAst5
-        printfn "Reducing AST..."
-        let resultState2 = reduce myAst5 emptyState 0 10
-        printfn "final result state for this ast is:\n%A\n" resultState2
-        printfn "Finished testAST.\n"
-
-    (*------------------------------------------------------------------------------------------------------------------------*)
-    //IGNORE ANYTHING BELOW HERE
-    (*
-
-    let parse (lst:Token list) =
-        let tokenLst = 
-
-
-
-
-
-
-
     *)
+
+
     (*------------------------------------------------------------------------------------------------------------------------*)
 
     (* OLD AST - ONLY WORKS WITH ONE TYPE OF INSTRUCTION. This method was much more efficient so maybe come back to this method later. *)
@@ -187,9 +280,10 @@ module AST =
             reduce (t,lst) newState
         | NullNode::t, lst -> reduce (t, lst) state
         | [], lst -> state
-        | _ -> failwithf "Not a valid node"
+        | _ -> failwithf "Not a valid node" *)
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
+    (*
     let testAST =
         printfn "Running testAST:"
         let testState = MachineState.make()
@@ -204,5 +298,4 @@ module AST =
         let result2 = reduce myAst2 testState
         printfn "new test state is %A" result2
         printfn "Finished testAST.\n"
-
-    *)
+*)
