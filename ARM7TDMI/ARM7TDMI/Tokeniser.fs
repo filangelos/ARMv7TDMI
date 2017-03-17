@@ -173,8 +173,10 @@ module Tokeniser =
                     strToToken (lst @ [TokCurlyLeft]) leftovers
                 | MatchToken "\}" (_, leftovers) ->
                     strToToken (lst @ [TokCurlyRight]) leftovers
-                | MatchToken "(\n|\r|\f)+" (_,leftovers) ->
+                | MatchToken "\n|\r|\f" (_,leftovers) ->
                     strToToken (lst @ [TokNewLine]) leftovers
+                | MatchToken "( )+" (_,leftovers) ->
+                    strToToken lst leftovers
                 | "" -> lst
                 | _ -> (lst @ [TokError(str)])
             with
@@ -184,7 +186,7 @@ module Tokeniser =
         let inputNoComments = removeComments input
 
         let strList = inputNoComments.Split([|' '; '\t'|])
-        Array.fold strToToken [] strList
+        (Array.fold strToToken [] strList)  @ [TokEOF]
 
 
 (*--------------------------------------------------------TESTING--------------------------------------------------------*)
@@ -247,7 +249,7 @@ module Tokeniser =
         let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
 
         let checkTokenListLength separator = 
-            let isSeparatorAToken = ((tokenise separator).Length > 0)
+            let isSeparatorAToken = ((tokenise separator).Length > 1)
             //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
             let rnd = new System.Random()
             let rec subset xs = 
@@ -261,9 +263,9 @@ module Tokeniser =
             let subStr = String.concat separator subList
             let tokList = tokenise subStr
             if isSeparatorAToken then 
-                tokList.Length = (subList.Length * 2) - 1 + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
+                tokList.Length = (subList.Length * 2) - 1 + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length ) + 1
             else
-                tokList.Length = subList.Length + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
+                tokList.Length = subList.Length + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length ) + 1
 
 
         //perform valid input tests
@@ -271,7 +273,7 @@ module Tokeniser =
         printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
         printfn "Running badTests..."
         printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
-        
+
         //perform property-based testing to check for correct number of tokens
         printfn "Running FSCheck for token list length..."
         Check.Quick (checkTokenListLength " ")
@@ -299,7 +301,7 @@ module Tokeniser =
         printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
         printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
 
-        //test conditional codes (will add robust testing later)
+        //test conditional codes
         printfn "Testing conditional codes..."
         let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"; "SUB"; "RSB"; "SBC"; "RSC"; "CMP"; "CMN"; "TST"; "TEQ"]
         let strCond = ["EQ"; "NE"; "CS"; "HS"; "CC"; "LO"; "MI" ; "PL"; "VS"; "VC"; "HI"; "LS"; "GE"; "LT"; "GT"; "LE"; "AL"]
@@ -313,7 +315,7 @@ module Tokeniser =
             let tokList1 = tokenise str1
             let str2 = String.concat "" ([(getRandomItem () strInstr); "S"] @ [getRandomItem () strCond])
             let tokList2 = tokenise str2
-            tokList1.Length = 2 && tokList2.Length = 3
+            tokList1.Length = 3 && tokList2.Length = 4
 
         printfn "%A" (tokenise "MOVS")
         printfn "%A" (tokenise "MOVEQ")
@@ -324,6 +326,7 @@ module Tokeniser =
 
         let strInstr = ["LDM"; "STM"]
         let strCond = ["FD"; "FA"; "ED"; "EA"; "DA"; "DB"; "IA"; "IB"]
+
         let checkTokenListLengthMem () =
             //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
             let getRandomItem () =  
@@ -332,7 +335,8 @@ module Tokeniser =
 
             let str1 = String.concat "" ([getRandomItem () strInstr] @ [getRandomItem () strCond])
             let tokList1 = tokenise str1
-            tokList1.Length = 2
+            tokList1.Length = 3
+
         printfn "%A" (tokenise "LDRB")
         printfn "%A" (tokenise "LDMED")
         printfn "%A" (tokenise "STMFA")
