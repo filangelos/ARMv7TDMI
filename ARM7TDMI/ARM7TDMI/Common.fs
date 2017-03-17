@@ -137,7 +137,7 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        | TokOperand of Input
+        | TokInput of Input
         | TokComma
         | TokExclam
         | TokSquareLeft

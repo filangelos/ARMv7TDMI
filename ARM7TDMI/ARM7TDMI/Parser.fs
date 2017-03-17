@@ -31,12 +31,10 @@ module Parser =
     let initPos = {lineNo=0; tokenNo=0;}
 
     /// increment the tokenNo number
-    let incrCol pos = 
-        {pos with tokenNo=pos.tokenNo + 1}
+    let incrCol pos =  {pos with tokenNo=pos.tokenNo + 1}
 
     /// increment the lineNo number and set tokenNo to 0
-    let incrLine pos = 
-        {lineNo=pos.lineNo + 1; tokenNo=0}
+    let incrLine pos = {lineNo=pos.lineNo + 1; tokenNo=0}
 
     // Create a new InitState from a Token List for a specific Line
     let tokenToInit tokenLst = 
@@ -83,7 +81,7 @@ module Parser =
                 let newState = {input with position=newPos}
                 newState, Some token
     
-
+    ///////// Inpit State required for tracking position errors /////////////
     type Input = InitState
 
     type PLabel = string
@@ -359,20 +357,44 @@ module Parser =
     let (>>%) p x =
         p |>> (fun _ -> x)
 
+    let createParserForwardedToRef<'a>() =
+
+        let dummyParser= 
+            let innerFn input : Outcome<'a * Input> = failwith "unfixed forwarded parser"
+            {parseFunc=innerFn; pLabel="Unknown"}
+        
+        // ref to placeholder Parser
+        let parserRef = ref dummyParser 
+
+        // wrapper Parser
+        let innerFn input = 
+            // forward input to the placeholder
+            runInput !parserRef input 
+        let outParser = {parseFunc=innerFn; pLabel="Unknown"}
+
+        outParser, parserRef
+
+    let parseInstr,parseInstrForRef = createParserForwardedToRef<Instr>()
+
     /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM /////////////////////////////////////
     let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
-    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
+    let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokInput) |> Array.toList
     let pS = pToken (TokS S) <?> "Set Flag Variable"
     let pCond = anyOf tokenCondList <?> "Conditional Code"
     let pReg = anyOf tokenRegList <?> "Register"
 
-    let pInput = pReg
-    // fix to include pInt literal 
+    let pOperand = anyOf  
+
+    // ======================================
+    // Forward reference
+    // ======================================
+
+    /// Create a forward reference
     let instType1 = 
         let tokenInstrList1 = enumerator<InstrType1> |> Array.map TokInstr1 |> Array.toList
         let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let label = "Instruction Type 1"
-        ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg >>% JInstr1 )<?> label
+        ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr1 <?> label
 
     let instType2 = 
         let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
@@ -384,35 +406,41 @@ module Parser =
         let tokenInstrList3 = enumerator<InstrType3> |> Array.map TokInstr3 |> Array.toList
         let pInstr3 = anyOf tokenInstrList3 <?> "Type 3 Opcode"
         let label = "Instruction Type 3"
-        (pInstr3 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg .>>. pInput >>% JInstr3) <?> label
+        (pInstr3 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr3 <?> label
 
     let instType4 = 
         let tokenInstrList4 = enumerator<InstrType4> |> Array.map TokInstr4 |> Array.toList
         let pInstr4 = anyOf tokenInstrList4 <?> "Type 4 Opcode"
         let label = "Instruction Type 4"
-        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg .>>. pInput >>% JInstr4) <?> label
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg >>% JInstr4) <?> label
 
     let instType5 = 
         let tokenInstrList5 = enumerator<InstrType5> |> Array.map TokInstr5 |> Array.toList
         let pInstr4 = anyOf tokenInstrList5 <?> "Type 5 Opcode"
         let label = "Instruction Type 5"
-        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pInput >>% JInstr5) <?> label
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5) <?> label
 
+   // parseInstrForRef := choice 
+       // [
+    //     instType1
+    //     instType2
+    //     instType3
+       // ]
 
     //////////////////Testing//////////////
 
-    let testInstrType1List1 = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(ID(R1))]
-    let testInstrType1List2 = [TokInstr1(MOV); TokOperand(ID(R0)); TokOperand(Literal(10))]
+    let testInstrType1List1 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(ID(R1))]
+    let testInstrType1List2 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(Literal(10))]
 
-    let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokOperand(ID(R0)); TokOperand(ID(R1))]
+    let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokInput(ID(R0)); TokInput(ID(R1))]
 
-    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokOperand(ID(R0)); TokOperand(Literal(10))]
+    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokInput(ID(R0)); TokInput(Literal(10))]
 
-    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokOperand(Literal(10))]
+    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokInput(Literal(10))]
     let testInstrType1ListFail2 = [TokInstr1(MVN); TokError("R16"); TokError("R20");]
 
-    let testInstrType1ListFail3 = [TokInstr1(MOV); TokError("B"); TokOperand(ID(R0)); TokOperand(ID(R1))]
+    let testInstrType1ListFail3 = [TokInstr1(MOV); TokError("B"); TokInput(ID(R0)); TokInput(ID(R1))]
 
-    let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokOperand(ID(R0)); TokOperand(Literal(10))]
+    let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokInput(ID(R0)); TokInput(Literal(10))]
 
     // printf "%A" (run instType1 testTokenList) 
