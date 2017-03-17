@@ -89,11 +89,11 @@ module AST =
                 | JInstr4(ASR, setFlags, cond, rd, rn, ID(shift)) ->
                     InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(ROR_, setFlags, cond, rd, rn, Literal(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, ID(rn), shift, state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(ROR_, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, ID(rn), (( ^. ) shift state), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr5(RRX_, setFlags, cond, rd, op2) ->
-                    InstructionsInterfaces.rrx_ (rd, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.rrx_ (rd, Operand(ID(rd), ShiftDirection.RRX(op2), state, (if setFlags = None then false else true), cond)
                 | JInstr6(CMP, cond, rd, op2) ->
                     InstructionsInterfaces.cmp_ (rd, op2, state, cond)
                 | JInstr6(CMN, cond, rd, op2) ->
