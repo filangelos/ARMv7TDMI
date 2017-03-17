@@ -249,16 +249,16 @@ module Parser =
 
             // test the result for Failure/Success
             match result1 with
-            | Success result -> 
+                | Success result -> 
                 // if success, return the original result
-                result1
+                    result1
 
-            | Failure (label, err, pos) -> 
+                | Failure (label, err, pos) -> 
                 // if failed, run parser2 with the input
-                let result2 = runInput p2 input
+                    let result2 = runInput p2 input
 
                 // return parser2's result
-                result2 
+                    result2 
 
         // return the inner function
         {parseFunc =innerFn; pLabel = p1.pLabel;}
@@ -289,8 +289,8 @@ module Parser =
         match parserList with
         | [] -> 
             returnP []
-        | head::tail ->
-            consP head (sequence tail)
+        | h::tl ->
+            consP h (sequence tl)
 
     /// (helper) match zero or more occurences of the specified parser
     let rec parseZeroOrMore parser input =
@@ -380,29 +380,54 @@ module Parser =
     let parseInstr,parseInstrForRef = createParserForwardedToRef<Instr>()
 
     /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM /////////////////////////////////////
-   // let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
-  //  let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokInput) |> Array.toList
-    let pS = pToken (TokS S) <?> "Set Flag Variable"
-  //  let pCond = anyOf tokenCondList <?> "Conditional Code"
-//    let pReg = anyOf tokenRegList <?> "Register" 
+    let tokenCondList = [TokCond(EQ); TokCond(NE); TokCond(CS); TokCond(HS); TokCond(CC); TokCond(LO); TokCond(MI); TokCond(PL);
+                         TokCond(VS); TokCond(VC); TokCond(HI); TokCond(LS); TokCond(GE); TokCond(LT); TokCond(GT); TokCond(LE);
+                         TokCond(AL); TokCond(NV);]
+    let regList = [R0  ; R1  ; R2  ; R3  ; R4
+                ; R5  ; R6  ; R7  ; R8  ; R9
+                ; R10 ; R11 ; R12 ; R13 ; R14
+                ; R15;]
+
+    let tokenRegList = List.map (ID >> TokInput) regList
+    let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
+    let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
+
+    let pS = pToken (TokS S) >>% TokS S <?> "Set Flag Variable"
+
+    let pComma = pToken TokComma >>% TokComma <?> "Comma"
+  
+    let pCond = anyOf tokenCondList |>> TokCond <?> "Conditional Code"
+
+    let pReg = anyOf tokenRegList |>> TokInput <?> "Register" 
+
+    let pLiteral= 
+        let isInt x = box x :? int
+        let predicate = isInt
+        let label = "Literal integer"
+        satisfy predicate label
+
+    let pInput = (pReg <|> pLiteral) |>> TokInput <?> "Input"
+
+    let pShiftDirection = anyOf []
+
+    let pOp = pInput .>>. pShiftDirection |>> Operand <?> "Operand"
 
     // ======================================
     // Forward reference
     // ======================================
 
     /// Create a forward reference
-(*    let instType1 = 
-        let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
-        let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
+    let instType1 = 
+        
+        
         let label = "Instruction Type 1"
-        ( pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr1 <?> label
-*)
-(*
+        (pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pComma .>>. pOp) |>> JInstr1 <?> label
+
     let instType2 = 
         let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
         let pInstr2 = anyOf tokenInstrList2 <?> "Type 2 Opcode"
         let label = "Instruction Type 2"
-        (pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  >>% JInstr2) <?> label
+        (pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  |>> JInstr2) <?> label
 
     let instType3 = 
         let tokenInstrList3 = enumerator<InstrType3> |> Array.map TokInstr3 |> Array.toList
@@ -422,19 +447,18 @@ module Parser =
         let label = "Instruction Type 5"
         (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5) <?> label
 
-    *)
 
-   // parseInstrForRef := choice 
-       // [
-    //     instType1
-    //     instType2
-    //     instType3
-       // ]
+    parseInstr := choice 
+        [
+        instType1
+        instType2
+        instType3
+        ]
 
     //////////////////Testing//////////////
 
     let testInstrType1List1 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(ID(R1))]
-    let testInstrType1List2 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(Literal(10))]
+    let testInstrType1List2 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(Literal(10));]
 
     let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokInput(ID(R0)); TokInput(ID(R1))]
 

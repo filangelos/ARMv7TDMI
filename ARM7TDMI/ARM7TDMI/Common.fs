@@ -63,24 +63,6 @@ module Common =
     type Operand = 
         | Operand of Input*ShiftDirection
 
-    /// Instruction Keyword type (please update when new instructions are added whenever possible!)
-    (*
-    type InstructionKeyword =
-        | ADD | ADC
-        | MOV | MVN
-        | ORR | AND
-        | EOR | BIC
-        | SUB | SBC
-        | RSB | RSC
-        | CMP | CMN
-        | TST | TEQ
-        | LSL | LSR
-        | ASR
-        | LDR | STR
-        | ADR
-        | LDM | STM
-*)
-
     type Offset = 
         | TempOffset of int // LDR     R8, [R10, #4] 
         | PreIndex of int // LDR     R8, [R10, #4]!
@@ -187,26 +169,6 @@ module Common =
         | Instr8 of InstrType8
         | Instr9 of InstrType9
         | Label of string
-
-    (*
-    type Operation = 
-        | SevenOp of Token*Token*Token*Operand*bool*bool*Operand
-        | SixOp of Token*Token*Token*Operand*bool*bool
-        | FourOp of Token*Token*Token*bool
-        | FourOp2 of Token*Token*bool*Operand
-        | FourOp3 of Token*Operand*bool*Operand
-    *)
-
-    (*
-    ///different parameters based on instruction functions, please add more if required! (last update: 06/03/17 23:32). Used in Parser and AST.
-    type Parameters =
-        | Param_Rd_Op_Bool_Cond of (RegisterID * Operand * bool * (ConditionCode option))                                //(regD, op2, setFlags)
-        | Param_Rd_Rn_Op_Bool_Cond of (RegisterID * RegisterID * Operand * bool * (ConditionCode option))                //(regD, regN, op2, setFlags)
-        | Param_Rd_Input_Int_Bool_Cond of (RegisterID * Input * int * bool * (ConditionCode option))                      //(regD, regN, op2, shift, setFlags)
-        | Param_Rd_Op_Cond of (RegisterID * Operand * (ConditionCode option))                                            //(regD, op2)
-        | NoParam
-
-    *)
 
     type Instr =
         |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*Operand
