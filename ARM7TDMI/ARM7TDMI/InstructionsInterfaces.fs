@@ -79,11 +79,11 @@ module InstructionsInterfaces =
         let flagState = eOR (R10, regN, op2, state, true)
         if (executeOrNot (cond) state) then state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
 
-    let ror_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2,ROR shift),state,setFlags) else state
+    let ror_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, op2,state,setFlags) else state
 
-    let rrx_ ((regD: RegisterID), (op2: Input), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2,RRX),state,setFlags) else state
+    let rrx_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, op2 ,state,setFlags) else state
 
     let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Left shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state

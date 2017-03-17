@@ -97,13 +97,6 @@ module Instructions =
         let finState = if setFlags then MachineState.setZero result state4 else state4
 
         (^=) (regD) (result) (finState)
-
-    let add_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
-        addWithCarryS (regD, regN, op2, state, false, setFlags)
-
-    let adc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
-        addWithCarryS (regD, regN, op2, state, true, setFlags)
-
       
     let mvn ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
         let op2Value1 = getOperandVal setFlags state op2

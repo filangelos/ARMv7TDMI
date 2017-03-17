@@ -174,6 +174,7 @@ module MemoryInstructions =
 
         List.fold (fun st (a,b) -> (sw) a b st) state combinedList
 
+    //Not Tested!!! (Needs AST to be working)
     let branchInstruction ((label: string), (state: MachineState)) = 
 
         let branchAddress = Optics.get MachineState.Label_ label state
