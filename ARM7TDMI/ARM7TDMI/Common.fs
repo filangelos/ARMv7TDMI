@@ -143,6 +143,9 @@ module Common =
     type InstrType8 = 
         | LDM | STM
 
+    type InstrType9 = 
+        | B | BL
+
     type SType = | S
     type BType = | B
 
@@ -156,6 +159,7 @@ module Common =
         | TokInstr6 of InstrType6
         | TokInstr7 of InstrType7
         | TokInstr8 of InstrType8
+        | TokInstr9 of InstrType9
         | TokS of SType
         | TokB of BType
         | TokCond of ConditionCode
@@ -181,6 +185,7 @@ module Common =
         | Instr6 of InstrType6
         | Instr7 of InstrType7
         | Instr8 of InstrType8
+        | Instr9 of InstrType9
         | Label of string
 
     (*

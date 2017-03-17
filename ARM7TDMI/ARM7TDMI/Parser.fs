@@ -18,9 +18,6 @@
 module Parser =
 
     open System
-    open AST
-    open Tokeniser
-    open Instructions
     open Common
     open Toolkit
 
@@ -388,6 +385,7 @@ module Parser =
     let pCond = anyOf tokenCondList <?> "Conditional Code"
     let pReg = anyOf tokenRegList <?> "Register"
 
+
     let pOperand = anyOf  
 
     // ======================================
@@ -448,4 +446,5 @@ module Parser =
 
     let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokInput(ID(R0)); TokInput(Literal(10))]
 
-    // printf "%A" (run instType1 testTokenList) 
+    let testParser =
+         printf "%A" testInstrType1List1 
