@@ -78,22 +78,22 @@ module AST =
                     InstructionsInterfaces.orr_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
                 | JInstr4(LSL, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(LSL, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSL, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(LSR, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(LSR, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSR, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(ASR, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(ASR, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ASR, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(ROR_, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(ROR_, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(ROR_, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr5(RRX_, setFlags, cond, rd, op2) ->
-                    InstructionsInterfaces.rrx_ (rd, Operand(ID(rd), ShiftDirection.RRX(op2), state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.rrx_ (rd, Operand(op2, ShiftDirection.RRX), state, (if setFlags = None then false else true), cond) // need to test
                 | JInstr6(CMP, cond, rd, op2) ->
                     InstructionsInterfaces.cmp_ (rd, op2, state, cond)
                 | JInstr6(CMN, cond, rd, op2) ->
@@ -145,8 +145,6 @@ module AST =
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state for this ast is:\n%A\n" result
-
-
 
         printfn "Finished testAST.\n"
 

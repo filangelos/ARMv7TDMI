@@ -415,9 +415,9 @@ module Instructions =
     let test_add () = 
         printfn "Starting Testing of Add Instruction. Compare against visUAL."
         let a = MachineState.initWithFlags "0110"
-        let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true)
+//        let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true)
         printfn "Quick Test"
-        printfn "%A" b
+//        printfn "%A" b
         //let a_add = MachineState.make()
         //let b_add = mov (R0, Operand(Literal(-1073741824),NoShift), a_add, false) //Moving preliminary values
         //let c_add = mov (R1, Operand(Literal 1,NoShift),b_add,false)
