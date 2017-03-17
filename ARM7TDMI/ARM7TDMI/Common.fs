@@ -26,12 +26,14 @@ module Common =
         | ROR of int
         | RRX
         | NoShift
-
+    
+    (*
     type StackDirection = 
         | FA
         | FD
         | EA
         | ED
+    *)
 
     /// Register ID D.U
     type RegisterID =
@@ -78,7 +80,27 @@ module Common =
         | ADR
         | LDM | STM
     *)
-        
+
+    type Offset = 
+        | TempOffset of int // LDR     R8, [R10, #4] 
+        | PreIndex of int // LDR     R8, [R10, #4]!
+        | PostIndex of int // LDR     R8, [R10], #4
+        | NoOffset // syntax: LDR     R8, [R10] 
+
+
+    type AddressMode = 
+        | IA | IB | DA | DB 
+        | ED | FD | EA | FA
+
+    type StackDirection = AddressMode
+
+    type AddressRegister = 
+        {register: RegisterID; offset: Offset}
+
+    type Expression = 
+        | Label of string
+        | Number of int
+
 
     /// Conditional code types (for reading flags)
     type ConditionCode = 
@@ -139,7 +161,7 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        | TokOperand of Input
+        | TokInput of Input
         | TokComma
         | TokExclam
         | TokSquareLeft
@@ -148,7 +170,7 @@ module Common =
         | TokCurlyRight
         | TokNewLine
         | TokError of string
-
+    (*
     type Instruction = 
         | Instr1 of InstrType1
         | Instr2 of InstrType2
@@ -159,6 +181,7 @@ module Common =
         | Instr7 of InstrType7
         | Instr8 of InstrType8
         | Label of string
+    *)
 
     (*
     type Operation = 
@@ -188,7 +211,7 @@ module Common =
         |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
         |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Operand
         |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
-        |  Label of string
+        |  JLabel of string
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.

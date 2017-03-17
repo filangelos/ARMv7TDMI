@@ -35,14 +35,14 @@ module Tokeniser =
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let private getTokenRegisterFromID (id:int) = 
         match id with
-        | 0 -> TokOperand(ID(R0))   | 1 -> TokOperand(ID(R1))
-        | 2 -> TokOperand(ID(R2))   | 3 -> TokOperand(ID(R3))
-        | 4 -> TokOperand(ID(R4))   | 5 -> TokOperand(ID(R5))
-        | 6 -> TokOperand(ID(R6))   | 7 -> TokOperand(ID(R7))
-        | 8 -> TokOperand(ID(R8))   | 9 -> TokOperand(ID(R9))
-        | 10 -> TokOperand(ID(R10)) | 11 -> TokOperand(ID(R11))
-        | 12 -> TokOperand(ID(R12)) | 13 -> TokOperand(ID(R13))
-        | 14 -> TokOperand(ID(R14)) | 15 -> TokOperand(ID(R15))
+        | 0 -> TokInput(ID(R0))   | 1 -> TokInput(ID(R1))
+        | 2 -> TokInput(ID(R2))   | 3 -> TokInput(ID(R3))
+        | 4 -> TokInput(ID(R4))   | 5 -> TokInput(ID(R5))
+        | 6 -> TokInput(ID(R6))   | 7 -> TokInput(ID(R7))
+        | 8 -> TokInput(ID(R8))   | 9 -> TokInput(ID(R9))
+        | 10 -> TokInput(ID(R10)) | 11 -> TokInput(ID(R11))
+        | 12 -> TokInput(ID(R12)) | 13 -> TokInput(ID(R13))
+        | 14 -> TokInput(ID(R14)) | 15 -> TokInput(ID(R15))
         | _ -> TokError("R"+id.ToString())
 
 
@@ -56,14 +56,20 @@ module Tokeniser =
         | "HI" -> TokCond(HI) | "LS" -> TokCond(LS) 
         | "GE" -> TokCond(GE) | "LT" -> TokCond(LT) 
         | "GT" -> TokCond(GT) | "LE" -> TokCond(LE) 
-        | "AL" -> TokCond(AL) |  _ -> TokError(str) 
-        
-        
+        | "AL" -> TokCond(AL) |  _ -> TokError(str)
+
+
+    let private getTokenStackDirectionFrom (str:string) =
+        match str.ToUpper() with
+        | "FA" -> TokStackDir(FA) | "FD" -> TokStackDir(FD) 
+        | "EA" -> TokStackDir(EA) | "ED" -> TokStackDir(ED) 
+        | _ -> TokError(str) 
+ 
 
     ///please replace with better implementation and add new instructions when possible! (refer to Common.fs)
     let rec private getTokenInstructionFrom (str:string) (lst:Token list) =
         //break down string into list of tokens
-        let patternEnd = "(?=$|S|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)"
+        let patternEnd = "(?=$|S|B|EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|FA|FD|EA|ED)"
         let Instr i =
             System.String.Concat [|"("; i; ")"; patternEnd|]
         match str.ToUpper() with
@@ -121,6 +127,8 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokS(S)])
         | MatchToken (Instr "B") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokB(B)])
+        | MatchToken (Instr "ED|EA|FD|FA") (dir, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [getTokenStackDirectionFrom dir])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenConditionalCodeFrom cond])
         | "" -> lst
@@ -135,18 +143,18 @@ module Tokeniser =
                 match str with
                 //str may contain several tokens, so recursively call MatchToken until str is empty
                 | MatchToken "([pP][cC])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                           //pc (R15)
-                    strToToken (lst @ [TokOperand(ID((R15)))]) leftovers
+                    strToToken (lst @ [TokInput(ID((R15)))]) leftovers
                 | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                     strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
                 | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                     //printfn "hex: %A" hexVal
-                    strToToken (lst @ [TokOperand(Literal (int hexVal))]) leftovers
+                    strToToken (lst @ [TokInput(Literal (int hexVal))]) leftovers
                 | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                     //printfn "bin: %A" binVal
-                    strToToken (lst @ [TokOperand(Literal (int binVal))]) leftovers
+                    strToToken (lst @ [TokInput(Literal (int binVal))]) leftovers
                 | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
-                    strToToken (lst @ [TokOperand(Literal(value |> int))]) leftovers
+                    strToToken (lst @ [TokInput(Literal(value |> int))]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
                 | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
@@ -311,6 +319,25 @@ module Tokeniser =
         printfn "%A" (tokenise "MOVEQ")
         printfn "Generating random tests for conditional codes..."
         Check.Quick(checkTokenListLengthCond())
+
+        let strInstr = ["LDM"; "STM"]
+        let strCond = ["FD"; "FA"; "ED"; "EA"]
+        let checkTokenListLengthMem () =
+            //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
+            let getRandomItem () =  
+                let rnd = System.Random()  
+                fun (lst : string list) -> List.item (rnd.Next(lst.Length)) lst
+
+            let str1 = String.concat "" ([getRandomItem () strInstr] @ [getRandomItem () strCond])
+            let tokList1 = tokenise str1
+            tokList1.Length = 2
+        printfn "%A" (tokenise "LDRB")
+        printfn "%A" (tokenise "LDMED")
+        printfn "%A" (tokenise "STMFA")
+        printfn "%A" (tokenise "STMEA")
+        printfn "%A" (tokenise "STMFD")
+        printfn "Generating random tests for stack direction codes..."
+        Check.Quick(checkTokenListLengthMem())
 
         //let testNewline = "\n\n\n\n\n \n \n MOV \n \n \n \n MOV \n"
         //printfn "\"%A\" tokenises to %A and contains %A tokens, expected 5 tokens" testNewline (tokenise (testNewline)) ((tokenise (testNewline)).Length)

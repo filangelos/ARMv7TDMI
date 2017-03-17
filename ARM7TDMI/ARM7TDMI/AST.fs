@@ -36,7 +36,7 @@ module AST =
             | [] -> ast, labelMap
             | node::t ->
                 match node with
-                | (Label(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
+                | (JLabel(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
                 | instr -> addNode t (addInstruction ast instr pc) labelMap (pc+4)
         addNode parseLst [] Map.empty<string, Address> 0
 
@@ -128,10 +128,10 @@ module AST =
     let testAST () =
         printfn "Running testAST:"
         let parseList = [
-                            (Label("START"));
+                            (JLabel("START"));
                             (JInstr1(MOV, None, None, R1, Operand(Literal(13), NoShift)));
                             (JInstr1(MOV, Some(S), None, R2, Operand(Literal(0), NoShift)));
-                            (Label("HALFWAY"));
+                            (JLabel("LABEL2"));
                             (JInstr1(MOV, None, Some(NE), R3, Operand(Literal(342), NoShift)));
                             (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
                             (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)))
@@ -143,6 +143,9 @@ module AST =
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state for this ast is:\n%A\n" result
+
+
+
         printfn "Finished testAST.\n"
 
         
