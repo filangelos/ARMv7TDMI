@@ -98,7 +98,7 @@ module Common =
         {register: RegisterID; offset: Offset}
 
     type Expression = 
-        | Label of string
+        | Lab of string
         | Number of int
 
 
