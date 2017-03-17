@@ -134,7 +134,7 @@ module Tokeniser =
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenConditionalCodeFrom cond])
         | "" -> lst
-        | _ -> lst @ [TokLabel(str)]
+        | _ -> lst @ [TokLabel(str); TokNewLine]            //A label will ALWAYS be on the same line
 
     ///returns a list of tokens from a string input
     let tokenise (input:string) =

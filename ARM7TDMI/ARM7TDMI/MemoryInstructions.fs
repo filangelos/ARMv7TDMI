@@ -148,7 +148,7 @@ module MemoryInstructions =
 
         let exprValue = match expr with
                         | Number x -> x
-                        | Label x -> Optics.get MachineState.Label_ x state
+                        | Lab x -> Optics.get MachineState.Label_ x state
 
         mov (regD, Operand(Literal exprValue, NoShift), state, false)
 
@@ -174,6 +174,13 @@ module MemoryInstructions =
 
         List.fold (fun st (a,b) -> (sw) a b st) state combinedList
 
+    let branchInstruction ((label: string), (state: MachineState)) = 
+
+        let branchAddress = Optics.get MachineState.Label_ label state
+
+        (^=) R15 branchAddress state
+
+    
 
 
 

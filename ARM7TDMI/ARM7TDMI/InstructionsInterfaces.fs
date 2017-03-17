@@ -134,8 +134,9 @@ module InstructionsInterfaces =
         if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
 
 
+
 // test to check against VisUAL 
-    let a = MachineState.initWithFlags "0110"
+    let a = MachineState.make()
     let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true, None)
-    printfn "Quic Test"
+    printfn "Quick Test"
     printfn "%A" b
