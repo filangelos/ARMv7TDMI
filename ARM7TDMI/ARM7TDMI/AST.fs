@@ -108,7 +108,7 @@ module AST =
             | _ -> state
 
     ///reduces an ast in a MachineState by executing the nodes between pc and maxPC
-    let rec reduce (state:MachineState) (pc:int) (maxPC) =
+    let rec reduce (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
             let updateStateR15 = ( ^= ) R15 pc state
             let newState = step updateStateR15
@@ -118,10 +118,10 @@ module AST =
 
     ///execute an entire ast in a MachineState
     let execute (state:MachineState) = 
-     //get address of last node
-     let ast = ( ^% ) state
-     let maxPC = snd (ast |> List.rev |> List.head)
-     reduce state 0 maxPC
+        //get address of last node
+        let ast = ( ^% ) state
+        let maxPC = snd (ast |> List.rev |> List.head)
+        reduce state 0 maxPC
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
@@ -136,7 +136,9 @@ module AST =
                             (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
                             (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)));
                             (JInstr4(LSL, None, None, R6, R5, Literal(2)));
-                            (JInstr4(LSL, None, None, R7, R5, ID(R1)))
+                            (JInstr4(ROR_, None, None, R7, R5, ID(R1)));
+                            (JInstr5(RRX_, None, None, R8, ID(R5)));
+                            (JInstr6(CMP, None, R1, Operand(Literal(2), NoShift)))
                         ]
 
         let astLabelMap = buildAST parseList

@@ -147,7 +147,9 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        | TokInput of Input
+        //| TokInput of Input
+        | TokReg of RegisterID
+        | TokLiteral of int
         | TokComma
         | TokExclam
         | TokSquareLeft
@@ -157,7 +159,8 @@ module Common =
         | TokNewLine
         | TokError of string
         | TokEOF
-
+    
+    (*
     type Instruction = 
         | Instr1 of InstrType1
         | Instr2 of InstrType2
@@ -169,6 +172,7 @@ module Common =
         | Instr8 of InstrType8
         | Instr9 of InstrType9
         | Label of string
+    *)
 
     type Instr =
         |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*Operand
@@ -181,7 +185,7 @@ module Common =
         |  JLabel of string
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
-    type Address = int                  //Maybe replace int with MemoryLocation when Memory is done.
+    type Address = int                  
 
     ///type representing the possible nodes in the AST
     type Node = Instr * Address
