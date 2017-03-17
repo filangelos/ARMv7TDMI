@@ -46,7 +46,7 @@ module MemoryInstructions =
     //let ( ^* ) = Optics.get MachineState.Flag_
     //let ( ^- ) = Optics.set MachineState.Flag_
 
-    let sortRegister regList =
+    let sortRegister regList = // implemented like this because List.sort does not operate correctly under Fable
 
         let numberRegister = 
             function
@@ -235,8 +235,7 @@ module MemoryInstructions =
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
 
-    let simpleLDRSTRtest = 
-        printfn "%A" (MachineState.make())
+    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
 //    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()
