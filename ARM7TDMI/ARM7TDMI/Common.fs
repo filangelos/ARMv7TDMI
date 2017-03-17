@@ -146,6 +146,7 @@ module Common =
         | TokCurlyRight
         | TokNewLine
         | TokError of string
+        | TokEOF
 
     type Instruction = 
         | Instr1 of InstrType1

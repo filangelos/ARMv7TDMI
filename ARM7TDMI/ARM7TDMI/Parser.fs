@@ -17,65 +17,121 @@ module Parser =
     open Tokeniser
     open Instructions
     open Common
+    open Toolkit
+
+    type Pos = {
+        lineNo : int
+        tokenNo : int
+    }
+
+     type InitState = {
+        lineList : List<Token>[]
+        position : Pos
+    }
+    let initPos = {lineNo=0; tokenNo=0;}
+
+    /// increment the tokenNo number
+    let incrCol pos = 
+        {pos with tokenNo=pos.tokenNo + 1}
+
+    /// increment the lineNo number and set tokenNo to 0
+    let incrLine pos = 
+        {lineNo=pos.lineNo + 1; tokenNo=0}
+
+    // Create a new InputState from a Token List for a specific Line
+    let x tokenLst = 
+        let y = splitBy TokNewLine tokenLst        
+        match y with
+            | [] -> {lineList = [||]; position = initPos;}
+            | _ -> {lineList = List.toArray y; position=initPos;}
+
+    // return the current line
+    let currLine inputState = 
+        let linePos = inputState.position.lineNo
+        if linePos < inputState.lineList.Length then
+            inputState.lineList.[linePos]
+        else
+            [TokEOF]
+
+    /// Get the next character from the input, if any
+    /// else return None. Also return the updated InputState
+    /// Signature: InputState -> InputState * char option 
+    let nextToken input =
+        let linePos = input.position.lineNo
+        let tokPos = input.position.tokenNo
+        // three cases
+        // 1) if line >= maxLine -> 
+        //       return EOF
+        // 2) if col less than line length -> 
+        //       return char at colPos, increment colPos
+        // 3) if col at line length -> 
+        //       return NewLine, increment linePos
+
+        if linePos >= input.lineList.Length then
+            input, None
+        else
+            let currLine = currLine input
+            if tokPos < currLine.Length then
+                let token = currLine.[tokPos]
+                let newPos = incrCol input.position 
+                let newState = {input with position=newPos}
+                newState, Some token
+            else 
+                // end of line, so return LF and move to next line
+                let token = TokNewLine
+                let newPos = incrLine input.position 
+                let newState = {input with position=newPos}
+                newState, Some token
     
-    /// Type that represents Success/Failure in parsing
+
+    type Input = InitState
+
     type PLabel = string
     type PError = string
 
-    type Result<'a> =
+    type PPosition = {
+        currLine : List<Token>
+        lineNo : int
+        tokenNo : int
+    }
+
+    type Outcome<'a> =
         | Success of 'a
-        | Failure of PLabel * PError
-    let printResult result =
+        | Failure of PLabel * PError * PPosition
+
+    type Parser<'T> = {
+        parseFunc : (List<Token> -> Outcome<'T * List<Token>>)
+        pLabel:  PLabel
+        }
+    let parserPositionFromInputState (initState:Input) = {
+        currLine =  currLine initState
+        lineNo = initState.position.lineNo
+        tokenNo = initState.position.tokenNo
+    }
+    let resultPrinter result =
         match result with
         | Success (value,input) -> 
             printfn "%A" value
-        | Failure (label,error) -> 
-            printfn "Error parsing %s\n%s" label error
-    // Prints result of parsing
-
-    /// Type that wraps a parsing function
-    type Parser<'T> = {
-        parseFunc : (List<Token> -> Result<'T * List<Token>>)
-        pLabel:  PLabel
-        }
-
-    type Position = {
-        line : int
-        column : int
-    }
-
-    /// define an initial position
-    let initialPos = {line=0; column=0}
-
-    /// increment the column number
-    let incrCol pos = 
-        {pos with column=pos.column + 1}
-
-    /// increment the line number and set the column to 0
-    let incrLine pos = 
-        {line=pos.line + 1; column=0}
-
-    type InputState = {
-        lines : List<Token>[]
-        position : Position
-    }
-
-    // Create a new InputState from a Token List for a specific Line
-    let fromToken tokenLst = 
-        let totalLst = []
-        let rec innerfn remTokenLst = 
-            let innerLst = []
-            match remTokenLst with 
-                | [] -> {lines = [||]; position=initialPos}
-                | h::tl -> match h with 
-                            | TokNewLine -> innerfn tl
-                            | _ -> let x = innerLst::h
-        innerfn tokenLst 
-                            
-    
+        | Failure (label,error, parPos) -> 
+            let errorLine = parPos.currLine
+            let tokPos = parPos.tokenNo
+            let linePos = parPos.lineNo
+            let failureLine = sprintf "%*s^%s" tokPos "" error
+            printfn "LineNo:%i TokenNo:%i Error parsing %A\n%A\n%s" linePos tokPos label errorLine failureCaret 
         
-        //    {lines=lines; position=initialPos}
-
+    let rec readAllTokens input =
+        [
+            let remainingInput,tokenOpt = nextToken input 
+            match tokenOpt with
+            | None -> 
+                // end of input
+                ()
+            | Some tk -> 
+                // return first character
+                yield tk
+                // return the remaining characters
+                yield! readAllTokens remainingInput
+        ]
 
     let printOutcome result =
         match result with
@@ -98,9 +154,9 @@ module Parser =
         // return the Parser
         {parseFunc=newInnerFn; pLabel=newLabel}
 
-    
+
     let ( <?> ) = setLabel
-    
+
     let satisfy predicate label =
         let innerFn (tokenLst: Token List) =
             match tokenLst with 
@@ -110,7 +166,7 @@ module Parser =
                     if predicate token then
                         let remaining = tl
                         Success (token,remaining)
-                     else
+                        else
                         let err = sprintf "Unexpected %A" token
                         Failure (label, err)
         // return the parser
@@ -290,8 +346,8 @@ module Parser =
         p1 .>>. p2 
         // then only keep the second value
         |> mapP (fun (a,b) -> b) 
-    
- /// Keep only the result of the middle parser
+
+    /// Keep only the result of the middle parser
     let between p1 p2 p3 = 
         p1 >>. p2 .>> p3 
 
@@ -308,18 +364,13 @@ module Parser =
     let (>>%) p x =
         p |>> (fun _ -> x)
 
-<<<<<<< HEAD
-=======
-    
-     //   |  JInstr8 of InstrType8*StackDirection*Option<ConditionCode>
-     // Need to Sort out Instructions 7 and 8 because of weird Source Dest Thing
->>>>>>> 2f624185bb3cf931c7415669ee20ad3ffb85476d
+    /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM /////////////////////////////////////
     let tokenCondList = enumerator<ConditionCode> |> Array.map TokCond |> Array.toList
     let tokenRegList = enumerator<RegisterID> |> Array.map (ID >> TokOperand) |> Array.toList
     let pS = pToken (TokS S) <?> "Set Flag Variable"
     let pCond = anyOf tokenCondList <?> "Conditional Code"
     let pReg = anyOf tokenRegList <?> "Register"
-   
+
     let pInput = pReg
     // fix to include pInt literal 
     let instType1 = 
@@ -351,7 +402,7 @@ module Parser =
         let pInstr4 = anyOf tokenInstrList5 <?> "Type 5 Opcode"
         let label = "Instruction Type 5"
         (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pInput >>% JInstr5) <?> label
-    
+
 
     //////////////////Testing//////////////
 
@@ -369,4 +420,4 @@ module Parser =
 
     let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokOperand(ID(R0)); TokOperand(Literal(10))]
 
-   // printf "%A" (run instType1 testTokenList) 
+    // printf "%A" (run instType1 testTokenList) 
