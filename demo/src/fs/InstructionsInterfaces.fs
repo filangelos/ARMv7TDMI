@@ -132,11 +132,3 @@ module InstructionsInterfaces =
 
     let adr_ ((regD: RegisterID), (expr: Expression), (state: MachineState), (cond: ConditionCode option)) = //expr has to be label
         if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
-
-
-
-// test to check against VisUAL 
-    let a = MachineState.make()
-    let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true, None)
-    printfn "Quick Test"
-    printfn "%A" b

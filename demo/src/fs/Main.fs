@@ -29,8 +29,9 @@ module Main =
 
     let main () =
         let sand : MachineState = MachineState.make ()
-        initUI sand
-        Browser.console.log (R2 > R10)
+//        initUI sand
+//        Browser.console.log (R2 > R10)
+        testAST ()
         actions ()
 
     do
