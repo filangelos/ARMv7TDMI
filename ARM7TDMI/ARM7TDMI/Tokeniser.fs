@@ -19,15 +19,15 @@ module Tokeniser =
 
     ///returns the first matched group of a regex and the leftovers from the input
     let private (|MatchToken|_|) pattern input =
-        let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
+        let m = Regex.Match(input, "(?:[^\s\S]+|^)" + pattern) //pattern must start at beginning of string
         if (m.Success)
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
     ///remove comments from an input string
     let rec private removeComments (input:string) =
-        let newInput = (new Regex(";[\s\s0-9\w\W]*\n")).Replace(input, "\n", 1)
-        let newInput2 = (new Regex(";[\s\s0-9\w\W]*$")).Replace(newInput, "", 1)
+        let newInput = (new Regex(";[\s\S0-9\w\W]*\n")).Replace(input, "\n", 1)
+        let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
         if newInput2 = input then newInput2
         else removeComments newInput2
 
@@ -159,7 +159,7 @@ module Tokeniser =
                     strToToken (lst @ [TokLiteral(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
-                | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
+                | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
                     strToToken (lst @ (getTokenInstructionFrom name [])) leftovers
                 | MatchToken "," (_, leftovers) ->
                     strToToken (lst @ [TokComma]) leftovers
@@ -203,7 +203,9 @@ module Tokeniser =
                             "LABEL123_ABC MOV r1, R15      ; end of line";
                             "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]";
                             "MOV R1, #0xFFFF0000";
-                            "ADCS R1, R2, #3, LSL #2"
+                            "ADCS R1, R2, #3, LSL #2";
+                            "mov R0  R1";
+                            "  ";
                         |]
 
         ///list of incorrect syntax
@@ -219,7 +221,8 @@ module Tokeniser =
                             "MOV r1, r^2";
                             "MOV r1, #ab0c45";
                             "MOV R1, #0xFFFF00004";
-                            "MOV R1, #888888888888888888888888888888888888888"
+                            "MOV R1, #888888888888888888888888888888888888888";
+                            "#1MOV"
                         |]
 
         let rec tryGoodTests testList count = 
