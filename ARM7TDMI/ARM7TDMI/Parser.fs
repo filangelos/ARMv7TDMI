@@ -423,7 +423,7 @@ module Parser =
     let pLiteral = pToken (TokLiteral 10)
     let pInput = pComma .>>. pReg <?> "Input Type"
     let pOp = pInput .>>. pInstr4 <?> "Operand"
-
+(*
     let instType1 = 
         let label = "Instruction Type 1"
         let tupleTransform = function
@@ -433,10 +433,9 @@ module Parser =
     //       match t1,t2,t3,t4,t5,t6 with 
     //       | TokInstr1 a, TokS b, TokCond c, TokReg d, TokComma, TokReg e -> JInstr1
 
-        let instr1Hold = pInstr1 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg <?> label
-        mapP tupleTransform instr1Hold
+        //let instr1Hold = pInstr1 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg <?> label
+       // mapP tupleTransform instr1Hold
 
-    (*
     let instType2 = 
         let label = "Instruction Type 2"
         pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  |>> TInstr2 <?> label
