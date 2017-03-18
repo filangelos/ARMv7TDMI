@@ -27,9 +27,14 @@ module Tokeniser =
     ///remove comments from an input string
     let rec private removeComments (input:string) =
         let newInput = (new Regex(";[\s\S0-9\w\W]*\n")).Replace(input, "\n", 1)
-        let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
-        if newInput2 = input then newInput2
-        else removeComments newInput2
+        if newInput = null then 
+            let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(input, "", 1)
+            if newInput2 = input then newInput2
+            else removeComments newInput2
+        else
+            let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
+            if newInput2 = input then newInput2
+            else removeComments newInput2
 
 
     ///turns an integer into a TokReg token (feel free to change this mess of code)
@@ -222,7 +227,8 @@ module Tokeniser =
                             "MOV r1, #ab0c45";
                             "MOV R1, #0xFFFF00004";
                             "MOV R1, #888888888888888888888888888888888888888";
-                            "#1MOV"
+                            "#1MOV";
+                            " mon r0  r1"
                         |]
 
         let rec tryGoodTests testList count = 
