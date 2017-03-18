@@ -136,7 +136,15 @@ module InstructionsInterfaces =
 
 
 // test to check against VisUAL 
-    let a = MachineState.make()
-    let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true, None)
-    printfn "Quick Test"
-    printfn "%A" b
+    let test () = 
+        let a = lsl_ (R4, Operand(Literal 1,RightL 1), MachineState.make(),true, None)
+        let b = mov_ (R0, Operand(Literal 1,NoShift), a,false, None)
+        let c = mov_ (R1, Operand(Literal 8,NoShift), b,false, None)
+        let d = cmn_ (R1, Operand(ID R0,RRX), c, None)
+        printfn "Quick Test"
+        printfn "%A" a
+        printfn "%A" b
+        printfn "%A" c
+        printfn "%A" d
+
+    test ()

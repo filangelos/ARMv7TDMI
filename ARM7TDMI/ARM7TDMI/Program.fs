@@ -8,6 +8,7 @@ module Program =
     open AST
     open Parser
     open MemoryInstructions
+    open InstructionsInterfaces
 
     [<EntryPoint>]
     let main argv =
@@ -15,6 +16,7 @@ module Program =
     //    MemoryInstructions.simpleLDRSTRtest
 //      AST.testAST ()
 //        Parser.testParser ()
+        InstructionsInterfaces.test()
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
         let z: MachineState = (^=) R0 5 x
