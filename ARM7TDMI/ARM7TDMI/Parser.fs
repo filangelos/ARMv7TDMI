@@ -33,7 +33,7 @@ module Parser =
     let initPos = {lineNo=0; tokenNo=0;}
 
     /// increment the tokenNo number
-    let incrCol pos =  {pos with tokenNo=pos.tokenNo + 1}
+    let incrTok pos =  {pos with tokenNo=pos.tokenNo + 1}
 
     /// increment the lineNo number and set tokenNo to 0
     let incrLine pos = {lineNo=pos.lineNo + 1; tokenNo=0}
@@ -53,7 +53,7 @@ module Parser =
         else
             [TokEOF]
 
-    /// Get the next character from the input, if any
+    /// Get the next token from the input, if any
     /// else return None. Also return the updated InputState
     /// Signature: InputState -> InputState * char option 
     let nextToken input =
@@ -73,7 +73,7 @@ module Parser =
             let currLine = currLine input
             if tokPos < currLine.Length then
                 let token = currLine.[tokPos]
-                let newPos = incrCol input.position 
+                let newPos = incrTok input.position 
                 let newState = {input with position=newPos}
                 newState, Some token
             else 
@@ -109,6 +109,7 @@ module Parser =
         lineNo = initState.position.lineNo
         tokenNo = initState.position.tokenNo
     }
+
     let printOutcome result =
         match result with
         | Success (value,input) -> 
@@ -214,7 +215,7 @@ module Parser =
         bindP (f >> returnP)
 
     /// infix version of mapP
-    let ( <!> ) = mapP
+
 
     /// "piping" version of mapP
     let ( |>> ) x f = mapP f x
@@ -291,38 +292,6 @@ module Parser =
             returnP []
         | h::tl ->
             consP h (sequence tl)
-
-    /// (helper) match zero or more occurences of the specified parser
-    let rec parseZeroOrMore parser input =
-        // run parser with the input
-        let firstResult = runInput parser input 
-        // test the result for Failure/Success
-        match firstResult with
-        | Failure (labe,err,pos) -> 
-            // if parse fails, return empty list
-            ([],input)  
-        | Success (firstValue,inputAfterFirstParse) -> 
-            // if parse succeeds, call recursively
-            // to get the subsequent values
-            let (subsequentValues,remainingInput) = 
-                parseZeroOrMore parser inputAfterFirstParse
-            let values = firstValue::subsequentValues
-            (values,remainingInput)  
-
-    /// matches zero or more occurences of the specified parser
-    let many parser = 
-        let rec innerFn input =
-            // parse the input -- wrap in Success as it always succeeds
-            Success (parseZeroOrMore parser input)
-
-        {parseFunc =innerFn; pLabel="Success"}
-
-    /// matches one or more occurences of the specified parser
-    let many1 p =         
-        p      >>= (fun head -> 
-        many p >>= (fun tail -> 
-            returnP (head::tail) ))
-
     /// Parses an optional occurrence of p and returns an option value.
     let opt p = 
         let some = p |>> Some
@@ -347,15 +316,7 @@ module Parser =
     let between p1 p2 p3 = 
         p1 >>. p2 .>> p3 
 
-    /// Parses one or more occurrences of p separated by sep
-    let sepBy1 p sep =
-        let sepThenP = sep >>. p            
-        p .>>. many sepThenP 
-        |>> fun (p,pList) -> p::pList
 
-    /// Parses zero or more occurrences of p separated by sep
-    let sepBy p sep =
-        sepBy1 p sep <|> returnP []
 
     let (>>%) p x =
         p |>> (fun _ -> x)
@@ -379,7 +340,7 @@ module Parser =
 
     let parseInstr,parseInstrForRef = createParserForwardedToRef<Instr>()
 
-    /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM /////////////////////////////////////
+    /////////////////////////////////// Object Lists TO BE DISCARDED DUE TO FABLE NOT WORKING WITH ENUM ////////////////////////////////////    
     let tokenCondList = [TokCond(EQ); TokCond(NE); TokCond(CS); TokCond(HS); TokCond(CC); TokCond(LO); TokCond(MI); TokCond(PL);
                          TokCond(VS); TokCond(VC); TokCond(HI); TokCond(LS); TokCond(GE); TokCond(LT); TokCond(GT); TokCond(LE);
                          TokCond(AL); TokCond(NV);]
@@ -388,75 +349,94 @@ module Parser =
                 ; R10 ; R11 ; R12 ; R13 ; R14
                 ; R15;]
 
-    let tokenRegList = List.map (ID >> TokInput) regList
+    let tokenRegList = List.map TokReg regList
     let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
-    let pInstr1 = anyOf tokenInstrList1 <?> "Type 1 Opcode"
+    let tokenInstrList2 = [TokInstr2(ADR)]
+    let instrList3 = [ADD ; ADC ; SUB ; SBC ; RSB ; RSC ; AND
+        ; EOR ; BIC ; ORR;]
+    let tokeninstrList3 = List.map TokInstr3 instrList3
 
-    let pS = pToken (TokS S) >>% TokS S <?> "Set Flag Variable"
+    let instrList4 = [LSL ; LSR ; ASR ; ROR_;]
+    let tokenInstrList4 = List.map TokInstr4 instrList4
+    let tokenInstrList5 = [TokInstr5(RRX_)]
+    let instrList6 = [CMP ; CMN ; TST ; TEQ;]
+    let tokenInstrList6 = List.map TokInstr6 instrList6
 
-    let pComma = pToken TokComma >>% TokComma <?> "Comma"
+    let tokenInstrList7 = [TokInstr7(LDR); TokInstr7(STR);] 
+    let tokenInstrList8 = [TokInstr8(LDM); TokInstr8(STM);]
+
+    let tokenInstrList9 = [TokInstr9(BL);]
+
+    let pInstr1 = anyOf tokenInstrList1
+    let pInstr2 = anyOf tokenInstrList2 
+    let pInstr3 = anyOf tokeninstrList3
+
+    let pInstr4 = anyOf tokenInstrList4
+
+    let pInstr5 = anyOf tokenInstrList5 
+    let pInstr6 = anyOf tokenInstrList6 
+    let pInstr7 = anyOf tokenInstrList7 
+    let pInstr8 = anyOf tokenInstrList8 
+    let pInstr9 = anyOf tokenInstrList9 
+    let pS = pToken (TokS S)
+    let pComma = pToken TokComma
   
-    let pCond = anyOf tokenCondList |>> TokCond <?> "Conditional Code"
+    let pCond = anyOf tokenCondList
 
-    let pReg = anyOf tokenRegList |>> TokInput <?> "Register" 
+    let pReg = anyOf tokenRegList
 
-    let pLiteral= 
-        let isInt x = box x :? int
-        let predicate = isInt
-        let label = "Literal integer"
-        satisfy predicate label
+    let pRegComma = pReg .>>. pComma <?> "Register followed by Comma"
 
-    let pInput = (pReg <|> pLiteral) |>> TokInput <?> "Input"
+    let pLiteral = pToken (TokLiteral 10)
+    let pInput = pComma .>>. pReg <?> "Input Type"
+    let pOp = pInput .>>. pInstr4 <?> "Operand"
 
-    let pShiftDirection = anyOf []
+    type ICorrectInstr = 
+        | TInstr1 of (((Token*Token option)*Token option)*Token)*((Token*Token)*Token) option
+        | TInstr2 of (((Token*Token option)*Token option)*Token)
+        | TInstr3 of ((((Token*Token option)*Token option)*(Token*Token))*Token)*((Token*Token)*Token) option
+        | TInstr4 of Token
 
-    let pOp = pInput .>>. pShiftDirection |>> Operand <?> "Operand"
-
-    // ======================================
-    // Forward reference
-    // ======================================
-
-    /// Create a forward reference
     let instType1 = 
-        
-        
         let label = "Instruction Type 1"
-        (pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pComma .>>. pOp) |>> JInstr1 <?> label
+      (*  let convertToInstr1 ((((t1,t2),t3),t4),((t5,t6),t7)) = 
+            let arg1 = t1 |> TokInstr1
+            let arg2 = t2 |> TokS
+            let arg3 = t3 |> TokCond
+            let arg4 = t4 |> TokReg
+            let arg5 = t5 |> TokComma
+            let arg6 = t6 |> Tok
+    *)
+        pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. opt pOp |>> TInstr1 <?> label
 
     let instType2 = 
-        let tokenInstrList2 = enumerator<InstrType2> |> Array.map TokInstr2 |> Array.toList
-        let pInstr2 = anyOf tokenInstrList2 <?> "Type 2 Opcode"
         let label = "Instruction Type 2"
-        (pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  |>> JInstr2) <?> label
+        pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  |>> TInstr2 <?> label
 
-    let instType3 = 
-        let tokenInstrList3 = enumerator<InstrType3> |> Array.map TokInstr3 |> Array.toList
-        let pInstr3 = anyOf tokenInstrList3 <?> "Type 3 Opcode"
+    let instType3 =
         let label = "Instruction Type 3"
-        (pInstr3 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg) >>% JInstr3 <?> label
-
+        pInstr3 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg .>>. opt pOp  |>> TInstr3 <?> label
     let instType4 = 
-        let tokenInstrList4 = enumerator<InstrType4> |> Array.map TokInstr4 |> Array.toList
-        let pInstr4 = anyOf tokenInstrList4 <?> "Type 4 Opcode"
         let label = "Instruction Type 4"
-        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg .>>. pReg >>% JInstr4) <?> label
+        pInstr4 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg >>% TInstr4 <?> label
 
-    let instType5 = 
-        let tokenInstrList5 = enumerator<InstrType5> |> Array.map TokInstr5 |> Array.toList
+ (*   let instType5 = 
         let pInstr4 = anyOf tokenInstrList5 <?> "Type 5 Opcode"
         let label = "Instruction Type 5"
-        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5) <?> label
+        pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5 <?> label
+*)
 
-
+(*
     parseInstr := choice 
         [
         instType1
         instType2
         instType3
         ]
+*)
 
     //////////////////Testing//////////////
-
+(*
     let testInstrType1List1 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(ID(R1))]
     let testInstrType1List2 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(Literal(10));]
 
@@ -472,4 +452,6 @@ module Parser =
     let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokInput(ID(R0)); TokInput(Literal(10))]
 
     let testParser() =
-         printf "10"// (run instType1 testInstrType1List1)
+            printf "10"// (run instType1 testInstrType1List1)
+
+*)
