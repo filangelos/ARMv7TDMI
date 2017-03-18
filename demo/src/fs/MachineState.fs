@@ -140,15 +140,16 @@ module MachineState =
     let make () : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Toolkit.enumerator<RegisterID>
+            [|R0;R1;R2;R3;R4;R5;R6;R7;R8
+              R9;R10;R11;R12;R13;R14;R15|]
             // Initialise all Registers to zero
-            |> Array.map ( fun id -> id, 0 )
+            |> Array.map ( fun id -> id, 11 )
             // construct Map
             |> Map.ofArray
 
         let flags : Flags =
             // Enumerate all Flags
-            Toolkit.enumerator<FlagID>
+            [|N;Z;C;V|]
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
@@ -160,7 +161,8 @@ module MachineState =
     let init ((ast, labels): AST*LabelMap) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Toolkit.enumerator<RegisterID>
+            [|R0;R1;R2;R3;R4;R5;R6;R7;R8
+              R9;R10;R11;R12;R13;R14;R15|]
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -168,7 +170,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            Toolkit.enumerator<FlagID>
+            [|N;Z;C;V|]
             // Initialise all Status Bits to zero
             |> Array.map ( fun id -> id, false )
             // construct Map
@@ -184,7 +186,8 @@ module MachineState =
     let initWithFlags (flags: string) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
-            Toolkit.enumerator<RegisterID>
+            [|R0;R1;R2;R3;R4;R5;R6;R7;R8
+              R9;R10;R11;R12;R13;R14;R15|]
             // Initialise all Registers to zero
             |> Array.map ( fun id -> id, 0 )
             // construct Map
@@ -200,7 +203,7 @@ module MachineState =
 
         let flags : Flags =
             // Enumerate all Flags
-            let cases = Toolkit.enumerator<FlagID>
+            let cases = [|N;Z;C;V|]
             // Initialise Status Bits
             Array.zip cases fstr
             // construct Map

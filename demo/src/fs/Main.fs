@@ -25,6 +25,7 @@ module Main =
     // Front End
     open Fable.Import
     open View
+    open Update
 
     let main () =
         let sand : MachineState = MachineState.make ()
