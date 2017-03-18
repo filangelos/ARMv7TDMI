@@ -366,7 +366,13 @@ module Parser =
 
     let tokenInstrList9 = [TokInstr9(BL);]
 
-    let pInstr1 = anyOf tokenInstrList1
+    let pInstr1 = 
+        let parseTuple = anyOf tokenInstrList1 <?> "Type 1 Opcode"
+        let tupleTransform(c1) =
+            match c1 with 
+            | TokInstr1 a -> a
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
     let pInstr2 = anyOf tokenInstrList2 
     let pInstr3 = anyOf tokeninstrList3
 
@@ -377,37 +383,60 @@ module Parser =
     let pInstr7 = anyOf tokenInstrList7 
     let pInstr8 = anyOf tokenInstrList8 
     let pInstr9 = anyOf tokenInstrList9 
-    let pS = pToken (TokS S)
-    let pComma = pToken TokComma
-  
-    let pCond = anyOf tokenCondList
+    let pS = 
+        let parseTuple = pToken (TokS S) <?> "S Type"
+        let tupleTransform(c1) =
+            match c1 with 
+            | TokS a -> a
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
+    let pComma = 
+        let parseTuple = pToken TokComma <?> "Comma"
+        let tupleTransform(c1) =
+            match c1 with 
+            | TokComma -> TokComma
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
 
-    let pReg = anyOf tokenRegList
-
-    let pRegComma = pReg .>>. pComma <?> "Register followed by Comma"
+    let pCond = 
+        let parseTuple = anyOf tokenCondList <?> "Conditional Code"
+        let tupleTransform(c1) =
+            match c1 with 
+            | TokCond a -> a 
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
+    let pReg = 
+        let parseTuple = anyOf tokenRegList <?> "Register"
+        let tupleTransform(c1) =
+            match c1 with 
+            | TokReg a -> a 
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
+    let pRegComma = 
+            let parseTuple = pReg .>>. pComma <?> "Reg followed by Comma"
+            let tupleTransform (c1,c2) = 
+                match c1, c2 with  
+                | a, TokComma-> a
+                | _ -> failwith "Impossible"
+            mapP tupleTransform parseTuple
 
     let pLiteral = pToken (TokLiteral 10)
     let pInput = pComma .>>. pReg <?> "Input Type"
     let pOp = pInput .>>. pInstr4 <?> "Operand"
 
-    type ICorrectInstr = 
-        | TInstr1 of (((Token*Token option)*Token option)*Token)*((Token*Token)*Token) option
-        | TInstr2 of (((Token*Token option)*Token option)*Token)
-        | TInstr3 of ((((Token*Token option)*Token option)*(Token*Token))*Token)*((Token*Token)*Token) option
-        | TInstr4 of Token
-
     let instType1 = 
         let label = "Instruction Type 1"
-      (*  let convertToInstr1 ((((t1,t2),t3),t4),((t5,t6),t7)) = 
-            let arg1 = t1 |> TokInstr1
-            let arg2 = t2 |> TokS
-            let arg3 = t3 |> TokCond
-            let arg4 = t4 |> TokReg
-            let arg5 = t5 |> TokComma
-            let arg6 = t6 |> Tok
-    *)
-        pInstr1 .>>. opt pS .>>. opt pCond .>>. pReg .>>. opt pOp |>> TInstr1 <?> label
+        let tupleTransform = function
+            | x -> JInstr1(x)
 
+    //   let tupleTransform (((((t1,t2), t3),t4),t5),t6) = 
+    //       match t1,t2,t3,t4,t5,t6 with 
+    //       | TokInstr1 a, TokS b, TokCond c, TokReg d, TokComma, TokReg e -> JInstr1
+
+        let instr1Hold = pInstr1 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg <?> label
+        mapP tupleTransform instr1Hold
+
+    (*
     let instType2 = 
         let label = "Instruction Type 2"
         pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg  |>> TInstr2 <?> label
@@ -415,28 +444,31 @@ module Parser =
     let instType3 =
         let label = "Instruction Type 3"
         pInstr3 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg .>>. opt pOp  |>> TInstr3 <?> label
+
     let instType4 = 
         let label = "Instruction Type 4"
-        pInstr4 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg >>% TInstr4 <?> label
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pReg |>> TInstr4 <?> label
 
- (*   let instType5 = 
+    let instType5 = 
         let pInstr4 = anyOf tokenInstrList5 <?> "Type 5 Opcode"
-        let label = "Instruction Type 5"
-        pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5 <?> label
-*)
+        0
 
-(*
+    let label = "Instruction Type 5"
+        (pInstr4 .>>. opt pS .>>. opt pCond .>>. pReg >>% JInstr5) <?> label
+
+
     parseInstr := choice 
         [
         instType1
         instType2
         instType3
         ]
-*)
+    *)
 
     //////////////////Testing//////////////
-(*
-    let testInstrType1List1 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(ID(R1))]
+
+    let testInstrType1List1 = [TokInstr1(MOV); TokReg(R0); TokReg(R1)]
+    (*
     let testInstrType1List2 = [TokInstr1(MOV); TokInput(ID(R0)); TokInput(Literal(10));]
 
     let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokInput(ID(R0)); TokInput(ID(R1))]
@@ -450,7 +482,8 @@ module Parser =
 
     let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokInput(ID(R0)); TokInput(Literal(10))]
 
-    let testParser() =
-            printf "10"// (run instType1 testInstrType1List1)
+    *)
 
-*)
+    let t1 = [TokReg(R0); TokError("1$");]
+
+    printf "%A" (run pRegComma t1)
