@@ -8,6 +8,27 @@
   <link rel="stylesheet" href="css/photon.css">
   <!-- Javascript -->
   <script src="umd/menu.js" charset="utf-8"></script>
+
+  <style>
+    .monaco-editor.vs .operators {
+      color: grey;
+    }
+    
+    .monaco-editor.vs .token.keywords {
+      color: red;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    
+    .monaco-editor.vs .token.custom-notice {
+      color: orange;
+    }
+    
+    .monaco-editor.vs .token.custom-date {
+      color: green;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -71,8 +92,7 @@
           <div id="editor" style="height:100%"></div>
         </div>
         <!-- editor -->
-        <div id="dashboard" class="pane">
-          
+        <div id="dashboard" class="pane-sm">
         </div>
         <!-- table -->
       </div>

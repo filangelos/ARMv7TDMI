@@ -370,13 +370,15 @@ h6 {
 .btn-positive,
 .btn-negative,
 .btn-reg,
+.btn-flag,
 .btn-enc,
 .btn-warning {
   color: #fff;
 /*  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); */
 }
 
-.btn-con {
+.btn-flag-con,
+.btn-reg-con {
   color: #333;
 }
 
@@ -443,23 +445,7 @@ h6 {
 .btn-reg, .btn-reg:active {
   background-color: #6d6c6d;
   border: 1px solid #c2c0c2;
-  width: 4em;
-}
-
-.btn-enc, .btn-enc:active {
-  background-color: #6d6c6d;
-  border: 1px solid #c2c0c2;
-}
-
-.btn-con, .btn-con:active {
-  background-color: #fff;
-  border: 1px solid #c2c0c2;
-  width: 55%;
-}
-
-.btn-con:focus, .btn-con:active {
-  z-index: 3;
-  border: 1px solid #c2c0c2;
+  width: 15%;
 }
 
 .btn-reg:focus, .btn-reg:active {
@@ -467,9 +453,47 @@ h6 {
   border: 1px solid #c2c0c2;
 }
 
+.btn-flag, .btn-flag:active {
+  background-color: #6d6c6d;
+  border: 1px solid #c2c0c2;
+  width: 12.5%;
+}
+
+.btn-flag:focus, .btn-flag:active {
+  z-index: 3;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-enc, .btn-enc:active {
+  background-color: #6d6c6d;
+  border: 1px solid #c2c0c2;
+}
+
 .btn-enc:focus, .btn-enc:active {
   z-index: 3;
   background-color: red;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-reg-con, .btn-reg-con:active {
+  background-color: #fff;
+  border: 1px solid #c2c0c2;
+  width: 85%;
+}
+
+.btn-reg-con:focus, .btn-reg-con:active {
+  z-index: 3;
+  border: 1px solid #c2c0c2;
+}
+
+.btn-flag-con, .btn-flag-con:active {
+  background-color: #fff;
+  border: 1px solid #c2c0c2;
+  width: 12.5%;
+}
+
+.btn-flag-con:focus, .btn-flag-con:active {
+  z-index: 3;
   border: 1px solid #c2c0c2;
 }
 
@@ -706,8 +730,8 @@ textarea {
 }
 
 .pane-sm {
-  max-width: 220px;
-  min-width: 150px;
+  max-width: 400px;
+  min-width: 300px;
   border-left: 0.1px solid #ddd;
 }
 
