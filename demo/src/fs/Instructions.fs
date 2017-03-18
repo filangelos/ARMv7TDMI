@@ -396,7 +396,7 @@ module Instructions =
     //printfn "%A" c3
 
     //-------------------------------------------------TESTING----------------------------------------------------------
-
+(*
     //Testing mov{s} instruction
     let test_mov () = 
         printf "Starting Testing of Mov Instruction. Compare against visUAL."
@@ -440,4 +440,4 @@ module Instructions =
         //printfn "%A" h_add
         printfn "End of Add testing"
 
-    test_add ()
+    test_add () *)

@@ -16,6 +16,7 @@ module View =
     open Fable.Import.Browser
     open Fable.Core.JsInterop
     open MachineState
+    open Tokeniser
 
     // Get Referencence on DOM Elements
     let exploreBtn = document.getElementById("explore")     // open button
@@ -32,7 +33,10 @@ module View =
     // Event Listeners
     let actions : unit -> unit = fun _ ->
         // run button
-        runBtn.onclick <- (fun _ -> console.log(window?code?getValue()); null)
+        runBtn.onclick <- (fun _ -> 
+            let assembly : string = sprintf "%O" (window?code?getValue())
+            let x = tokenise assembly
+            console.log(x); null)
         // theme button
         themeBtn.onclick <- (fun _ ->
             let options = 

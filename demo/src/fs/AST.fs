@@ -55,7 +55,7 @@ module AST =
                 | JInstr1(MVN, setFlags, cond, rd, rn) ->
                     InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
                 | JInstr2(ADR, setFlags, cond, rd) ->
-                    failwithf "not done yet"
+                    failwithf "ADR not done yet"
                 | JInstr3(ADD, setFlags, cond, rd, rn, op2) ->
                     InstructionsInterfaces.add_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
                 | JInstr3(ADC, setFlags, cond, rd, rn, op2) ->
@@ -78,22 +78,17 @@ module AST =
                     InstructionsInterfaces.orr_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
                 | JInstr4(LSL, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(LSL, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSL, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(LSR, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(LSR, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
+                | JInstr4(LSR, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
                 | JInstr4(ASR, setFlags, cond, rd, rn, Literal(shift)) ->
                     InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(ASR, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) shift state)), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(ROR_, setFlags, cond, rd, rn, Literal(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, ID(rn), shift, state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr4(ROR_, setFlags, cond, rd, rn, ID(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, ID(rn), (( ^. ) shift state), state, (if setFlags = None then false else true), cond) //need to test
-                | JInstr5(RRX_, setFlags, cond, rd, op2) ->
-                    InstructionsInterfaces.rrx_ (rd, op2, state, (if setFlags = None then false else true), cond)
+                | JInstr4(ASR, setFlags, cond, rd, rn, ID(reg)) ->
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
+
                 | JInstr6(CMP, cond, rd, op2) ->
                     InstructionsInterfaces.cmp_ (rd, op2, state, cond)
                 | JInstr6(CMN, cond, rd, op2) ->
@@ -108,7 +103,7 @@ module AST =
             | _ -> state
 
     ///reduces an ast in a MachineState by executing the nodes between pc and maxPC
-    let rec reduce (state:MachineState) (pc:int) (maxPC) =
+    let rec reduce (state:MachineState) (pc:int) (maxPC:int) =
         if pc <= maxPC then
             let updateStateR15 = ( ^= ) R15 pc state
             let newState = step updateStateR15
@@ -118,10 +113,10 @@ module AST =
 
     ///execute an entire ast in a MachineState
     let execute (state:MachineState) = 
-     //get address of last node
-     let ast = ( ^% ) state
-     let maxPC = snd (ast |> List.rev |> List.head)
-     reduce state 0 maxPC
+        //get address of last node
+        let ast = ( ^% ) state
+        let maxPC = snd (ast |> List.rev |> List.head)
+        reduce state 0 maxPC
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
@@ -129,12 +124,16 @@ module AST =
         printfn "Running testAST:"
         let parseList = [
                             (JLabel("START"));
-                            (JInstr1(MOV, None, None, R1, Operand(Literal(13), NoShift)));
+                            (JInstr1(MOV, None, None, R1, Operand(Literal(1), NoShift)));
                             (JInstr1(MOV, Some(S), None, R2, Operand(Literal(0), NoShift)));
                             (JLabel("LABEL2"));
                             (JInstr1(MOV, None, Some(NE), R3, Operand(Literal(342), NoShift)));
                             (JInstr1(MOV, None, Some(EQ), R4, Operand(Literal(999), Left(1))));
-                            (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)))
+                            (JInstr3(ADD, None, None, R5, R4, Operand(Literal(1000), NoShift)));
+                            (JInstr4(LSL, None, None, R6, R5, Literal(2)));
+                            (JInstr4(ROR_, None, None, R7, R5, ID(R1)));
+                            (JInstr5(RRX_, None, None, R8, ID(R5)));
+                            (JInstr6(CMP, None, R1, Operand(Literal(2), NoShift)))
                         ]
 
         let astLabelMap = buildAST parseList
@@ -143,8 +142,6 @@ module AST =
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state for this ast is:\n%A\n" result
-
-
 
         printfn "Finished testAST.\n"
 

@@ -18,30 +18,43 @@ module Tokeniser =
 
     ///returns the first matched group of a regex and the leftovers from the input
     let private (|MatchToken|_|) pattern input =
-        let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
+        let m = Regex.Match(input, "(?:[^\s\S]+|^)" + pattern) //pattern must start at beginning of string
         if (m.Success)
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
     ///remove comments from an input string
+    ///remove comments from an input string
     let rec private removeComments (input:string) =
-        let newInput = (new Regex(";[\s\s0-9\w\W]*\n")).Replace(input, "\n", 1)
-        let newInput2 = (new Regex(";[\s\s0-9\w\W]*$")).Replace(newInput, "", 1)
-        if newInput2 = input then newInput2
-        else removeComments newInput2
+        let m = Regex.Match(input, ";[\s\S0-9\w\W]*\n")
+        if (m.Success) then
+            let newInput = (new Regex(";[\s\S0-9\w\W]*\n")).Replace(input, "\n", 1)
+            let m2 = Regex.Match(newInput, ";[\s\S0-9\w\W]*$")
+            if (m2.Success) then
+                let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
+                removeComments newInput2
+            else
+                removeComments newInput
+        else
+            let m = Regex.Match(input, ";[\s\S0-9\w\W]*$")
+            if (m.Success) then
+                let newInput = (new Regex(";[\s\S0-9\w\W]*$")).Replace(input, "", 1)
+                removeComments newInput
+            else
+                input
 
 
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let private getTokenRegisterFromID (id:int) = 
         match id with
-        | 0 -> TokInput(ID(R0))   | 1 -> TokInput(ID(R1))
-        | 2 -> TokInput(ID(R2))   | 3 -> TokInput(ID(R3))
-        | 4 -> TokInput(ID(R4))   | 5 -> TokInput(ID(R5))
-        | 6 -> TokInput(ID(R6))   | 7 -> TokInput(ID(R7))
-        | 8 -> TokInput(ID(R8))   | 9 -> TokInput(ID(R9))
-        | 10 -> TokInput(ID(R10)) | 11 -> TokInput(ID(R11))
-        | 12 -> TokInput(ID(R12)) | 13 -> TokInput(ID(R13))
-        | 14 -> TokInput(ID(R14)) | 15 -> TokInput(ID(R15))
+        | 0 -> TokReg(R0)   | 1 -> TokReg(R1)
+        | 2 -> TokReg(R2)   | 3 -> TokReg(R3)
+        | 4 -> TokReg(R4)   | 5 -> TokReg(R5)
+        | 6 -> TokReg(R6)   | 7 -> TokReg(R7)
+        | 8 -> TokReg(R8)   | 9 -> TokReg(R9)
+        | 10 -> TokReg(R10) | 11 -> TokReg(R11)
+        | 12 -> TokReg(R12) | 13 -> TokReg(R13)
+        | 14 -> TokReg(R14) | 15 -> TokReg(R15)
         | _ -> TokError("R"+id.ToString())
 
 
@@ -144,21 +157,21 @@ module Tokeniser =
                 match str with
                 //str may contain several tokens, so recursively call MatchToken until str is empty
                 | MatchToken "([pP][cC])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                           //pc (R15)
-                    strToToken (lst @ [TokInput(ID((R15)))]) leftovers
+                    strToToken (lst @ [TokReg(R15)]) leftovers
                 | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
                     strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
                 | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                     //printfn "hex: %A" hexVal
-                    strToToken (lst @ [TokInput(Literal (int hexVal))]) leftovers
+                    strToToken (lst @ [TokLiteral (int hexVal)]) leftovers
                 | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                     //printfn "bin: %A" binVal
-                    strToToken (lst @ [TokInput(Literal (int binVal))]) leftovers
+                    strToToken (lst @ [TokLiteral (int binVal)]) leftovers
                 | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
-                    strToToken (lst @ [TokInput(Literal(value |> int))]) leftovers
+                    strToToken (lst @ [TokLiteral(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
-                | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
+                | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
                     strToToken (lst @ (getTokenInstructionFrom name [])) leftovers
                 | MatchToken "," (_, leftovers) ->
                     strToToken (lst @ [TokComma]) leftovers
@@ -172,8 +185,10 @@ module Tokeniser =
                     strToToken (lst @ [TokCurlyLeft]) leftovers
                 | MatchToken "\}" (_, leftovers) ->
                     strToToken (lst @ [TokCurlyRight]) leftovers
-                | MatchToken "(\n|\r|\f)+" (_,leftovers) ->
+                | MatchToken "\n|\r|\f" (_,leftovers) ->
                     strToToken (lst @ [TokNewLine]) leftovers
+                | MatchToken "( )+" (_,leftovers) ->
+                    strToToken lst leftovers
                 | "" -> lst
                 | _ -> (lst @ [TokError(str)])
             with
@@ -183,11 +198,11 @@ module Tokeniser =
         let inputNoComments = removeComments input
 
         let strList = inputNoComments.Split([|' '; '\t'|])
-        Array.fold strToToken [] strList
+        (Array.fold strToToken [] strList)  @ [TokEOF]
 
 
-(*--------------------------------------------------------TESTING--------------------------------------------------------
-
+(*--------------------------------------------------------TESTING--------------------------------------------------------*)
+(*
     ///prints the results for the tokenise function against a set of good, bad and random inputs
     let testTokeniser () =
         printfn "Running tokeniseTest:"
@@ -200,7 +215,9 @@ module Tokeniser =
                             "LABEL123_ABC MOV r1, R15      ; end of line";
                             "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]";
                             "MOV R1, #0xFFFF0000";
-                            "ADCS R1, R2, #3, LSL #2"
+                            "ADCS R1, R2, #3, LSL #2";
+                            "mov R0  R1";
+                            "  ";
                         |]
 
         ///list of incorrect syntax
@@ -216,7 +233,8 @@ module Tokeniser =
                             "MOV r1, r^2";
                             "MOV r1, #ab0c45";
                             "MOV R1, #0xFFFF00004";
-                            "MOV R1, #888888888888888888888888888888888888888"
+                            "MOV R1, #888888888888888888888888888888888888888";
+                            "#1MOV"
                         |]
 
         let rec tryGoodTests testList count = 
@@ -246,7 +264,7 @@ module Tokeniser =
         let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
 
         let checkTokenListLength separator = 
-            let isSeparatorAToken = ((tokenise separator).Length > 0)
+            let isSeparatorAToken = ((tokenise separator).Length > 1)
             //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
             let rnd = new System.Random()
             let rec subset xs = 
@@ -260,9 +278,9 @@ module Tokeniser =
             let subStr = String.concat separator subList
             let tokList = tokenise subStr
             if isSeparatorAToken then 
-                tokList.Length = (subList.Length * 2) - 1 + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
+                tokList.Length = (subList.Length * 2) - 1 + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length ) + 1
             else
-                tokList.Length = subList.Length + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length )
+                tokList.Length = subList.Length + (subList |> List.filter (fun x -> x= "LABEL" ) |> List.length ) + 1
 
 
         //perform valid input tests
@@ -270,7 +288,7 @@ module Tokeniser =
         printfn "goodTests: passed %A/%A" (tryGoodTests goodTests 0) (Array.length goodTests)
         printfn "Running badTests..."
         printfn "badTests: passed %A/%A" (tryBadTests badTests 0) (Array.length badTests)
-        
+
         //perform property-based testing to check for correct number of tokens
         printfn "Running FSCheck for token list length..."
         Check.Quick (checkTokenListLength " ")
@@ -298,7 +316,7 @@ module Tokeniser =
         printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
         printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
 
-        //test conditional codes (will add robust testing later)
+        //test conditional codes
         printfn "Testing conditional codes..."
         let strInstr = ["ADD"; "ADC"; "MOV"; "MVN"; "ORR"; "AND"; "EOR"; "BIC"; "SUB"; "RSB"; "SBC"; "RSC"; "CMP"; "CMN"; "TST"; "TEQ"]
         let strCond = ["EQ"; "NE"; "CS"; "HS"; "CC"; "LO"; "MI" ; "PL"; "VS"; "VC"; "HI"; "LS"; "GE"; "LT"; "GT"; "LE"; "AL"]
@@ -312,7 +330,7 @@ module Tokeniser =
             let tokList1 = tokenise str1
             let str2 = String.concat "" ([(getRandomItem () strInstr); "S"] @ [getRandomItem () strCond])
             let tokList2 = tokenise str2
-            tokList1.Length = 2 && tokList2.Length = 3
+            tokList1.Length = 3 && tokList2.Length = 4
 
         printfn "%A" (tokenise "MOVS")
         printfn "%A" (tokenise "MOVEQ")
@@ -323,6 +341,7 @@ module Tokeniser =
 
         let strInstr = ["LDM"; "STM"]
         let strCond = ["FD"; "FA"; "ED"; "EA"; "DA"; "DB"; "IA"; "IB"]
+
         let checkTokenListLengthMem () =
             //http://stackoverflow.com/questions/33312260/how-can-i-select-a-random-value-from-a-list-using-f
             let getRandomItem () =  
@@ -331,7 +350,8 @@ module Tokeniser =
 
             let str1 = String.concat "" ([getRandomItem () strInstr] @ [getRandomItem () strCond])
             let tokList1 = tokenise str1
-            tokList1.Length = 2
+            tokList1.Length = 3
+
         printfn "%A" (tokenise "LDRB")
         printfn "%A" (tokenise "LDMED")
         printfn "%A" (tokenise "STMFA")
