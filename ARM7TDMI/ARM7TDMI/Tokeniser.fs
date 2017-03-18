@@ -19,18 +19,29 @@ module Tokeniser =
 
     ///returns the first matched group of a regex and the leftovers from the input
     let private (|MatchToken|_|) pattern input =
-        let m = Regex.Match(input, "(?<![\s\S]+)" + pattern) //pattern must start at beginning of string
+        let m = Regex.Match(input, "(?:[^\s\S]+|^)" + pattern) //pattern must start at beginning of string
         if (m.Success)
         then Some (m.Groups.[1].Value, (new Regex(pattern)).Replace(input, "", 1))
         else None
 
     ///remove comments from an input string
     let rec private removeComments (input:string) =
-        let newInput = (new Regex(";[\s\s0-9\w\W]*\n")).Replace(input, "\n", 1)
-        let newInput2 = (new Regex(";[\s\s0-9\w\W]*$")).Replace(newInput, "", 1)
-        if newInput2 = input then newInput2
-        else removeComments newInput2
-
+        let m = Regex.Match(input, ";[;\s\S0-9\w\W]*\n")
+        if (m.Success) then
+            let newInput = (new Regex(";[;\s\S0-9\w\W]*\n")).Replace(input, "", 1)
+            let m2 = Regex.Match(newInput, ";[;\s\S0-9\w\W]*$")
+            if (m2.Success) then
+                let newInput2 = (new Regex(";[;\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
+                removeComments newInput2
+            else
+                removeComments newInput
+        else
+            let m = Regex.Match(input, ";[;\s\S0-9\w\W]*$")
+            if (m.Success) then
+                let newInput = (new Regex(";[;\s\S0-9\w\W]*$")).Replace(input, "", 1)
+                removeComments newInput
+            else
+                input
 
     ///turns an integer into a TokReg token (feel free to change this mess of code)
     let private getTokenRegisterFromID (id:int) = 
@@ -154,12 +165,12 @@ module Tokeniser =
                 | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                     //printfn "bin: %A" binVal
                     strToToken (lst @ [TokLiteral (int binVal)]) leftovers
-                | MatchToken "#([0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
+                | MatchToken "#(-?[0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
                     strToToken (lst @ [TokLiteral(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
-                | MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
+                | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
                     strToToken (lst @ (getTokenInstructionFrom name [])) leftovers
                 | MatchToken "," (_, leftovers) ->
                     strToToken (lst @ [TokComma]) leftovers
@@ -203,7 +214,10 @@ module Tokeniser =
                             "LABEL123_ABC MOV r1, R15      ; end of line";
                             "MOV R1 ,r15 \n LABEL ; My comment\n ADD r1, r14 ,#0b101 \n LDR r0!, [r1, #0x5]";
                             "MOV R1, #0xFFFF0000";
-                            "ADCS R1, R2, #3, LSL #2"
+                            "ADCS R1, R2, #3, LSL #2";
+                            "mov R0  R1";
+                            "  ";
+                            "mov r1, #-5"
                         |]
 
         ///list of incorrect syntax
@@ -219,7 +233,8 @@ module Tokeniser =
                             "MOV r1, r^2";
                             "MOV r1, #ab0c45";
                             "MOV R1, #0xFFFF00004";
-                            "MOV R1, #888888888888888888888888888888888888888"
+                            "MOV R1, #888888888888888888888888888888888888888";
+                            "#1MOV";
                         |]
 
         let rec tryGoodTests testList count = 
@@ -288,15 +303,20 @@ module Tokeniser =
         //temporary testing, will add robust testing later
         printfn "Testing Comments Removal...\ninput\t->\toutput:"
         let test = "; This is a comment"
-        printfn "1. %A\t->\t%A" (test) (removeComments test)
+        printfn "1. %A\t->\t%A" (test) (tokenise (removeComments test))
         let test2 = "MOV r1, r2 ;End of line comment"
-        printfn "2. %A\t->\t%A" (test2) (removeComments test2)
+        printfn "2. %A\t->\t%A" (test2) (tokenise (removeComments test2))
         let test3 = "MOV r1, r2 ; remove comment and instruction: MOV r1, r1"
-        printfn "3. %A\t->\t%A" (test3) (removeComments test3)
+        printfn "3. %A\t->\t%A" (test3) (tokenise (removeComments test3))
         let test4 = "MOV r1, r2 ; remove comment but not instruction: \n MOV r1, r1"
-        printfn "4. %A\t->\t%A" (test4) (removeComments test4)
+        printfn "4. %A\t->\t%A" (test4) (tokenise (removeComments test4))
         let test5 = ";comment with random chars 354 245 ! [ ] £ # // %$ 65"
-        printfn "5. %A\t->\t%A" (test5) (removeComments test5)
+        printfn "5. %A\t->\t%A" (test5) (tokenise (removeComments test5))
+        let test6 = ";;aiuw\n; ; ; ;\nmov r0 #5 ;aelwfna\nmov r1 r0 ;;aewfo"
+        printfn "6. %A\t->\t%A" (test6) (removeComments test6)
+        let test7 = "; ; ; ; \n ; ; ; ; ;"
+        printfn "7. %A\t->\t%A" (test7) (tokenise (removeComments test7))
+
 
         printfn "Using R15 identifier:\t%A" (tokenise "MOV r15, R15, #3")
         printfn "Using PC identifier:\t%A" (tokenise "MOV PC, pC, #3")
@@ -348,5 +368,53 @@ module Tokeniser =
 
         //let testNewline = "\n\n\n\n\n \n \n MOV \n \n \n \n MOV \n"
         //printfn "\"%A\" tokenises to %A and contains %A tokens, expected 5 tokens" testNewline (tokenise (testNewline)) ((tokenise (testNewline)).Length)
+
+        let parseGoodTokenList =
+                            [
+                                [TokNewLine; TokInstr1 MOV; TokReg R1; TokComma; TokLiteral 5; TokEOF];
+                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF];
+                                [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokEOF];
+                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
+                                [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
+                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
+                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
+                                [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
+                            ]
+
+        let parseBadTokenList =
+                            [
+                                [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
+                                [TokReg R0; TokInstr1 MOV; TokComma; TokReg R1; TokEOF];
+                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokReg R3; TokEOF];
+                                [TokReg R14; TokEOF];
+                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
+                                [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
+                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
+                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
+                                [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
+                            ]
+
+        (*
+        printfn "%A" (tokenise "\nMOV R1, #5")
+        printfn "%A" (tokenise "ADD R1, R2, R3\nMOV R2, R1")
+        printfn "%A" (tokenise "MVN R0, #5")
+        printfn "%A" (tokenise "ADCS R0, R1, #5, LSL #5")
+        printfn "%A" (tokenise "LSLSEQ r0, r0, #0xb")
+        printfn "%A" (tokenise "RRXSNE r10, r1")
+        printfn "%A" (tokenise "TSTPL R0, r4 , ror #1")
+        printfn "%A" (tokenise "MOV r0, r1, rrx")
+        *)
+
+        (*
+        printfn "%A" (tokenise "\nMOV #5, R1")
+        printfn "%A" (tokenise "R0 MOV, R1")
+        printfn "%A" (tokenise "ADD R1, R2 R3")
+        printfn "%A" (tokenise "R14")
+        printfn "%A" (tokenise "ADCS R0, R1, LSL #5")
+        printfn "%A" (tokenise "LSLEQS r0, #0xb, #0x6")
+        printfn "%A" (tokenise "RRXSNE r10, r1, NE")
+        printfn "%A" (tokenise "TSTPL R0, r4 , rrx #1")
+        printfn "%A" (tokenise "ADD r0, r1")
+        *)
 
         printfn "Finished tokeniseTest\n"

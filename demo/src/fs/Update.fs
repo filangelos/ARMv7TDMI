@@ -33,7 +33,8 @@ module Update =
         let renderFlags (state: MachineState) : string =
             let boolToZeroOne = function
                 | false -> 0 | true -> 1
-            "<tr><td><div class=\"btn-group full-width\">"
+            "<tr><td><br></td></tr>"
+            + "<tr><td><div class=\"btn-group full-width\">"
             + sprintf "<button id=\"N\" class=\"btn btn-flag\">N</button>"
             + sprintf "<button class=\"btn btn-flag-con\">%i</button>" (boolToZeroOne (state.StatusBits.Item N))
             + sprintf "<button id=\"Z\" class=\"btn btn-flag\">Z</button>"
@@ -61,9 +62,8 @@ module Update =
             |> List.fold (+) ""
         // glue everything together
         [
-            "<table class=\"table text-center\"><tbody>"
+            "<table class=\"table text-center\"><tbody><tr><td><br></td></tr>"
             registers
-            "<tr><td><br></td></tr>"
             renderFlags state
             "</tbody></table>"
         ]

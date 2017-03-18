@@ -224,7 +224,7 @@ module MemoryInstructions =
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
 
-    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
+//    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
 //    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()
