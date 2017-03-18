@@ -352,8 +352,7 @@ module Parser =
     let tokenRegList = List.map TokReg regList
     let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
     let tokenInstrList2 = [TokInstr2(ADR)]
-    let instrList3 = [ADD ; ADC ; SUB ; SBC ; RSB ; RSC ; AND
-        ; EOR ; BIC ; ORR;]
+    let instrList3 = [ADD ; ADC ; SUB ; SBC ; RSB ; RSC ; AND ; EOR ; BIC ; ORR;]
     let tokeninstrList3 = List.map TokInstr3 instrList3
 
     let instrList4 = [LSL ; LSR ; ASR ; ROR_;]
