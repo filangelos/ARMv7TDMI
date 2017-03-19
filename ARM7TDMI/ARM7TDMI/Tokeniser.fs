@@ -26,7 +26,6 @@ module Tokeniser =
 
     ///remove comments from an input string
     let rec private removeComments (input:string) =
-
         let m = Regex.Match(input, ";[\s\S0-9\w\W]*\n")
         if (m.Success) then
             let newInput = (new Regex(";[\s\S0-9\w\W]*\n")).Replace(input, "\n", 1)
@@ -219,10 +218,8 @@ module Tokeniser =
                             "ADCS R1, R2, #3, LSL #2";
                             "mov R0  R1";
                             "  ";
-<<<<<<< HEAD
-=======
+
                             "mov r1, #-5"
->>>>>>> 5b59331ad2a41c8c82f19cede9360a13c0297b75
                         |]
 
         ///list of incorrect syntax
