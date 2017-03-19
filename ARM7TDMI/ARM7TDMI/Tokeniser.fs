@@ -26,19 +26,20 @@ module Tokeniser =
 
     ///remove comments from an input string
     let rec private removeComments (input:string) =
-        let m = Regex.Match(input, ";[;\s\S0-9\w\W]*\n")
+
+        let m = Regex.Match(input, ";[\s\S0-9\w\W]*\n")
         if (m.Success) then
-            let newInput = (new Regex(";[;\s\S0-9\w\W]*\n")).Replace(input, "", 1)
-            let m2 = Regex.Match(newInput, ";[;\s\S0-9\w\W]*$")
+            let newInput = (new Regex(";[\s\S0-9\w\W]*\n")).Replace(input, "\n", 1)
+            let m2 = Regex.Match(newInput, ";[\s\S0-9\w\W]*$")
             if (m2.Success) then
-                let newInput2 = (new Regex(";[;\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
+                let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
                 removeComments newInput2
             else
                 removeComments newInput
         else
-            let m = Regex.Match(input, ";[;\s\S0-9\w\W]*$")
+            let m = Regex.Match(input, ";[\s\S0-9\w\W]*$")
             if (m.Success) then
-                let newInput = (new Regex(";[;\s\S0-9\w\W]*$")).Replace(input, "", 1)
+                let newInput = (new Regex(";[\s\S0-9\w\W]*$")).Replace(input, "", 1)
                 removeComments newInput
             else
                 input

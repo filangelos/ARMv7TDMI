@@ -37,7 +37,7 @@ module Instructions =
                       | Operand(op2Val, RightA(x)) -> ((opVal state op2Val) >>> x), state
                       | Operand(op2Val, Left x) -> ((opVal state op2Val) <<< x), state
                       | Operand(op2Val, ROR x) -> (((opVal state op2Val) >>> x) ||| ((opVal state op2Val) <<< (32 - x))), state
-                      | Operand(op2Val, RRX) -> (((opVal state op2Val) >>> 1) ||| ((System.Convert.ToInt32 ((^*) C state)) <<< 31)), state
+                      | Operand(op2Val, RRX) -> ((int (uint32 (opVal state op2Val) >>> 1)) ||| ((System.Convert.ToInt32 ((^*) C state)) <<< 31)), state
 
                                    
     let mov ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
@@ -188,14 +188,6 @@ module Instructions =
 
         (^=) (regD) (result) (finState)   
 
-    //wrapper for LSL/LSR (S) functions
-    let logicalShift ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) =
-        mov (regD,op2,state,setFlags)
-
-    
-    let arithmeticRightShift ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2, RightA shift), state, setFlags)
-
     let subtractWithCarryS ((regD: RegisterID), (regN: Operand), (op2: Operand), (state: MachineState), (includeCarry: bool), (setFlags: bool)) =
 
       //extracting operand values
@@ -238,40 +230,6 @@ module Instructions =
 
       (^=) (regD) (result) (finState) 
 
-    //wrappers for sub, sbc, cmp & rsb functions
-    let sub_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, false, setFlags)
-     
-    let sbc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, Operand(ID(regN),NoShift), op2, state, true, setFlags)
-
-    let rsb_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, false, setFlags)
-
-    let rsc_ ((regD: RegisterID), (regN: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool)) = 
-        subtractWithCarryS (regD, op2, Operand(ID(regN),NoShift), state, true, setFlags)
-
-    let cmp_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        let flagState = subtractWithCarryS (R10, Operand(ID(regN),NoShift), op2, state, false, true)
-        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
-
-    let cmn_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        let flagState = addWithCarryS (R10, regN, op2, state, false, true)
-        state |> ( ^- ) V (( ^* ) V flagState) |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
-
-    let tst_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        let flagState = andOp (R10, regN, op2, state, true)
-        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
-     
-    let teq_ ((regN: RegisterID), (op2: Operand), (state: MachineState)) = 
-        let flagState = eOR (R10, regN, op2, state, true)
-        state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState)
-
-    let ror_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2,ROR shift),state,setFlags)
-
-    let rrx_ ((regD: RegisterID), (op2: Input), (state: MachineState), (setFlags: bool)) =
-        mov (regD, Operand(op2,RRX),state,setFlags)
 
     ////test code for addWithCarry Function
     //let a = MachineState.make()
@@ -390,47 +348,47 @@ module Instructions =
 
     //-------------------------------------------------TESTING----------------------------------------------------------
 
-    //Testing mov{s} instruction
-    let test_mov () = 
-        printf "Starting Testing of Mov Instruction. Compare against visUAL."
-        let a_mov = MachineState.make()
-        let b_mov = mov (R0, Operand(Literal(-1073741824),NoShift), a_mov, false) //Moves value into Register [x]
-        printfn "%A" b_mov
-        let c_mov = mov (R1, Operand(ID R0,NoShift),b_mov,false) //Moves value of Register into another Register [x]
-        printfn "%A" c_mov
-        let d_mov = mov (R1, Operand(ID R0,NoShift),c_mov,true) //Sets N flag [x]
-        printfn "%A" d_mov
-        let e_mov = mov (R1, Operand(Literal 0,NoShift),d_mov,true) //Sets Z flag [x]
-        printfn "%A" e_mov
-        let f_mov = mov (R1, Operand(ID R0, Left 1),e_mov,true) //Sets C flag (Left Shift) [x]
-        printfn "%A" f_mov
-        let g_mov = mov (R1, Operand(ID R0, RightL 31),f_mov,true) //Sets C flag (Right logical Shift) [x]
-        printfn "%A" g_mov
-        let h_mov = mov (R1, Operand(ID R0, RightA 31),g_mov,true) //Sets C flag (Right arithmetic Shift) [x]
-        printfn "%A" h_mov
-        printfn "End of mov testing"
+    ////Testing mov{s} instruction
+    //let test_mov () = 
+    //    printf "Starting Testing of Mov Instruction. Compare against visUAL."
+    //    let a_mov = MachineState.make()
+    //    let b_mov = mov (R0, Operand(Literal(-1073741824),NoShift), a_mov, false) //Moves value into Register [x]
+    //    printfn "%A" b_mov
+    //    let c_mov = mov (R1, Operand(ID R0,NoShift),b_mov,false) //Moves value of Register into another Register [x]
+    //    printfn "%A" c_mov
+    //    let d_mov = mov (R1, Operand(ID R0,NoShift),c_mov,true) //Sets N flag [x]
+    //    printfn "%A" d_mov
+    //    let e_mov = mov (R1, Operand(Literal 0,NoShift),d_mov,true) //Sets Z flag [x]
+    //    printfn "%A" e_mov
+    //    let f_mov = mov (R1, Operand(ID R0, Left 1),e_mov,true) //Sets C flag (Left Shift) [x]
+    //    printfn "%A" f_mov
+    //    let g_mov = mov (R1, Operand(ID R0, RightL 31),f_mov,true) //Sets C flag (Right logical Shift) [x]
+    //    printfn "%A" g_mov
+    //    let h_mov = mov (R1, Operand(ID R0, RightA 31),g_mov,true) //Sets C flag (Right arithmetic Shift) [x]
+    //    printfn "%A" h_mov
+    //    printfn "End of mov testing"
 
 
-    //Testing add{s} instruction
-    let test_add () = 
-        printfn "Starting Testing of Add Instruction. Compare against visUAL."
-        let a = MachineState.initWithFlags "0110"
-//        let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true)
-        printfn "Quick Test"
-//        printfn "%A" b
-        //let a_add = MachineState.make()
-        //let b_add = mov (R0, Operand(Literal(-1073741824),NoShift), a_add, false) //Moving preliminary values
-        //let c_add = mov (R1, Operand(Literal 1,NoShift),b_add,false)
-        //let d_add = add_ (R2, R1, Operand(ID R0,NoShift),c_add,false) //Correct addition [x]
-        //printfn "%A" d_add
-        //let e_add = add_ (R2, R0, Operand(ID R0,NoShift),d_add,true) //Sets C flag [x]
-        //printfn "%A" e_add
-        //let f_add = add_ (R2, R2, Operand(ID R2, NoShift),e_add,true) //Sets V flag [x]
-        //printfn "%A" f_add
-        //let g_add = add_ (R2, R2, Operand(ID R2, NoShift),f_add,true) //Sets Z flag [x]
-        //printfn "%A" g_add
-        //let h_add = add_ (R2, R0, Operand(ID R2, NoShift),g_add,true)//Sets N flag [x]
-        //printfn "%A" h_add
-        printfn "End of Add testing"
+    ////Testing add{s} instruction
+    //let test_add () = 
+    //    printfn "Starting Testing of Add Instruction. Compare against visUAL."
+    //    let a = MachineState.initWithFlags "0110"
+    //    let b = add_ (R0, R0, Operand(Literal -1, NoShift), a, true)
+    //    printfn "Quick Test"
+    //    printfn "%A" b
+    //    //let a_add = MachineState.make()
+    //    //let b_add = mov (R0, Operand(Literal(-1073741824),NoShift), a_add, false) //Moving preliminary values
+    //    //let c_add = mov (R1, Operand(Literal 1,NoShift),b_add,false)
+    //    //let d_add = add_ (R2, R1, Operand(ID R0,NoShift),c_add,false) //Correct addition [x]
+    //    //printfn "%A" d_add
+    //    //let e_add = add_ (R2, R0, Operand(ID R0,NoShift),d_add,true) //Sets C flag [x]
+    //    //printfn "%A" e_add
+    //    //let f_add = add_ (R2, R2, Operand(ID R2, NoShift),e_add,true) //Sets V flag [x]
+    //    //printfn "%A" f_add
+    //    //let g_add = add_ (R2, R2, Operand(ID R2, NoShift),f_add,true) //Sets Z flag [x]
+    //    //printfn "%A" g_add
+    //    //let h_add = add_ (R2, R0, Operand(ID R2, NoShift),g_add,true)//Sets N flag [x]
+    //    //printfn "%A" h_add
+    //    printfn "End of Add testing"
 
-    test_add ()
+    //test_add ()
