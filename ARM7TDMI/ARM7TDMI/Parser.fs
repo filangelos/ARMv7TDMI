@@ -540,6 +540,7 @@ module Parser =
             |  ID a -> ID a
             | Literal x -> Literal x
         mapP tupleTransform parseTuple
+        
     let pOp = 
         let parseTuple = pLiteral <|> pRegtoInput <?> "Register or Literal Int"
         let tupleTransform (t1) = 
