@@ -26,7 +26,7 @@ module Instructions =
 
     //Extracts operand value
     let getOperandVal setFlags state = function
-                      | Operand(op2Val, NoShift) when setFlags -> MachineState.setCarryRShift (opVal state op2Val) 0 state 
+                      | Operand(op2Val, NoShift) when setFlags -> (opVal state op2Val), state
                       | Operand(op2Val, RightL x) when setFlags -> MachineState.setCarryRShift (int (uint32 (opVal state op2Val) >>> x)) ((opVal state op2Val) <<< (32 - x)) state
                       | Operand(op2Val, RightA(x)) when setFlags -> MachineState.setCarryRShift ((opVal state op2Val) >>> x) ((opVal state op2Val) <<< (32 - x)) state
                       | Operand(op2Val, Left x) when setFlags -> MachineState.setCarryL (uint64(uint32(opVal state op2Val)) <<< x) state

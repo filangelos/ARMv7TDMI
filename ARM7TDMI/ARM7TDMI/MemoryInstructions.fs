@@ -73,11 +73,13 @@ module MemoryInstructions =
 
 
 
-    let storeInstructionW ((result: Data), (regN: AddressRegister), (state: MachineState)) =
+    let storeInstructionW ((result: RegisterID), (regN: AddressRegister), (state: MachineState)) =
+
+        let resultVal = (^.) result state
 
         let address = addressWithOffset state regN
 
-        let state1 = (sw) address result state
+        let state1 = (sw) address resultVal state
 
         match regN with
         | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
@@ -96,11 +98,13 @@ module MemoryInstructions =
 
 
 
-    let storeInstructionB ((result: Data), (regN: AddressRegister), (state: MachineState)) =
+    let storeInstructionB ((result: RegisterID), (regN: AddressRegister), (state: MachineState)) =
+
+        let resultVal = (^.) result state
 
         let address = addressWithOffset state regN
 
-        let state1 = (sb) address (byte result) state
+        let state1 = (sb) address (byte resultVal) state
 
         match regN with
         | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1

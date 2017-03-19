@@ -115,10 +115,10 @@ module InstructionsInterfaces =
     let ldrb_ ((regD: RegisterID), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
         if (executeOrNot (cond) state) then loadInstructionB (regD, regN, state) else state
 
-    let str_ ((result: Data), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+    let str_ ((result: RegisterID), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
         if (executeOrNot (cond) state) then storeInstructionW (result, regN, state) else state
     
-    let strb_ ((result: Data), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
+    let strb_ ((result: RegisterID), (regN: AddressRegister), (state: MachineState), (cond: ConditionCode option)) = 
         if (executeOrNot (cond) state) then storeInstructionB (result, regN, state) else state
 
     let ldm_ ((addMode: AddressMode), (addRegister: RegisterID), (regList: RegisterID list), (state: MachineState), (writeBack: bool), (cond: ConditionCode option)) = 
@@ -139,7 +139,7 @@ module InstructionsInterfaces =
     let test () = 
         let a = mov_ (R1, Operand(Literal 1,NoShift), MachineState.make(),false, None)
         let b = lsr_ (R1, Operand(ID R1,RightL 1), a,true, None)
-        let c = and_ (R0, R0, Operand(Literal 66,NoShift), b,true, None)
+        let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
         printfn "Quick Test"
         printfn "%A" a
         printfn "%A" b
