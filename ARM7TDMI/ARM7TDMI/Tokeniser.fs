@@ -33,7 +33,6 @@ module Tokeniser =
             let m2 = Regex.Match(newInput, ";[\s\S0-9\w\W]*$")
             if (m2.Success) then
                 let newInput2 = (new Regex(";[\s\S0-9\w\W]*$")).Replace(newInput, "", 1)
-
                 removeComments newInput2
             else
                 removeComments newInput
@@ -219,10 +218,7 @@ module Tokeniser =
                             "ADCS R1, R2, #3, LSL #2";
                             "mov R0  R1";
                             "  ";
-<<<<<<< HEAD
-=======
                             "mov r1, #-5"
->>>>>>> 5b59331ad2a41c8c82f19cede9360a13c0297b75
                         |]
 
         ///list of incorrect syntax
