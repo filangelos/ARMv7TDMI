@@ -185,12 +185,12 @@ module Common =
         |  JLabel of string
 *)
     type Instr =
-    |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
+    |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Operand)
     |  JInstr2 of (((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)
-    |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
+    |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Operand)
     |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
     |  JInstr5 of ((((InstrType5*Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
-    |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Input)
+    |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
     |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)
     |  JLabel of string
 

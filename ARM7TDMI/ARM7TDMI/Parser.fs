@@ -60,8 +60,7 @@ module Parser =
         
         loop [] lst |> List.ofSeq
     let tokenToInit tokenLst = 
-        let y = splitBy TokNewLine tokenLst  
-        printf "%A" y      
+        let y = splitBy TokNewLine tokenLst   
         match y with
             | [] -> {lineList = [||]; position = initPos;}
             | _ ->  {lineList = List.toArray y; position=initPos;}
@@ -99,7 +98,6 @@ module Parser =
                 newState, Some token
             else 
                 // end of line, so return LF and move to next line
-                printf "Reached the stage"
                 let token = TokNewLine
                 let newPos = incrLine input.position 
                 let newState = {input with position=newPos}
@@ -534,6 +532,7 @@ module Parser =
             match t with
             | a -> ID a 
         mapP tupleTransform parserTuple
+
     let pInput = 
         let parseTuple = pLiteral <|> pRegtoInput <?> "Register or Literal Int"
         let tupleTransform (t1) = 
@@ -541,9 +540,16 @@ module Parser =
             |  ID a -> ID a
             | Literal x -> Literal x
         mapP tupleTransform parseTuple
+    let pOp = 
+        let parseTuple = pLiteral <|> pRegtoInput <?> "Register or Literal Int"
+        let tupleTransform (t1) = 
+            match t1 with  
+            |  ID a -> Operand (ID a, NoShift)
+            | Literal x -> Operand (Literal x, NoShift)
+        mapP tupleTransform parseTuple
 
     ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
-
+(*
     let pShiftDirection4 =
         let parseTuple = pInstr4 .>>. pLiteral <?> "Shift Direction"
         let tupleTransform (t1, t2) = 
@@ -569,14 +575,14 @@ module Parser =
             | ID x, b -> Operand (ID x, b)
             | Literal y, b -> Operand (Literal y, b)
         mapP tupleTransform parseTuple
-
+*)
 
     ////////////////////////////// Final Instruction Types ////////////////////////////////////////////////////////   
     let instType1 = 
         let label = "Instruction Type 1"
         let tupleTransform = function
             | x -> JInstr1(x)
-        let instr1Hold = pInstr1 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pInput <?> label
+        let instr1Hold = pInstr1 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pOp <?> label
         mapP tupleTransform instr1Hold
 
     let instType2 = 
@@ -590,7 +596,7 @@ module Parser =
         let label = "Instruction Type 3"
         let tupleTransform = function
             | x -> JInstr3(x)
-        let instr3Hold = pInstr3 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pRegComma .>>. pInput  <?> label
+        let instr3Hold = pInstr3 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pRegComma .>>. pOp  <?> label
         mapP tupleTransform instr3Hold
 
     let instType4 = 
@@ -611,7 +617,7 @@ module Parser =
         let label = "Instruction Type 6"
         let tupleTransform = function
             | x -> JInstr6(x)
-        let instr6Hold = pInstr6 .>>. opt pCond .>>. pRegComma .>>. pInput <?> label
+        let instr6Hold = pInstr6 .>>. opt pCond .>>. pRegComma .>>. pOp <?> label
         mapP tupleTransform instr6Hold
 
     let instType7 = 
@@ -654,7 +660,7 @@ module Parser =
                             instType5;
                             instType6;
                             instType7;
-                    //        instTypeLabel;
+                            instTypeLabel;
                             ]
                             
     //////////////////Testing////////////////////////////////////////////
@@ -699,9 +705,11 @@ module Parser =
                                     [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
                                 ]
 
-    let x tokenLst = 
-        run parseInstr tokenLst |> printOutcome
-
-    let y = splitBy TokNewLine [TokInstr1 MOV; TokReg R1; TokComma; TokLiteral 5; TokNewLine; TokInstr1 MOV; TokReg R1; TokComma; TokLiteral 10]
-
-    List.map x y 
+    let Parse (tokenLstLst: Token List) : Instr List = 
+        let z outcome = match outcome with 
+                        | Success(value, input) -> value
+                        | Failure(label,err,parPos) -> JLabel ("Failed Line")
+        let y = splitBy TokNewLine tokenLstLst                            
+        let x = List.map (fun j -> run parseInstr j) 
+        let u = List.map z 
+        u (x y)

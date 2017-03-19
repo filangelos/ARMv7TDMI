@@ -1,55 +1,30 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <AssemblyName>ARM7TDMI</AssemblyName>
+    <RootNamespace>ARM7TDMI</RootNamespace>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{C79AF162-F2FB-4182-8E73-F322AC76A518}</ProjectGuid>
+    <ProjectGuid>c79af162-f2fb-4182-8e73-f322ac76a518</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ARM7TDMI</RootNamespace>
-    <AssemblyName>ARM7TDMI</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>Full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <ExternalConsole>true</ExternalConsole>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <DefineConstants></DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <ExternalConsole>true</ExternalConsole>
-    <GenerateTailCalls>true</GenerateTailCalls>
     <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup>
-    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
     <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
-  <Import Project="$(FSharpTargetsPath)" />
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Toolkit.fs" />
-    <Compile Include="Optics.fs" />
-    <Compile Include="Common.fs" />
-    <Compile Include="Memory.fs" />
-    <Compile Include="MachineState.fs" />
-    <Compile Include="Tokeniser.fs" />
-    <Compile Include="Instructions.fs" />
-    <Compile Include="MemoryInstructions.fs" />
-    <Compile Include="InstructionsInterfaces.fs" />
-    <Compile Include="AST.fs" />
-    <Compile Include="Parser.fs" />
-    <Compile Include="Program.fs" />
-    <None Include="packages.config" />
-  </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -83,4 +58,21 @@
       <HintPath>..\packages\FsCheck.2.7.2\lib\net45\FsCheck.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Toolkit.fs" />
+    <Compile Include="Optics.fs" />
+    <Compile Include="Common.fs" />
+    <Compile Include="Memory.fs" />
+    <Compile Include="MachineState.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Tokeniser.fs" />
+    <Compile Include="Instructions.fs" />
+    <Compile Include="MemoryInstructions.fs" />
+    <Compile Include="InstructionsInterfaces.fs" />
+    <Compile Include="AST.fs" />
+    <Compile Include="Program.fs" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(FSharpTargetsPath)" />
 </Project>
