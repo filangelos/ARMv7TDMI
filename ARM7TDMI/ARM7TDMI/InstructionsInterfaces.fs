@@ -133,7 +133,8 @@ module InstructionsInterfaces =
     let adr_ ((regD: RegisterID), (expr: Expression), (state: MachineState), (cond: ConditionCode option)) = //expr has to be label
         if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
 
-
+    let b_ ((label: string), (state: MachineState), (cond: ConditionCode option)) = 
+        if (executeOrNot (cond) state) then branchInstruction (label, state) else state
 
 // test to check against VisUAL 
     let test () = 
