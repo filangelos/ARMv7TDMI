@@ -541,18 +541,11 @@ module Parser =
             | Literal x -> Literal x
         mapP tupleTransform parseTuple
         
-    let pOp = 
-        let parseTuple = pLiteral <|> pRegtoInput <?> "Register or Literal Int"
-        let tupleTransform (t1) = 
-            match t1 with  
-            |  ID a -> Operand (ID a, NoShift)
-            | Literal x -> Operand (Literal x, NoShift)
-        mapP tupleTransform parseTuple 
         
      ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
 
     let pShiftDirection4 =
-        let parseTuple = pInstr4 .>>. pInt <?> "Shift Direction"
+        let parseTuple = pInstr4 .>>. pInt <?> "Shift Direction (Int)"
         let tupleTransform (t1, t2) = 
             match t1, t2 with
             | LSL, TokLiteral a -> Left a 
@@ -579,11 +572,77 @@ module Parser =
                                     | Some b -> Operand(Literal a, b)
         mapP tupleTransform parseTuple
 
-    /////////////////////////////// Expression Types /////////////////////////////////////////////////////////////
+    /////////////////////////////// AddressRegister Type /////////////////////////////////////////////////////////////
+    let pLBracket = pToken TokSquareLeft <?> "LeftBracket"
 
-    
+    let pRBracket = pToken TokSquareRight <?> "RightBracket"
+    let pExclam = pToken TokExclam <?> "Exclamation Mark"
+    let pCommaOffset =     
+        let parseTuple = pComma .>>. pInt <?> "Offset Integer"
+        let tupleTransform (t1,t2) = 
+            match t2 with  
+            | TokLiteral a -> a
+        mapP tupleTransform parseTuple
 
-    ////////////////////////////// Final Instruction Types ////////////////////////////////////////////////////////   
+    let pOffsetAddress = 
+        let parseTuple =  opt pCommaOffset .>> pRBracket <?> "Offset Addressing"
+        let tupleTransform t1 =
+            match t1 with
+            | Some a -> TempOffset a  
+            | None -> NoOffset
+        mapP tupleTransform parseTuple
+
+    let pOffsetPre = 
+        let parseTuple =  pCommaOffset .>> pComma .>> pRBracket .>> pExclam <?> "Pre-indexed Offset Addressing"
+        let tupleTransform t1 = PreIndex t1
+        mapP tupleTransform parseTuple
+
+    let pOffsetPost = 
+        let parseTuple =  pRBracket .>>. pComma .>>. pInt <?> "Pre-indexed Offset Addressing"
+        let tupleTransform ((t1, t2), t3) = 
+            match t3 with
+            | TokLiteral a -> PostIndex a
+        mapP tupleTransform parseTuple
+
+    let pAddressRegister =
+        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetAddress; pOffsetPre; pOffsetPost]  <?> "Shift Direction"
+        let tupleTransform (t1, t2) = {register=t1;offset = t2;}
+        mapP tupleTransform parseTuple          
+          
+
+////////////////////////////////////////// String/Expression/Labels Parsers //////////////////////////////////////////////////////////
+    let pString =   
+        let predicate y = 
+            match y with
+            | TokLabel a -> true
+            | _ -> false
+        let label = sprintf "String" 
+        satisfy predicate label 
+
+    let pLabel =
+        let parseTuple = pString <?> "String"
+        let tupleTransform(x) =
+            match x with 
+            | TokLabel a ->  a
+            | _ -> failwith "Impossible"
+        mapP tupleTransform parseTuple
+
+    let instTypeLabel = 
+        let label = "Instruction Type Label"
+        let tupleTransform = function
+            | x -> JLabel(x)
+        let instrLabelHold = pLabel <?> label
+        mapP tupleTransform instrLabelHold
+
+    let pExpr = 
+        let parseTuple = (pInt <|> pString) <?> "Shift Direction"
+        let tupleTransform (t1) = 
+            match t1 with
+            | TokLiteral a -> Number a
+            | TokLabel a -> Lab a
+        mapP tupleTransform parseTuple          
+
+    /////////////////////////Final Instruction Types ////////////////////////////////////////////////////////////////
     let instType1 = 
         let label = "Instruction Type 1"
         let tupleTransform = function
@@ -595,7 +654,7 @@ module Parser =
         let label = "Instruction Type 2"
         let tupleTransform = function
             | x -> JInstr2(x)
-        let instr2Hold = pInstr2 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pExpr <?> label
+        let instr2Hold = pInstr2 .>>. opt pCond .>>. pRegComma .>>. pExpr <?> label
         mapP tupleTransform instr2Hold
 
     let instType3 =
@@ -630,32 +689,11 @@ module Parser =
         let label = "Instruction Type 7"
         let tupleTransform = function
             | x -> JInstr7(x)
-        let instr7Hold = pInstr7 .>>. opt pB .>>. opt pCond .>>. pReg <?> label
+        let instr7Hold = pInstr7 .>>. opt pB .>>. opt pCond .>>. pReg .>>. pAddressRegister <?> label
         mapP tupleTransform instr7Hold
 
-    //////////////// Deal with Labels (Strings) /////////////////////////let pInt =
-    let pString =    
-        let predicate y = 
-            match y with
-            | TokLabel a -> true
-            | _ -> false
-        let label = sprintf "String" 
-        satisfy predicate label 
 
-    let pLabel =
-        let parseTuple = pString <?> "String"
-        let tupleTransform(x) =
-            match x with 
-            | TokLabel a ->  a
-            | _ -> failwith "Impossible"
-        mapP tupleTransform parseTuple
 
-    let instTypeLabel = 
-        let label = "Instruction Type Label"
-        let tupleTransform = function
-            | x -> JLabel(x)
-        let instrLabelHold = pLabel <?> label
-        mapP tupleTransform instrLabelHold
 
     //////////////// Final Choice ////////////////////////////////////////
     let parseInstr = choice [
@@ -718,4 +756,4 @@ module Parser =
         let y = splitBy TokNewLine tokenLstLst                            
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
-        u (x y)
+        y |> x |> u
