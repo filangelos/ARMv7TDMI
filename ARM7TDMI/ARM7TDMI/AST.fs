@@ -135,8 +135,12 @@ module AST =
     let execute (state:MachineState) = 
         //get address of last node
         let ast = ( ^% ) state
-        let maxPC = snd (ast |> List.rev |> List.head)
-        reduce state 0 maxPC
+        if not ast.IsEmpty then
+            let maxPC = snd (ast |> List.rev |> List.head)
+            reduce state 0 maxPC
+        else
+            printfn "Error! AST is empty."
+            state
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
