@@ -187,7 +187,7 @@ module Common =
 *)
     type Instr =
     |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr2 of ((((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)*Expression) //ANGELOS LOOK OUT FOR CHANGE ADDED expression on END
+    |  JInstr2 of (((InstrType2*Option<ConditionCode>)*RegisterID)*Expression) //ANGELOS LOOK OUT FOR CHANGE ADDED expression on END
     |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Operand)
     |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
     |  JInstr5 of ((((InstrType5* Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)

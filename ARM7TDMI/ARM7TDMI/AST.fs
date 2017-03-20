@@ -54,8 +54,8 @@ module AST =
                     InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
                 | JInstr1((((MVN, setFlags), cond), rd), rn) ->
                     InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
-                | JInstr2(((ADR, setFlags), cond), rd) ->
-                    failwithf "ADR not done yet"
+                | JInstr2((((ADR, setFlags), cond), rd), expr) ->
+                    InstructionsInterfaces.adr_(rd, expr, state, (if setFlags = None then false else true))
                 | JInstr3(((((ADD, setFlags), cond), rd), rn), op2) ->
                     InstructionsInterfaces.add_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
                 | JInstr3(((((ADC, setFlags), cond), rd), rn), op2) ->
