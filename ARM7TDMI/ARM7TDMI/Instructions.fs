@@ -144,7 +144,7 @@ module Instructions =
         //Performing AND Instruction
         let result = regNValue &&& fst (op2Value)
 
-        let state1 = if setFlags then MachineState.setNegative result state else state
+        let state1 = if setFlags then MachineState.setNegative result state0 else state0
 
         //Obtaining state reflecting zero status
         let finState = if setFlags then MachineState.setZero result state1 else state1
@@ -163,7 +163,7 @@ module Instructions =
         //Performing EOR Instruction
         let result = regNValue ^^^ fst (op2Value)
 
-        let state1 = if setFlags then MachineState.setNegative result state else state
+        let state1 = if setFlags then MachineState.setNegative result state0 else state0
 
         //Obtaining state reflecting zero status
         let finState = if setFlags then MachineState.setZero result state1 else state1
@@ -181,7 +181,7 @@ module Instructions =
         //Performing BIC Instruction
         let result = regNValue &&& (~~~ fst(op2Value))
 
-        let state1 = if setFlags then MachineState.setNegative result state else state
+        let state1 = if setFlags then MachineState.setNegative result state0 else state0
 
         //Obtaining state reflecting zero status
         let finState = if setFlags then MachineState.setZero result state1 else state1

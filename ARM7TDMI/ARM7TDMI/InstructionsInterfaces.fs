@@ -137,12 +137,12 @@ module InstructionsInterfaces =
 
 // test to check against VisUAL 
     let test () = 
-        let a = mov_ (R1, Operand(Literal 1,NoShift), MachineState.make(),false, None)
-        let b = lsr_ (R1, Operand(ID R1,RightL 1), a,true, None)
-        let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
+        let a = storeMultiple (ED, R0, [R6;R5;R7], (MachineState.make() |> (^=) R0 (65536+12) |> (^=) R5 3|> (^=) R6 4 |> (^=) R7 6),true)
+        let b = loadMultiple (ED, R0, [R1;R3;R2], a,true)
+        //let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
         printfn "Quick Test"
         printfn "%A" a
         printfn "%A" b
-        printfn "%A" c
+        //printfn "%A" c
 
     test ()

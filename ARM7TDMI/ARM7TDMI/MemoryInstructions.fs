@@ -127,7 +127,13 @@ module MemoryInstructions =
 
         let finstate = List.fold (fun st (a,b) -> (^=) b ((gw) a st) st) state combinedList
 
-        if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
+        if writeBack then match addMode with
+                          | ED | IB -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | EA | DB -> (^=) addRegister (addVal - 4*listSize) finstate
+                          | FD | IA -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | FA | DA -> (^=) addRegister (addVal - 4*listSize) finstate
+
+        else finstate
 
     let storeMultiple ((addMode: AddressMode), (addRegister: RegisterID), (regList: RegisterID list), (state: MachineState), (writeBack: bool)) =
 
@@ -145,7 +151,13 @@ module MemoryInstructions =
 
         let finstate = List.fold (fun st (a,b) -> (sw) a ((^.) b st) st) state combinedList
 
-        if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
+        if writeBack then match addMode with
+                          | FA | IB -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | FD | DB -> (^=) addRegister (addVal - 4*listSize) finstate
+                          | EA | IA -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | ED | DA -> (^=) addRegister (addVal - 4*listSize) finstate
+
+        else finstate
 
     //not tested yet
     let ldrPseudo ((regD: RegisterID), (expr: Expression), (state: MachineState)) =
