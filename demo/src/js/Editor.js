@@ -42,7 +42,11 @@ amdRequire(['vs/editor/editor.main'], function () {
     keywords: [
       'MOV', 'ADD', 'ADC', 'MVN', 'ORR', 'AND', 'EOR', 'BIC', 'SUB', 'SBC',
       'RSB', 'RSC', 'CMP', 'CMN', 'TST', 'TEQ', 'LSL', 'LSR', 'ASR', 'LDR',
-      'STR', 'ADR', 'LDM', 'STM'
+      'STR', 'ADR', 'LDM', 'STM', 'MVNS', 'MOVS'
+    ],
+
+    typeKeywords: [
+      'R0', 'R1'
     ],
 
     // we include these common regular expressions
@@ -95,14 +99,15 @@ amdRequire(['vs/editor/editor.main'], function () {
         // characters
         [/'[^\\']'/, 'string'],
         [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
-        [/'/, 'string.invalid']
+        [/'/, 'string.invalid'],
+
       ],
 
       comment: [
         [/[^\/*]+/, 'comment'],
         [/\/\*/, 'comment', '@push'],    // nested comment
         ["\\*/", 'comment', '@pop'],
-        [/[\/*]/, 'comment']
+        [/[\/*]/,   'comment' ]
       ],
 
       string: [
@@ -114,8 +119,8 @@ amdRequire(['vs/editor/editor.main'], function () {
 
       whitespace: [
         [/[ \t\r\n]+/, 'white'],
-        [/\/\*/, 'comment', '@comment'],
-        [/\/\/.*$/, 'comment'],
+//        [/\/\*/, 'comment', '@comment'],
+//        [/\/\/.*$/, 'comment'],
       ],
     }
   });
@@ -127,6 +132,8 @@ amdRequire(['vs/editor/editor.main'], function () {
 //    ].join('\n'),
     language: 'arm',
     theme: 'vs-light',
-    renderWhitespace: 'all'
+    renderWhitespace: 'all',
+    roundedSelection: false,
+    scrollBeyondLastLine: false
   });
 });

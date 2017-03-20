@@ -13,35 +13,6 @@
    !  These are Fable libraries that you are using in your project.
    !  They must start with ./ or ../ so Fable knows that they're relative paths.
    !-->
-  <ItemGroup>
-    <Reference Include="../node_modules/fable-core/Fable.Core.dll" />
-    <Reference Include="../node_modules/fable-powerpack/Fable.PowerPack.dll" />
-  </ItemGroup>
-
-  <!--
-   !  These are the F# files that are a part of your project.
-   !  File order is important in F#. Files cannot depend on anything below them.
-   !-->
-  <ItemGroup>
-    <Compile Include="../node_modules/fable-import-electron/Fable.Import.Electron.fs" />
-    <Compile Include="fs/Toolkit.fs" />
-    <Compile Include="fs/Optics.fs" />
-    <Compile Include="fs/Common.fs" />
-    <Compile Include="fs/Memory.fs" />
-    <Compile Include="fs/MachineState.fs" />
-    <Compile Include="fs/Tokeniser.fs" />
-    <Compile Include="fs/Instructions.fs" />
-    <Compile Include="fs/MemoryInstructions.fs" />
-    <Compile Include="fs/InstructionsInterfaces.fs" />
-    <Compile Include="fs/AST.fs" />
-    <Compile Include="fs/Parser.fs" />
-    <Compile Include="fs/Electron.fs" />
-    <Compile Include="fs/Update.fs" />
-    <Compile Include="fs/View.fs" />
-    <Compile Include="fs/Main.fs" />
-  </ItemGroup>
-
-  <!-- DO NOT EDIT BELOW THIS POINT UNLESS YOU KNOW WHAT YOU'RE DOING -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <SchemaVersion>2.0</SchemaVersion>
@@ -61,6 +32,26 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="../node_modules/fable-core/Fable.Core.dll" />
+    <Reference Include="../node_modules/fable-powerpack/Fable.PowerPack.dll" />
+    <Compile Include="../node_modules/fable-import-electron/Fable.Import.Electron.fs" />
+    <Compile Include="fs/Toolkit.fs" />
+    <Compile Include="fs/Optics.fs" />
+    <Compile Include="fs/Common.fs" />
+    <Compile Include="fs/Memory.fs" />
+    <Compile Include="fs/MachineState.fs" />
+    <Compile Include="fs/Tokeniser.fs" />
+    <Compile Include="fs/Instructions.fs" />
+    <Compile Include="fs/MemoryInstructions.fs" />
+    <Compile Include="fs/InstructionsInterfaces.fs" />
+    <Compile Include="fs/AST.fs" />
+    <Compile Include="fs/Parser.fs" />
+    <Compile Include="fs/Electron.fs" />
+    <Compile Include="fs/Update.fs" />
+    <Compile Include="fs/View.fs" />
+    <Compile Include="fs/Main.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Choose>
