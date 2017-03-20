@@ -191,6 +191,10 @@ h6 {
   font-size: 12px;
 }
 
+.footer-margin {
+  margin: 0.5em;
+}
+
 .window {
   position: absolute;
   top: 0;
@@ -456,7 +460,7 @@ h6 {
 .btn-flag, .btn-flag:active {
   background-color: #6d6c6d;
   border: 1px solid #c2c0c2;
-  width: 12.5%;
+
 }
 
 .btn-flag:focus, .btn-flag:active {
@@ -489,7 +493,7 @@ h6 {
 .btn-flag-con, .btn-flag-con:active {
   background-color: #fff;
   border: 1px solid #c2c0c2;
-  width: 12.5%;
+
 }
 
 .btn-flag-con:focus, .btn-flag-con:active {
@@ -533,7 +537,7 @@ h6 {
   float: left;
 }
 .btn-group .btn:focus, .btn-group .btn:active {
-  z-index: 2;
+  z-index: 3;
 }
 .btn-group .btn.active {
   z-index: 3;

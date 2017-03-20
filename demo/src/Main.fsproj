@@ -23,6 +23,7 @@
    !  File order is important in F#. Files cannot depend on anything below them.
    !-->
   <ItemGroup>
+    <Compile Include="../node_modules/fable-import-electron/Fable.Import.Electron.fs" />
     <Compile Include="fs/Toolkit.fs" />
     <Compile Include="fs/Optics.fs" />
     <Compile Include="fs/Common.fs" />
@@ -34,8 +35,9 @@
     <Compile Include="fs/InstructionsInterfaces.fs" />
     <Compile Include="fs/AST.fs" />
     <Compile Include="fs/Parser.fs" />
-    <Compile Include="fs/View.fs" />
+    <Compile Include="fs/Electron.fs" />
     <Compile Include="fs/Update.fs" />
+    <Compile Include="fs/View.fs" />
     <Compile Include="fs/Main.fs" />
   </ItemGroup>
 

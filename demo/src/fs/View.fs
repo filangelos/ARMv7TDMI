@@ -16,7 +16,13 @@ module View =
     open Fable.Import.Browser
     open Fable.Core.JsInterop
     open MachineState
+    open Instructions
     open Tokeniser
+    open AST
+    open Parser
+    open MemoryInstructions
+    open InstructionsInterfaces
+    open Update
 
     // Get Referencence on DOM Elements
     let exploreBtn = document.getElementById("explore")     // open button
@@ -29,20 +35,36 @@ module View =
     let themeBtn = document.getElementById("theme")         // warn button
     let editorDiv = document.getElementById("editor")       // editor div
     let dashboardDiv = document.getElementById("dashboard") // dashboard div
+    let flagsDiv = document.getElementById("flags")         // flags div
 
     // Event Listeners
     let actions : unit -> unit = fun _ ->
-        // run button
-        runBtn.onclick <- (fun _ -> 
+        // explore button
+        exploreBtn.onclick <- ( fun _ -> null )
+        // save button
+        saveBtn.onclick <- ( fun _ -> null )
+        // indent button
+        indentBtn.onclick <- ( fun _ -> null )
+        // debug button
+        debugBtn.onclick <- ( fun _ ->
             let assembly : string = sprintf "%O" (window?code?getValue())
-            let x = tokenise assembly
-            console.log(x); null)
+            document.getElementById("R0").innerHTML <- "0x" + assembly
+            null )
+        // run button
+        runBtn.onclick <- ( fun _ -> 
+            let assembly : string = sprintf "%O" (window?code?getValue()) + "\n"
+            let program = tokenise >> Parse >> buildAST >> init >> execute
+            dashboardDiv.innerHTML <- renderDashboard (program assembly)
+            console.log(((program assembly).StatusBits.Item N)||(program assembly).StatusBits.Item Z); null )
+        // docs button
+        docsBtn.onclick <- ( fun _ -> null )
+        // warn button
+        warnBtn.onclick <- ( fun _ -> null )
         // theme button
-        themeBtn.onclick <- (fun _ ->
+        themeBtn.onclick <- ( fun _ ->
             let options = 
                 createObj [
                     "theme" ==> "vs-dark"
                 ]
-            console.log("theme changed to: 'vs-dark'")
-            window?code?updateOptions(options))
+            window?code?updateOptions(options) )
         ()

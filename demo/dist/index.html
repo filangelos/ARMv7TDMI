@@ -6,29 +6,6 @@
   <title>Index</title>
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/photon.css">
-  <!-- Javascript -->
-  <script src="umd/menu.js" charset="utf-8"></script>
-
-  <style>
-    .monaco-editor.vs .operators {
-      color: grey;
-    }
-    
-    .monaco-editor.vs .token.keywords {
-      color: red;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    
-    .monaco-editor.vs .token.custom-notice {
-      color: orange;
-    }
-    
-    .monaco-editor.vs .token.custom-date {
-      color: green;
-    }
-  </style>
-
 </head>
 
 <body>
@@ -68,7 +45,7 @@
 
         <div class="btn-group pull-right">
           <button id="docs" class="btn btn-default">
-            <span class="icon icon-book"></span>
+            <span class="icon icon-github"></span>
           </button>
           <!-- docs btn -->
           <button id="warn" class="btn btn-default">
@@ -100,7 +77,20 @@
     </div>
     <!-- window-content -->
     <footer class="toolbar toolbar-footer">
-      <h1 class="title">Imperial College London High Level Programming Spring 2017</h1>
+      <div class="pull-left footer-margin">
+        High Level Programming
+      </div>
+      <div id="flags" class="btn-group pull-right footer-margin">
+        <button id="N" class="btn btn-mini btn-flag">N</button>
+        <button class="btn btn-mini btn-flag-con">0</button>
+        <button id="N" class="btn btn-mini btn-flag">Z</button>
+        <button class="btn btn-mini btn-flag-con">0</button>
+        <button id="N" class="btn btn-mini btn-mini btn-flag">C</button>
+        <button class="btn btn-mini btn-flag-con">0</button>
+        <button id="N" class="btn btn-mini btn-flag">V</button>
+        <button class="btn btn-mini btn-flag-con">0</button>
+      </div>
+<!--      <h1 class="title">Imperial College London High Level Programming Spring 2017</h1> -->
     </footer>
     <!-- Header -->
   </div>

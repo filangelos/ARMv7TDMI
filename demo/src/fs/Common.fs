@@ -126,7 +126,7 @@ module Common =
         | LDM | STM
 
     type InstrType9 = 
-        | B | BL
+        | B_ | BL
 
     type SType = | S
     type BType = | B
@@ -147,7 +147,6 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
-        //| TokInput of Input
         | TokReg of RegisterID
         | TokLiteral of int
         | TokComma
@@ -159,30 +158,16 @@ module Common =
         | TokNewLine
         | TokError of string
         | TokEOF
-    
-    (*
-    type Instruction = 
-        | Instr1 of InstrType1
-        | Instr2 of InstrType2
-        | Instr3 of InstrType3
-        | Instr4 of InstrType4
-        | Instr5 of InstrType5
-        | Instr6 of InstrType6
-        | Instr7 of InstrType7
-        | Instr8 of InstrType8
-        | Instr9 of InstrType9
-        | Label of string
-    *)
 
     type Instr =
-        |  JInstr1 of InstrType1*Option<SType>*Option<ConditionCode>*RegisterID*Operand
-        |  JInstr2 of InstrType2*Option<SType>*Option<ConditionCode>*RegisterID
-        |  JInstr3 of InstrType3*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Operand
-        |  JInstr4 of InstrType4*Option<SType>*Option<ConditionCode>*RegisterID*RegisterID*Input
-        |  JInstr5 of InstrType5*Option<SType>*Option<ConditionCode>*RegisterID*Input
-        |  JInstr6 of InstrType6*Option<ConditionCode>*RegisterID*Operand
-        |  JInstr7 of InstrType7*Option<BType>*Option<ConditionCode>*RegisterID
-        |  JLabel of string
+    |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Operand)
+    |  JInstr2 of (((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)
+    |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Operand)
+    |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
+    |  JInstr5 of ((((InstrType5*Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
+    |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
+    |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)
+    |  JLabel of string
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  
