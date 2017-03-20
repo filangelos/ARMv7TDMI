@@ -192,7 +192,7 @@ module Common =
     |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
     |  JInstr5 of ((((InstrType5* Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
     |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID*AddressRegister)
+    |  JInstr7 of ((((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)*AddressRegister)
     |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
     |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
     |  JLabel of string
