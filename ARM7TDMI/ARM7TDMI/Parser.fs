@@ -20,6 +20,7 @@ module Parser =
     open System
     open Common
     open Toolkit
+    open FsCheck
 
     type Pos = {
         lineNo : int
@@ -707,7 +708,19 @@ module Parser =
                             instTypeLabel;
                             ]
                             
-    //////////////////Testing////////////////////////////////////////////
+
+    let Parse (tokenLstLst: Token List) : Instr List = 
+        let z outcome = match outcome with 
+                        | Success(value, input) -> value
+                        | Failure(label,err,parPos) -> JLabel ("Failed Line")
+        let y = splitBy TokNewLine tokenLstLst                            
+        let x = List.map (fun j -> run parseInstr j) 
+        let u = List.map z 
+        y |> x |> u
+
+
+
+    (**************************************************TESTING***********************************************************)
 
     let testInstrType1List2 = [TokInstr1(MOV); TokReg(R0); TokLiteral(10);]
 
@@ -724,36 +737,95 @@ module Parser =
     let testInstrType1List1 = [TokInstr1(MOV); TokReg(R0); TokComma; TokLiteral(10);]
     let t1 = [TokReg(R0); TokError("1$");]
 
-    let parseGoodTokenList =
-                                [
-                                    
-                                    [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF];
-                                    [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokEOF];
-                                    [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                    [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
-                                    [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
-                                    [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
-                                    [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
-                                ]
 
-    let parseBadTokenList =
-                                [
-                                    [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
-                                    [TokReg R0; TokInstr1 MOV; TokComma; TokReg R1; TokEOF];
-                                    [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokReg R3; TokEOF];
-                                    [TokReg R14; TokEOF];
-                                    [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                    [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
-                                    [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
-                                    [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
-                                    [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
-                                ]
+    let testParser () = 
+        printfn "Running testParser...\n"
 
-    let Parse (tokenLstLst: Token List) : Instr List = 
-        let z outcome = match outcome with 
-                        | Success(value, input) -> value
-                        | Failure(label,err,parPos) -> JLabel ("Failed Line")
-        let y = splitBy TokNewLine tokenLstLst                            
-        let x = List.map (fun j -> run parseInstr j) 
-        let u = List.map z 
-        y |> x |> u
+        let parseGoodTokenList =
+                                    [|
+                                        [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF];
+                                        [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokEOF];
+                                        [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
+                                        [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
+                                        [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
+                                        [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
+                                        [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
+                                    |]
+
+        let parseBadTokenList =
+                                    [|
+                                        [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
+                                        [TokReg R0; TokInstr1 MOV; TokComma; TokReg R1; TokEOF];
+                                        [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokReg R3; TokEOF];
+                                        [TokReg R14; TokEOF];
+                                        [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
+                                        [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
+                                        [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
+                                        [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
+                                        [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
+                                    |]
+        
+        let rec tryGoodTests testList count = 
+            if count < (Array.length testList) then  
+                let outList = Parse testList.[count]
+                let containsError = List.exists (fun a -> match a with | JLabel ("Failed Line") -> true | _ -> false ) outList
+                if containsError then 
+                    printfn "Test %A (\n%A\n) is bad input, expected good input. Instructions list = %A" count testList.[count] outList
+                    count
+                else
+                    tryGoodTests testList (count+1)
+            else
+                count
+        
+        let rec tryBadTests testList count = 
+            if count < (Array.length testList) then    
+                let outList = Parse testList.[count]
+                let containsError = List.exists (fun a -> match a with | JLabel ("Failed Line") -> true | _ -> false ) outList
+                if containsError then 
+                    tryBadTests testList (count+1)
+                else
+                    printfn "Test %A (\n%A\n) is good input, expected bad input. Instructions List = %A" count testList.[count] outList
+                    count
+            else
+                count
+
+        //perform valid input tests
+        printfn "Running goodTests..."
+        printfn "goodTests: passed %A/%A" (tryGoodTests parseGoodTokenList 0) (Array.length parseGoodTokenList)
+        printfn "Running badTests..."
+        printfn "badTests: passed %A/%A" (tryBadTests parseBadTokenList 0) (Array.length parseBadTokenList)
+
+        let testList =  [
+                            [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine];
+                            [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokNewLine];
+                            [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokNewLine];
+                            [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokNewLine];
+                            [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokNewLine];
+                            [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokNewLine];
+                            [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokNewLine];
+                            [TokLabel "Label"; TokNewLine]
+                        ]
+
+        let checkInstructionCount () = 
+            //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
+            let rnd = new System.Random()
+            let rec subset xs = 
+                let removeAt n xs = ( Seq.item (n-1) xs, Seq.append (Seq.take (n-1) xs) (Seq.skip n xs) )
+                match xs with 
+                | [] -> []
+                | _ -> let (rem, left) = removeAt (rnd.Next( List.length xs ) + 1) xs
+                       let next = subset (List.ofSeq left)
+                       if rnd.Next(2) = 0 then rem :: next else next
+            let subList = subset testList
+            let subTok = (List.concat subList) @ [TokEOF]
+            let parseList = Parse subTok
+            parseList.Length = subList.Length + 1
+
+        printfn "\nChecking Instruction List lengths with FsCheck..."
+        Check.Quick (checkInstructionCount())
+
+        printfn "This is not working. No idea why:"
+        printfn "%A" (Tokeniser.tokenise "ADD R1, R2, R3 \n MOV R2, R1")
+        printfn "%A" ((Tokeniser.tokenise "ADD R1, R2, R3 \n MOV R2, R1") |> Parse)
+        printfn "%A" (Parse [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF])
+        printfn "Finished testParser..."
