@@ -174,66 +174,11 @@ module MemoryInstructions =
 
         List.fold (fun st (a,b) -> (sw) a b st) state combinedList
 
+    //Not Tested!!! (Needs AST to be working)
     let branchInstruction ((label: string), (state: MachineState)) = 
 
         let branchAddress = Optics.get MachineState.Label_ label state
 
         (^=) R15 branchAddress state
 
-    
-
-
-
-    //let simpleLDRSTRtest = 
-    ////testing loadInstruction
-    //    let a3 = MachineState.make()
-    //    let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
-    //    printfn "%A" c3
-    //    let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
-    //    printfn "%A" d3
-    //    let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
-    //    printfn "%A" e3
-
-
-    //let LDMtest = 
-    //    printfn "Starting LDM Memory Instruction Testing"
-    //    let a3 = MachineState.make()
-    //    let b3 = storeInstruction (2, {register= R0; offset= TempOffset 4}, a3)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = storeInstruction (1, {register= R0; offset= TempOffset 8}, b3)
-    //    printfn "%A" c3
-    //    let d3 = loadMultiple(IB, R0, [R5;R6], c3) 
-    //    printfn "%A" d3  
-    //    printfn "Memory Instruction Testing Done"    
-
-    //let STMtest = 
-    //    printfn "Starting STM Memory Instruction Testing" 
-    //    let a3 = MachineState.make()
-    //    let b3 = mov (R5, Operand(Literal(5),NoShift), a3, false)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = mov (R6, Operand(Literal(6),NoShift), b3, false)
-    //    printfn "%A" c3
-    //    let d3 = storeMultiple(IB, R0, [R5;R6], c3, true) 
-    //    printfn "%A" d3 
-    //    let e3 = loadMultiple(DA, R0, [R3;R4], d3, true)
-    //    printfn "%A" e3  
-    //    printfn "Memory Instruction Testing Done" 
-
 //    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
-//    let simpleLDRSTRtest = 
-    ////testing loadInstruction
-    //    let a3 = MachineState.make()
-    //    let b3 = storeInstructionB (2, {register= R0; offset= TempOffset 3}, a3)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = storeInstructionB (1, {register= R1; offset= PreIndex 7}, b3)
-    //    printfn "%A" c3
-    //    let d3 = loadInstructionB (R2, {register= R0; offset= TempOffset 2}, c3)
-    //    printfn "%A" d3
-    //    let e3 = loadInstructionB (R1, {register= R1; offset= NoOffset}, d3)
-    //    printfn "%A" e3

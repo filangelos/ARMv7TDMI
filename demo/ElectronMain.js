@@ -40,6 +40,8 @@ app.on('ready', () => {
 
   // Set top-level application menu, using modified template
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+
+  shell.openExternal('https://github.com/filangel/HLP')
 })
 
 
@@ -68,6 +70,9 @@ app.on('ready', function () {
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/dist/index.html');
   console.log('ElectronMain.js has loaded dist/index.html')
+
+  // Open Development Tools
+  mainWindow.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

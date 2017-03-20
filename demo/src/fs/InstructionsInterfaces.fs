@@ -79,11 +79,11 @@ module InstructionsInterfaces =
         let flagState = eOR (R10, regN, op2, state, true)
         if (executeOrNot (cond) state) then state |> ( ^- ) C (( ^* ) C flagState) |> ( ^- ) N (( ^* ) N flagState) |> ( ^- ) Z (( ^* ) Z flagState) else state
 
-    let ror_ ((regD: RegisterID), (op2: Input), (shift: int), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2,ROR shift),state,setFlags) else state
+    let ror_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, op2,state,setFlags) else state
 
-    let rrx_ ((regD: RegisterID), (op2: Input), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
-        if (executeOrNot (cond) state) then mov (regD, Operand(op2,RRX),state,setFlags) else state
+    let rrx_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) =
+        if (executeOrNot (cond) state) then mov (regD, op2 ,state,setFlags) else state
 
     let lsl_ ((regD: RegisterID), (op2: Operand), (state: MachineState), (setFlags: bool), (cond: ConditionCode option)) = //op2 must have Left shift
         if (executeOrNot (cond) state) then mov (regD,op2,state,setFlags) else state
@@ -132,3 +132,17 @@ module InstructionsInterfaces =
 
     let adr_ ((regD: RegisterID), (expr: Expression), (state: MachineState), (cond: ConditionCode option)) = //expr has to be label
         if (executeOrNot (cond) state) then ldrPseudo (regD, expr, state) else state
+
+
+(*
+// test to check against VisUAL 
+    let test () = 
+        let a = mov_ (R1, Operand(Literal 1,NoShift), MachineState.make(),false, None)
+        let b = lsr_ (R1, Operand(ID R1,RightL 1), a,true, None)
+        let c = and_ (R0, R0, Operand(Literal 66,NoShift), b,true, None)
+        printfn "Quick Test"
+        printfn "%A" a
+        printfn "%A" b
+        printfn "%A" c
+
+    test () *)

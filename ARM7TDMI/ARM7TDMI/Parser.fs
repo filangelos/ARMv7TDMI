@@ -515,7 +515,7 @@ module Parser =
             match y with
             | TokLiteral a -> true
             | _ -> false
-        let label = sprintf "String" 
+        let label = sprintf "Integer" 
         satisfy predicate label 
 
     let pLiteral =  
@@ -547,18 +547,18 @@ module Parser =
             match t1 with  
             |  ID a -> Operand (ID a, NoShift)
             | Literal x -> Operand (Literal x, NoShift)
-        mapP tupleTransform parseTuple
+        mapP tupleTransform parseTuple 
+        
+     ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
 
-    ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
-(*
     let pShiftDirection4 =
-        let parseTuple = pInstr4 .>>. pLiteral <?> "Shift Direction"
+        let parseTuple = pInstr4 .>>. pInt <?> "Shift Direction"
         let tupleTransform (t1, t2) = 
             match t1, t2 with
-            | LSL, Literal a -> Left a 
-            | RSL, Literal a-> RightL a
-            | ASR, Literal a -> RightA a
-            | ROR_, Literal a-> ROR a
+            | LSL, TokLiteral a -> Left a 
+            | LSR, TokLiteral a-> RightL a
+            | ASR, TokLiteral a -> RightA a
+            | ROR_,TokLiteral a-> ROR a
         mapP tupleTransform parseTuple 
 
     let pShiftDirection5 =
@@ -566,17 +566,22 @@ module Parser =
         let tupleTransform (t1) = 
             match t1 with
             | RRX_ -> RRX
+        mapP tupleTransform parseTuple 
+    let pOp =
+        let parseTuple = pInput .>>. pComma .>>. opt (pShiftDirection5 <|> pShiftDirection4)  <?> "Operand"
+        let tupleTransform ((t1, t2), t3) = 
+            match t1, t2, t3 with
+            | ID x, _, y  -> match y with 
+                                | None -> Operand (ID x, NoShift)
+                                | Some y -> Operand(ID x, y)
+            | Literal a, _, b ->  match b with 
+                                    | None -> Operand (Literal a, NoShift)
+                                    | Some b -> Operand(Literal a, b)
         mapP tupleTransform parseTuple
 
-    let pOp =
-        let pShiftDirection = (pShiftDirection4 <|> pShiftDirection5)
-        let parseTuple = pInput .>>. pShiftDirection <?> "Operand"
-        let tupleTransform (t1, t2) = 
-            match t1, t2 with
-            | ID x, b -> Operand (ID x, b)
-            | Literal y, b -> Operand (Literal y, b)
-        mapP tupleTransform parseTuple
-*)
+    /////////////////////////////// Expression Types /////////////////////////////////////////////////////////////
+
+    
 
     ////////////////////////////// Final Instruction Types ////////////////////////////////////////////////////////   
     let instType1 = 
@@ -590,7 +595,7 @@ module Parser =
         let label = "Instruction Type 2"
         let tupleTransform = function
             | x -> JInstr2(x)
-        let instr2Hold = pInstr2 .>>. opt pS .>>. opt pCond .>>. pReg <?> label
+        let instr2Hold = pInstr2 .>>. opt pS .>>. opt pCond .>>. pRegComma .>>. pExpr <?> label
         mapP tupleTransform instr2Hold
 
     let instType3 =

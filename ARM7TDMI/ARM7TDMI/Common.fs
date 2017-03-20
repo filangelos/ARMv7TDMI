@@ -7,7 +7,7 @@
     Contributors: Angelos Filos, Baron Khan, Youssef Rizk, Pranav Prabhu
 
     Module: Common
-    Description: 
+    Description: Common types definitions, top-level interface definitions between modules.
 *)
 
 [<AutoOpen>]
@@ -186,12 +186,12 @@ module Common =
 *)
     type Instr =
     |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr2 of (((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)
+    |  JInstr2 of ((((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)*Expression) //ANGELOS LOOK OUT FOR CHANGE ADDED expression on END
     |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Operand)
     |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
-    |  JInstr5 of ((((InstrType5*Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
+    |  JInstr5 of ((((InstrType5* Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
     |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)
+    |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID*AddressRegister)
     |  JLabel of string
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).

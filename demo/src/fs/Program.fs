@@ -9,7 +9,6 @@ module Program =
     open Parser
     open MemoryInstructions
     open InstructionsInterfaces
-    open Expecto
 
     [<EntryPoint>]
     let main argv =
@@ -26,8 +25,7 @@ module Program =
 
 
         printfn "Testing pipeline:"
-        let testInput = "MVNS R0, #-1"
+        let testInput = "MOV R0, #5\nMOV R1, #0x9\nADD R2, R1, R0\nSUBS R3, R0, R1"
         let result = (testInput |> tokenise |> Parse |> buildAST |> init |> execute)
-        printfn "%A \n\n These instructions give the following final state:\n%A" testInput result 
-
-        runTests defaultConfig (testList "Complete Test" [ testMemory ])
+        printfn "%A \n\n These instructions give the following final state:\n%A" testInput result
+        0

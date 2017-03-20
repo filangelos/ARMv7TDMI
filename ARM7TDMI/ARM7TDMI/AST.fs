@@ -52,7 +52,7 @@ module AST =
                 match f with
                 | JInstr1((((MOV, setFlags), cond), rd), rn) ->
                     InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
-                | JInstr1((((MOV, setFlags), cond), rd), rn) ->
+                | JInstr1((((MVN, setFlags), cond), rd), rn) ->
                     InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
                 | JInstr2(((ADR, setFlags), cond), rd) ->
                     failwithf "ADR not done yet"
