@@ -156,6 +156,7 @@ module Common =
         | TokSquareRight
         | TokCurlyLeft
         | TokCurlyRight
+        | TokDash
         | TokNewLine
         | TokError of string
         | TokEOF
@@ -192,7 +193,28 @@ module Common =
     |  JInstr5 of ((((InstrType5* Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
     |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
     |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID*AddressRegister)
+    |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
+    |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
     |  JLabel of string
+
+(*Tokens for JInstr8 and JInstr9:
+    (a '|'' means the grammar branches)
+    (a '||' is OR)
+
+    JInstr8:
+    TokInstr8 TokStackDir Option(TokCond) TokReg Option(TokExclam) TokComma REGLIST
+
+    REGLIST:
+    REGLIST TokComma TokReg TokDash TokReg
+    || REGLIST TokComma TokReg
+    || TokReg TokDash TokReg
+    || TokReg
+
+
+    JInstr9:
+    TokInstr9 TokCond TokLabel
+    
+*)
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  
