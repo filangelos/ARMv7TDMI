@@ -14,12 +14,12 @@
 module Toolkit =
 
     /// enumerate all values of a D.U. 
-    let enumerator<'T> =
+    let inline enumerator<'T> =
         FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
         |> Array.map (fun c ->  Reflection.FSharpValue.MakeUnion(c,[||]) :?> 'T)
 
     /// Split a list to a list of lists at the delimiter (del)
-    let splitBy (del: 'a) (lst: 'a list) : ('a list) list =
+    let inline splitBy (del: 'a) (lst: 'a list) : ('a list) list =
 
         // reverse non-empty list
         let yieldRevNonEmpty lst = 

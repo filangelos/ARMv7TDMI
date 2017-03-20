@@ -14,7 +14,7 @@
 module Toolkit =
 
     /// enumerate all values of a D.U. 
-    let enumerator<'T> =
+    let inline enumerator<'T> =
         FSharp.Reflection.FSharpType.GetUnionCases(typeof<'T>)
         |> Array.map (fun c ->  Reflection.FSharpValue.MakeUnion(c,[||]) :?> 'T)
 

@@ -7,7 +7,7 @@
     Contributors: Angelos Filos, Baron Khan, Youssef Rizk, Pranav Prabhu
 
     Module: Common
-    Description: 
+    Description: Common types definitions, top-level interface definitions between modules.
 *)
 
 [<AutoOpen>]

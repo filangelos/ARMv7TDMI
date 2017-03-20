@@ -37,7 +37,7 @@ module Memory =
             ( fun (labels: LabelMap) (memory: Memory) -> { memory with Labels = labels } )
 
         /// initialise a memory location with zero if not accessed before
-        static member private cleanGet (address: Address) (storage: Map<Address, byte>) : byte =
+        static member private getOrZero (address: Address) (storage: Map<Address, byte>) : byte =
             // check if this address is accessed before
             match Map.containsKey address storage with
             // if already in the storage return true value
@@ -48,7 +48,7 @@ module Memory =
         /// Byte Access Composition Optic Function
         static member Byte_ =
             // Getter: Address -> Memory -> byte
-            ( fun (address: Address) (memory: Memory) -> Memory.cleanGet address memory.Storage),
+            ( fun (address: Address) (memory: Memory) -> Memory.getOrZero address memory.Storage),
             // Setter: Address -> byte -> Memory -> Memory
             ( fun (address: Address) (value: byte) (memory: Memory) -> 
                 { memory with Storage = Map.add address value memory.Storage } )
@@ -59,7 +59,8 @@ module Memory =
             ( fun (address: Address) (memory: Memory) -> 
                 match (address % 4 = 0) with
                 | true ->
-                    let raw = 
+                    let raw =
+                        // fetch memory 4-byte content and construct an int
                         [| Optics.get Memory.Byte_ address memory
                            Optics.get Memory.Byte_ (address + 1) memory
                            Optics.get Memory.Byte_ (address + 2) memory

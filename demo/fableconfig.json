@@ -8,15 +8,6 @@
         "dest": "./dist/umd/Main.js",
         "format": "umd"
       }
-    },
-    "test": {
-      "projFile": "./test/Test.fsproj",
-      "outDir": "./dist/test",
-      "coreLib": "fable-core/umd",
-      "plugins": ["./node_modules/fable-plugins-nunit/Fable.Plugins.NUnit.dll"],
-      "scripts": {
-        "postbuild": "mocha --reporter min --colors --sort --recursive ./dist/test/test/fs"
-      }
     }
   }
 }
