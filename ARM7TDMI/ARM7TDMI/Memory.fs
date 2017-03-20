@@ -117,11 +117,10 @@ module Memory =
 
     /// Complete Module Unit Testing
     let testMemory : Test =
-
+        // initialise sandbox-dummy Memory
+        let sand : Memory = makeHack ()
         // initialiser && Optics test
         let testMake : Test =
-            // initialise dummy Memory
-            let sand : Memory = makeHack ()
             testList "Initialisers" 
                 [ test "AST_" { Expect.equal (Optics.get Memory.AST_ sand) [] "empty initialisation" }
                   test "Storage_" { Expect.equal (Optics.get Memory.Storage_ sand) Map.empty<Address, byte> "empty initialisation" }
@@ -129,8 +128,6 @@ module Memory =
 
         // byte Optics test
         let testByte : Test =
-            // initialise dummy Memory
-            let sand : Memory = makeHack ()
             testList "Byte_" 
                 [ test "get" { Expect.equal (Optics.get Memory.Byte_ (System.Random().Next()) sand) 0uy "should be 0uy" }
                   test "set" { 
@@ -139,20 +136,16 @@ module Memory =
 
         // word Optics test
         let testWord : Test =
-            // initialise dummy Memory
-            let sand : Memory = makeHack ()
             testList "Word_" 
                 [ test "get" { Expect.equal (Optics.get Memory.Word_ (4*System.Random().Next()) sand) 0 "should be 0" }
-                  test "set" { 
-                    let uy : Memory = makeWord 400 256
-                    Expect.equal (Optics.set Memory.Word_ 400 256 sand) uy "should be 256" } ] 
+                  test "set" 
+                    { let dt : Memory = makeWord 400 256
+                      Expect.equal (Optics.set Memory.Word_ 400 256 sand) dt "should be 256" } ] 
 
         // initialiser - top level Optics test
         let testLabel : Test =
-            // initialise dummy Memory
-            let sand : Memory = makeHack ()
-            testList "Initialisers" 
-                [ test "AST_" { Expect.equal (Optics.get Memory.AST_ sand) [] "empty initialisation" }
-                  test "Storage_" { Expect.equal (Optics.get Memory.Storage_ sand) Map.empty<Address, byte> "empty initialisation" }
-                  test "Labels_" { Expect.equal (Optics.get Memory.Labels_ sand) Map.empty<string, Address> "empty initialisation" } ] 
+            testList "Label_" 
+                [ test "get" { Expect.equal (0) -1 "unimplemented" }
+                  test "set" { Expect.equal (0) -1 "unimplemented" } ] 
+
         testList "Top Level" [ testMake ; testByte ; testWord ; testLabel ]
