@@ -54,46 +54,46 @@ module AST =
                     InstructionsInterfaces.mov_ (rd, rn, state, (if setFlags = None then false else true), cond)
                 | JInstr1((((MVN, setFlags), cond), rd), rn) ->
                     InstructionsInterfaces.mvn_ (rd, rn, state, (if setFlags = None then false else true), cond)
-                | JInstr2((((ADR, setFlags), cond), rd), expr) ->
-                    InstructionsInterfaces.adr_(rd, expr, state, (if setFlags = None then false else true))
+                | JInstr2(((ADR, cond), rd), expr) ->
+                    InstructionsInterfaces.adr_(rd, expr, state, cond)
                 | JInstr3(((((ADD, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.add_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.add_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((ADC, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.adc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.adc_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((SUB, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.sub_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.sub_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((SBC, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.sbc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.sbc_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((RSB, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.rsb_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.rsb_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((RSC, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.rsc_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.rsc_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((AND, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.and_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.and_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((EOR, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.eor_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.eor_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((BIC, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.bic_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.bic_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr3(((((ORR, setFlags), cond), rd), rn), op2) ->
-                    InstructionsInterfaces.orr_ (rd, rn, op2, state, (if setFlags = None then false else true), cond)
+                    InstructionsInterfaces.orr_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr4(((((LSL, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((LSL, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((LSR, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((LSR, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((ASR, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((ASR, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((ROR_, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr4(((((ROR_, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) reg state)), state, (if setFlags = None then false else true), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
                 | JInstr5((((RRX_, setFlags), cond), rd), op2) ->
-                    InstructionsInterfaces.rrx_ (rd, Operand(op2, ShiftDirection.RRX), state, (if setFlags = None then false else true), cond) // need to test
+                    InstructionsInterfaces.rrx_ (rd, Operand(op2, ShiftDirection.RRX), state, (not (setFlags = None)), cond) // need to test
                 | JInstr6(((CMP, cond), rd), op2) ->
                     InstructionsInterfaces.cmp_ (rd, op2, state, cond)
                 | JInstr6(((CMN, cond), rd), op2) ->
@@ -102,6 +102,16 @@ module AST =
                     InstructionsInterfaces.tst_ (rd, op2, state, cond)
                 | JInstr6(((TEQ, cond), rd), op2) ->
                     InstructionsInterfaces.teq_ (rd, op2, state, cond)
+                | JInstr7((((LDR, None), cond), rd), addrReg) ->
+                    InstructionsInterfaces.ldr_(rd, addrReg, state, cond)
+                | JInstr7((((LDR, Some(B)), cond), rd), addrReg) ->
+                    InstructionsInterfaces.ldrb_(rd, addrReg, state, cond)
+                | JInstr7((((STR, None), cond), rd), addrReg) ->
+                    InstructionsInterfaces.str_(rd, addrReg, state, cond)
+                | JInstr7((((STR, Some(B)), cond), rd), addrReg) ->
+                    InstructionsInterfaces.strb_(rd, addrReg, state, cond)
+                | JInstr9((B_,cond), label) ->
+                    InstructionsInterfaces.b_(label, state, cond)
                 | _ -> failwithf "Could not execute node in the ast: %A" currentNode
                     
         with
@@ -112,7 +122,8 @@ module AST =
         if pc <= maxPC then
             let updateStateR15 = ( ^= ) R15 pc state
             let newState = step updateStateR15
-            reduce (newState) (pc+1) maxPC
+            let newPC = ( ^. ) R15 newState
+            reduce (newState) (newPC+1) maxPC
         else
             state
 
@@ -147,6 +158,22 @@ module AST =
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state for this ast is:\n%A\n" result
+
+        let testBranchList = [
+                                (JInstr1((((MOV, None), None), R0), Operand(Literal(5), NoShift)));
+                                (JLabel("JUMP"));
+                                (JInstr3(((((SUB, Some(S)), None), R0), R0), Operand(Literal(1), NoShift)));
+                                (JInstr9((B_, Some(NE)), "JUMP"));
+                                (JInstr1((((MOV, None), None), R1), Operand(Literal(99), NoShift)));
+                             ]
+
+        printfn "Testing branching loop:"
+        let astLabelMap = buildAST testBranchList
+        printfn "ast and label map are:\n%A\n" astLabelMap
+        let state = MachineState.init(astLabelMap)
+        //let result = reduce state 0 24
+        let result = execute state
+        printfn "final result state after branching is:\n%A\n" result
 
         printfn "Finished testAST.\n"
 
