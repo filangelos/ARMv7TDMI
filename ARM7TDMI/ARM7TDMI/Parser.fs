@@ -114,7 +114,7 @@ module Parser =
         let tokPos = input.position.tokenNo
         decisionFunc (linePos, tokPos, input)
 
-    ///////// Inpit State required for tracking position errors /////////////
+    ///////// Inpt required for tracking position errors /////////////
 
 
     type Inpt = InitState
@@ -162,9 +162,9 @@ module Parser =
                 // end of input
                 ()
             | Some tk -> 
-                // return first character
+                // return first token
                 yield tk
-                // return the remaining characters
+                // return the remaining token
                 yield! readAllTokens remainingInput
         ]
 
@@ -500,7 +500,7 @@ module Parser =
         mapP tupleTransform parseTuple
 
     let pRegtoInput = 
-        let parserTuple = pReg 
+        let parserTuple = pReg <?> "Register" 
         let tupleTransform (t) = 
             match t with
             | a -> ID a 
@@ -518,7 +518,7 @@ module Parser =
      ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
 
     let pShiftDirection4 =
-        let parseTuple = pInstr4 .>>. pInt <?> "Shift Direction (Int)"
+        let parseTuple = pComma >>. pInstr4 .>>. pInt <?> "Shift Direction (Int)"
         let tupleTransform (t1, t2) = 
             match t1, t2 with
             | LSL, TokLiteral a -> Left a 
@@ -528,15 +528,15 @@ module Parser =
         mapP tupleTransform parseTuple 
 
     let pShiftDirection5 =
-        let parseTuple = pInstr5 <?> "Shift Direction"
+        let parseTuple = pComma >>. pInstr5 <?> "Shift Direction RRX"
         let tupleTransform (t1) = 
             match t1 with
             | RRX_ -> RRX
         mapP tupleTransform parseTuple 
     let pOp =
-        let parseTuple = pInput .>>. pComma .>>. opt (pShiftDirection5 <|> pShiftDirection4)  <?> "Operand"
-        let tupleTransform ((t1, t2), t3) = 
-            match t1, t3 with
+        let parseTuple = pInput .>>. opt(pShiftDirection5 <|> pShiftDirection4)  <?> "Operand"
+        let tupleTransform (t1, t2) = 
+            match t1, t2 with
             | ID x, y  -> match y with 
                                 | None -> Operand (ID x, NoShift)
                                 | Some y -> Operand(ID x, y)
