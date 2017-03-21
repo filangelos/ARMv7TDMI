@@ -22,7 +22,7 @@
        parser structure not compatible with Fable (due to lambda in Parser<'T>), 
        but maintained for Command Line testing as too far progressed
        
-    3) Infix operators match those used in FParsec for implemented types thus making future reference easy. 
+    3) Infix operators match those used in FParsec for implemented combinator functions thus making future reference easy.
 *)
 
 module Parser =
