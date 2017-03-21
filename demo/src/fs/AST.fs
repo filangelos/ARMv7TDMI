@@ -46,7 +46,7 @@ module AST =
         let pc = ( ^. ) R15 state
         try 
             let currentNode = List.find (fun x -> match x with | (_,addr) -> addr = pc) (( ^% ) state)
-            printfn "executing node at pc=%A" pc
+//            printfn "executing node at pc=%A" pc
             match currentNode with
             | (f, addr) -> 
                 match f with

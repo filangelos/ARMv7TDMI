@@ -387,31 +387,6 @@ module Tokeniser =
         //let testNewline = "\n\n\n\n\n \n \n MOV \n \n \n \n MOV \n"
         //printfn "\"%A\" tokenises to %A and contains %A tokens, expected 5 tokens" testNewline (tokenise (testNewline)) ((tokenise (testNewline)).Length)
 
-        let parseGoodTokenList =
-                            [
-                                [TokNewLine; TokInstr1 MOV; TokReg R1; TokComma; TokLiteral 5; TokEOF];
-                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF];
-                                [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokEOF];
-                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
-                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
-                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
-                                [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
-                            ]
-
-        let parseBadTokenList =
-                            [
-                                [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
-                                [TokReg R0; TokInstr1 MOV; TokComma; TokReg R1; TokEOF];
-                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokReg R3; TokEOF];
-                                [TokReg R14; TokEOF];
-                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
-                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
-                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
-                                [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
-                            ]
-
         (*
         printfn "%A" (tokenise "\nMOV R1, #5")
         printfn "%A" (tokenise "ADD R1, R2, R3\nMOV R2, R1")

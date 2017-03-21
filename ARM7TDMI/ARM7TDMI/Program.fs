@@ -16,7 +16,7 @@ module Program =
 //      Tokeniser.testTokeniser ()
     //    MemoryInstructions.simpleLDRSTRtest
 //      AST.testAST ()
-//        Parser.testParser ()
+        Parser.testParser ()
 (*        InstructionsInterfaces.test()
         let x: MachineState = MachineState.make ()
         let y: Data = (^.) R0 x
@@ -25,9 +25,35 @@ module Program =
         printfn "%A" x *)
 
 
-        printfn "Testing pipeline:"
-        let testInput = "MVNS R0, #-1"
-        let result = (testInput |> tokenise |> Parse |> buildAST |> init |> execute)
-        printfn "%A \n\n These instructions give the following final state:\n%A" testInput result 
+        //printfn "Testing pipeline:"
+        //let testInput = "MVNS R0, #-1"
+        //let result = (testInput |> tokenise |> Parse |> buildAST |> init |> execute)
+        //printfn "%A \n\n These instructions give the following final state:\n%A" testInput result 
 
-        runTests defaultConfig (testList "Complete Test" [ testMemory ])
+        //runTests defaultConfig (testList "Complete Test" [ testMemory ])
+
+        let rec commandLineDemo () =
+            printfn "Please type your program (press enter three times in a row to finish):"
+            let rec readInput (str:string list) (enterCount:int) =
+                let line = System.Console.ReadLine()
+                if line = "" then
+                    if enterCount = 2 then
+                        str @ [line]
+                    else
+                        readInput (str @ [line]) (enterCount+1)
+                else
+                    readInput (str @ [line]) 0
+            let prog = (readInput [] 0 |> String.concat "\n")
+            printfn "Program is:\n%A" prog
+            printfn "\nExecuting program..."
+            let result = (prog |> tokenise |> Parse |> buildAST |> init |> execute)
+            printfn "Final Machine State:\n%A" result
+            printfn "\n\nWould you like to enter another program? (y/n)"
+            let answer = System.Console.ReadLine()
+            if answer = "y" then
+                commandLineDemo ()
+            else
+                ()
+
+        commandLineDemo () |> ignore
+        0

@@ -54,8 +54,8 @@ module View =
         runBtn.onclick <- ( fun _ -> 
             let assembly : string = sprintf "%O" (window?code?getValue()) + "\n"
             let program = tokenise >> Parse >> buildAST >> init >> execute
-            dashboardDiv.innerHTML <- renderDashboard (program assembly)
-            console.log(((program assembly).StatusBits.Item N)||(program assembly).StatusBits.Item Z); null )
+            updateUI (program assembly)
+            null )
         // docs button
         docsBtn.onclick <- ( fun _ -> null )
         // warn button

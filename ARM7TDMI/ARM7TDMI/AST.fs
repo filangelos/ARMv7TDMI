@@ -110,6 +110,10 @@ module AST =
                     InstructionsInterfaces.str_(rd, addrReg, state, cond)
                 | JInstr7((((STR, Some(B)), cond), rd), addrReg) ->
                     InstructionsInterfaces.strb_(rd, addrReg, state, cond)
+                | JInstr8(((((LDM, dir), cond), rd), writeBack), regList) ->
+                    InstructionsInterfaces.ldm_(dir, rd, regList, state, writeBack, cond)
+                | JInstr8(((((STM, dir), cond), rd), writeBack), regList) ->
+                    InstructionsInterfaces.stm_(dir, rd, regList, state, writeBack, cond)
                 | JInstr9((B_,cond), label) ->
                     InstructionsInterfaces.b_(label, state, cond)
                 | _ -> failwithf "Could not execute node in the ast: %A" currentNode
@@ -131,8 +135,12 @@ module AST =
     let execute (state:MachineState) = 
         //get address of last node
         let ast = ( ^% ) state
-        let maxPC = snd (ast |> List.rev |> List.head)
-        reduce state 0 maxPC
+        if not ast.IsEmpty then
+            let maxPC = snd (ast |> List.rev |> List.head)
+            reduce state 0 maxPC
+        else
+            printfn "Error! AST is empty."
+            state
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)
 
