@@ -550,7 +550,7 @@ module Parser =
     let pRBracket = pToken TokSquareRight <?> "RightBracket"
     let pExclam = pToken TokExclam <?> "Exclamation Mark"
     let pExclamBool = 
-        let parseTuple = opt pExclam <?> "Offset Integer"
+        let parseTuple = opt pExclam <?> "Optional Exclamation Mark"
         let tupleTransform t = 
             match t with
             | Some x -> true
@@ -588,7 +588,7 @@ module Parser =
         let tupleTransform (t1, t2) = {register=t1;offset = t2;}
         mapP tupleTransform parseTuple          
           
-
+// TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;
 //////////////////////////////////////// String/Expression/Labels Parsers ////////////////////////////////////////////////
     let pString =   
         let predicate y = 
@@ -661,7 +661,7 @@ module Parser =
         let label = "Instruction Type 7"
         let tupleTransform = function
             | x -> JInstr7(x)
-        let instr7Hold = pInstr7 .>>. opt pB .>>. opt pCond .>>. pReg .>>. pAddressRegister <?> label
+        let instr7Hold = pInstr7 .>>. opt pB .>>. opt pCond .>>. pRegComma .>>. pAddressRegister <?> label
         mapP tupleTransform instr7Hold
     let instType8 = 
             let label = "Instruction Type 8"
@@ -717,8 +717,7 @@ module Parser =
 
     let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]
 
-    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokLiteral(10)]
-    let testInstrType1ListFail2 = [TokInstr1(MVN); TokError("R16"); TokError("R20");]
+    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokLiteral(10); TokNewLine; TokInstr1(MVN); TokError("R16"); TokError("R20");TokEOF;]
 
     let testInstrType1ListFail3 = [TokInstr1(MOV); TokError("B"); TokReg(R0); TokReg(R1)]
 
@@ -742,7 +741,9 @@ module Parser =
 
         let parseGoodTokenList2 =   [|
                                         [TokInstr1(MOV); TokReg(R0); TokLiteral(10);TokNewLine;TokInstr1(MVN); TokS(S); TokReg(R0); TokReg(R1);TokEOF]
-                                        [TokInstr7(LDR); TokB(B); TokCond(EQ);TokReg(R10);TokEOF]
+                                        [TokInstr2(ADR); TokCond(EQ); TokReg(R12); TokComma; TokLabel("LAB");]
+                                        [TokInstr7(LDR); TokB(B); TokCond(EQ);TokReg(R10);TokSquareLeft;  TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;]
+                                        [TokInstr7(STR); TokB(B); TokCond(EQ);TokReg(R10);TokSquareLeft;  TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;]
                                         [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]      
                                     |]
 
