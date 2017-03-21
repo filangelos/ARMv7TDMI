@@ -23,7 +23,7 @@ module InstructionsInterfaces =
         | Some CS | Some HS when ((^*) C state) = true -> true
         | Some CC | Some LO when ((^*) C state) = false -> true
         | Some MI when ((^*) N state) = true -> true
-        | Some EQ when ((^*) N state) = false -> true
+        | Some PL when ((^*) N state) = false -> true
         | Some VS when ((^*) V state) = true -> true
         | Some VC when ((^*) V state) = false -> true
         | Some HI when (((^*) C state) = true) && (((^*) Z state) = false) -> true
@@ -158,5 +158,13 @@ module InstructionsInterfaces =
     let testLDRSTR () =
         let a = str_ (R0, {register = R1; offset= NoOffset},(MachineState.make () |> (^=) R1 0x100 |> (^=) R0 123), None)
         let b = ldr_ (R2, {register = R1; offset= NoOffset},a, None)
+        printfn "%A" a
+        printfn "%A" b
+
+    let quicktest () = 
+        let a = tst_ (R0, Operand(ID R4, ROR 1), MachineState.make (), None)
+        let b = loadMultiple (ED, R0, [R1;R3;R2], a,true)
+        //let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
+        printfn "Quick Test"
         printfn "%A" a
         printfn "%A" b
