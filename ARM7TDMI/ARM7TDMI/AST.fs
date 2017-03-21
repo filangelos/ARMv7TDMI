@@ -36,6 +36,7 @@ module AST =
             | [] -> ast, labelMap
             | node::t ->
                 match node with
+                | (JError(s)) -> addNode t ast labelMap (pc+4)
                 | (JLabel(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
                 | instr -> addNode t (addInstruction ast instr pc) labelMap (pc+4)
         addNode parseLst [] Map.empty<string, Address> 0
@@ -139,7 +140,7 @@ module AST =
             let maxPC = snd (ast |> List.rev |> List.head)
             reduce state 0 maxPC
         else
-            printfn "Error! AST is empty."
+            printfn "Error: AST is empty."
             state
 
     (*--------------------------------------------------------TESTING--------------------------------------------------------*)

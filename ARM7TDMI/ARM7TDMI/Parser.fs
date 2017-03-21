@@ -705,7 +705,7 @@ module Parser =
                         | Failure(label,err,parPos) -> let errorLine = parPos.currLine
                                                        let tokPos = parPos.tokenNo
                                                        let failureLine = sprintf "%*s^%s" tokPos "" err
-                                                       JLabel(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
+                                                       JError(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
         let y = splitBy TokNewLine tokenLstLst                            
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
@@ -752,15 +752,13 @@ module Parser =
                                         [TokReg R14; TokEOF];
                                         [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
                                         [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
-                                        [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
-                                        [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
                                         [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
                                     |]
         
         let rec tryGoodTests testList count = 
             if count < (Array.length testList) then  
                 let outList = Parse testList.[count]
-                let containsError = List.exists (fun a -> match a with | JLabel ("Failed Line") -> true | _ -> false ) outList
+                let containsError = List.exists (fun a -> match a with | JError _ -> true | _ -> false ) outList
                 if containsError then 
                     printfn "Test %A (\n%A\n) is bad input, expected good input. Instructions list = %A" count testList.[count] outList
                     count
@@ -772,7 +770,7 @@ module Parser =
         let rec tryBadTests testList count = 
             if count < (Array.length testList) then    
                 let outList = Parse testList.[count]
-                let containsError = List.exists (fun a -> match a with | JLabel ("Failed Line") -> true | _ -> false ) outList
+                let containsError = List.exists (fun a -> match a with | JError _ -> true | _ -> false ) outList
                 if containsError then 
                     tryBadTests testList (count+1)
                 else
@@ -816,9 +814,6 @@ module Parser =
         printfn "\nChecking Instruction List lengths with FsCheck..."
         Check.Quick (checkInstructionCount())
 
-        printfn "This is not working. No idea why:"
-        printfn "%A" (Tokeniser.tokenise "ADD R1, R2, R3 \n MOV R2, R1")
-        printfn "%A" ((Tokeniser.tokenise "ADD R1, R2, R3 \n MOV R2, R1") |> Parse)
-        printfn "%A" (Parse [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF])
+
         printfn "Finished testParser..."
 
