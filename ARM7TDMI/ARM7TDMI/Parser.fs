@@ -12,7 +12,7 @@
     to AST for processing onwards to actual implementation. Parsing done using monadic parser combinators. 
     
 
-    Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/
+    Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, 
     
     Notes: 
     1) Initially tried to use FParsec Library, not compatible with Fable, 
@@ -86,20 +86,11 @@ module Parser =
         else
             [TokEOF]
 
-    /// Get the next token from the input, if any
-    /// else return None. Also return the updated InputState
-    /// Signature: InputState -> InputState * char option 
-    let nextToken input =
-        let linePos = input.position.lineNo
-        let tokPos = input.position.tokenNo
-        // three cases
-        // 1) if line >= maxLine -> 
-        //       return EOF
-        // 2) if col less than line length -> 
-        //       return char at colPos, increment colPos
-        // 3) if col at line length -> 
-        //       return NewLine, increment linePos
-
+    // Decision function for nextToken return
+    // 1) if lineNo >= lastLine -> return TokEOF
+    // 2) if tokenNo < line length -> return token at tokPos and tokPos++
+    // 3) if tokenNO = line length -> return TokNewLine, linePos++
+    let decisionFunc (linePos, tokPos, input)= 
         if linePos >= input.lineList.Length then
             input, None
         else
@@ -110,11 +101,18 @@ module Parser =
                 let newState = {input with position=newPos}
                 newState, Some token
             else 
-                // end of line, so return LF and move to next line
                 let token = TokNewLine
                 let newPos = incrLine input.position 
                 let newState = {input with position=newPos}
                 newState, Some token
+
+    /// Get the next token from the input list, retrun None if there are any else return End Options.
+    //  Return the updated InitState
+    /// Signature: InitState -> InitState * token option 
+    let nextToken input =
+        let linePos = input.position.lineNo
+        let tokPos = input.position.tokenNo
+        decisionFunc (linePos, tokPos, input)
 
     ///////// Inpit State required for tracking position errors /////////////
 
@@ -170,19 +168,16 @@ module Parser =
                 yield! readAllTokens remainingInput
         ]
 
-    let setLabel parser newLabel = 
+    let setLabel parser newLab = 
         // change the inner function to use the new label
-        let newInnerFn input = 
+        let innerFn input = 
             let result = parser.parseFunc input
             match result with
-            | Success s ->
-                // if Success, do nothing
-                Success s 
-            | Failure (oldLabel,err, parPos) -> 
-                // if Failure, return new label
-                Failure (newLabel,err, parPos)        // <====== use newLabel here
-        // return the Parser
-        {parseFunc=newInnerFn; pLabel=newLabel}
+            | Success s -> Success s 
+            // Label does not change
+            | Failure (oldLab,err, parPos) -> Failure (newLab,err, parPos)
+        // return new Parser
+        {parseFunc=innerFn; pLabel=newLab}
 
 
     let ( <?> ) = setLabel
@@ -218,6 +213,7 @@ module Parser =
     let run parser inputTokenLst = 
         runInput parser (tokenToInit inputTokenLst)
 
+    /// 
     /// "bindP" takes a parser-producing function f, and a parser p
     /// and passes the output of p into f, to create a new parser
     let bindP f p =
@@ -228,11 +224,11 @@ module Parser =
             | Failure (label, err, pos) -> 
                 // return error from parser1
                 Failure (label, err, pos) 
-            | Success (value1,remainingInput) ->
-                // apply f to get a new parser
-                let p2 = f value1
+            | Success (val1,remInput) ->
+                // apply function f to get a new parser
+                let p2 = f val1
                 // run parser with remaining input
-                runInput p2 remainingInput
+                runInput p2 remInput
         {parseFunc =innerFn; pLabel=label }
 
     /// Infix version of bindP
@@ -323,11 +319,10 @@ module Parser =
             let initResult = runInput parser input 
             // match outcome with Failure or Success
             match initResult with
-            | Failure (_) -> 
-                // parse failure - return empty list
-                ([],input)  
+            // parse failure - return empty list
+            | Failure (_) ->  ([],input)  
+            // parse success - recursive call to get subsequent value
             | Success (initValue, firstParseOutcome) -> 
-                // parse success - recursive call to get subsequent value
                 let (nextValues,remainingInput) = 
                     pZeroPlus parser firstParseOutcome
                 let values = initValue::nextValues
@@ -689,7 +684,7 @@ module Parser =
         let instrLabelHold = pLabel <?> label
         mapP tupleTransform instrLabelHold
 
-//////////////////////////////////////////////// Final Choice /////////////////////////////////////////////////////////////
+//////////////////////////////////////// Final Choice + External Parse Instruction////////////////////////////////
     let parseInstr = choice [
                             instType1;
                             instType2;
@@ -703,14 +698,14 @@ module Parser =
                             instTypeLabel;
                             ]
                             
-<<<<<<< HEAD
-/////////////////////////////////////////////////// Testing  ////////////////////////////////////////////
-=======
 
     let Parse (tokenLstLst: Token List) : Instr List = 
         let z outcome = match outcome with 
                         | Success(value, input) -> value
-                        | Failure(label,err,parPos) -> JLabel ("Failed Line")
+                        | Failure(label,err,parPos) -> let errorLine = parPos.currLine
+                                                       let tokPos = parPos.tokenNo
+                                                       let failureLine = sprintf "%*s^%s" tokPos "" err
+                                                       JLabel(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
         let y = splitBy TokNewLine tokenLstLst                            
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
@@ -718,8 +713,7 @@ module Parser =
 
 
 
-    (**************************************************TESTING***********************************************************)
->>>>>>> b09d59bc2567d98ff6373fac617ad2749fddebb3
+(**************************************************TESTING***********************************************************)
 
     let testInstrType1List2 = [TokInstr1(MOV); TokReg(R0); TokLiteral(10);]
 
@@ -736,17 +730,6 @@ module Parser =
     let testInstrType1List1 = [TokInstr1(MOV); TokReg(R0); TokComma; TokLiteral(10);]
     let t1 = [TokReg(R0); TokError("1$");]
 
-
-<<<<<<< HEAD
-    let Parse (tokenLstLst: Token List) : Instr List = 
-        let z  outcome = match outcome with 
-                        | Success(value, input) -> value
-                        | Failure(label,err,parPos) -> JLabel ("Failed Line")
-        let y = splitBy TokNewLine tokenLstLst                            
-        let x = List.map (fun j -> run parseInstr j) 
-        let u = List.map z 
-        y |> x |> u
-=======
     let testParser () = 
         printfn "Running testParser...\n"
 
@@ -838,4 +821,4 @@ module Parser =
         printfn "%A" ((Tokeniser.tokenise "ADD R1, R2, R3 \n MOV R2, R1") |> Parse)
         printfn "%A" (Parse [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF])
         printfn "Finished testParser..."
->>>>>>> b09d59bc2567d98ff6373fac617ad2749fddebb3
+

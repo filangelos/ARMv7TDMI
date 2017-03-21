@@ -198,7 +198,7 @@ module Common =
 
     REGLIST:
     REGLIST TokComma REGOPTION
-    || REGLIST TokComma
+    || REGOPTION
     
     REGOPTION:
     || TokReg TokDash TokReg
