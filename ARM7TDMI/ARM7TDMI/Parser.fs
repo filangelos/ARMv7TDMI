@@ -715,11 +715,7 @@ module Parser =
 
 (**************************************************TESTING***********************************************************)
 
-    let testInstrType1List2 = [TokInstr1(MOV); TokReg(R0); TokLiteral(10);]
-
-    let testInstrType1List3 = [TokInstr1(MVN); TokS(S); TokReg(R0); TokReg(R1)]
-
-    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10)]
+    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]
 
     let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokLiteral(10)]
     let testInstrType1ListFail2 = [TokInstr1(MVN); TokError("R16"); TokError("R20");]
@@ -744,6 +740,12 @@ module Parser =
                                         [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
                                     |]
 
+        let parseGoodTokenList2 =   [|
+                                        [TokInstr1(MOV); TokReg(R0); TokLiteral(10);TokNewLine;TokInstr1(MVN); TokS(S); TokReg(R0); TokReg(R1);TokEOF]
+                                        [TokInstr7(LDR); TokB(B); TokCond(EQ);TokReg(R10);TokEOF]
+                                        [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]      
+                                    |]
+
         let parseBadTokenList =
                                     [|
                                         [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
@@ -754,6 +756,7 @@ module Parser =
                                         [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
                                         [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
                                     |]
+    
         
         let rec tryGoodTests testList count = 
             if count < (Array.length testList) then  
