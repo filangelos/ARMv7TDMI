@@ -27,14 +27,6 @@ module Common =
         | RRX
         | NoShift
     
-    (*
-    type StackDirection = 
-        | FA
-        | FD
-        | EA
-        | ED
-    *)
-
     /// Register ID D.U
     type RegisterID =
         | R0  | R1  | R2  | R3  | R4
@@ -205,8 +197,10 @@ module Common =
     TokInstr8 TokStackDir Option(TokCond) TokReg Option(TokExclam) TokComma REGLIST
 
     REGLIST:
-    REGLIST TokComma TokReg TokDash TokReg
-    || REGLIST TokComma TokReg
+    REGLIST TokComma REGOPTION
+    || REGLIST TokComma
+    
+    REGOPTION:
     || TokReg TokDash TokReg
     || TokReg
 
