@@ -188,6 +188,7 @@ module Common =
     |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
     |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
     |  JLabel of string
+    |  JError of string
 
 (*Tokens for JInstr8 and JInstr9:
     (a '|'' means the grammar branches)
