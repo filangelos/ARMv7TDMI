@@ -137,7 +137,7 @@ module InstructionsInterfaces =
         if (executeOrNot (cond) state) then branchInstruction (label, state) else state
 
 // test to check against VisUAL 
-    let test () = 
+    let testLDMSTM () = 
         let a = storeMultiple (ED, R0, [R6;R5;R7], (MachineState.make() |> (^=) R0 (65536+12) |> (^=) R5 3|> (^=) R6 4 |> (^=) R7 6),true)
         let b = loadMultiple (ED, R0, [R1;R3;R2], a,true)
         //let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
@@ -145,5 +145,18 @@ module InstructionsInterfaces =
         printfn "%A" a
         printfn "%A" b
         //printfn "%A" c
+    let testALUInstruction () =
+        let a = mvn_ (R0, Operand(Literal -1, NoShift), MachineState.make(), true,None)
+        let b = mvn_ (R0, Operand(Literal -1, RightA 4), a, true,Some EQ)
+        let c = add_ (R0, R0, Operand(Literal 231, RightA 1), b, true, None)
+        let d = adc_ (R1, R0, Operand(Literal 1, NoShift),c, true, None)
+        printfn "%A" a
+        printfn "%A" b
+        printfn "%A" c
+        printfn "%A" d
 
-    test ()
+    let testLDRSTR () =
+        let a = str_ (R0, {register = R1; offset= NoOffset},(MachineState.make () |> (^=) R1 0x100 |> (^=) R0 123), None)
+        let b = ldr_ (R2, {register = R1; offset= NoOffset},a, None)
+        printfn "%A" a
+        printfn "%A" b
