@@ -426,17 +426,25 @@ module Parser =
         let instrLabelHold = pToken TokEOF <?> label
         mapParse tupleTransform instrLabelHold
     
-   (*
     let pDCD = 
-        let parseTuple = pInstrDCD .>>. onePlus pLiteralNoHash <?> "DCD Instruction + Int List"
-        let tupleTransform (t1, t2) = (t1, t2)
+        let parseTuple = pLabel .>>. pInstrDCD .>>. onePlus pLiteralNoHash <?> "DCD Instruction + Int List"
+        let tupleTransform  = function
+            | x -> JInstrDCD(x)
         mapParse tupleTransform parseTuple  
 
     let pEQU = 
-        let parseTuple = pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
-        let tupleTransform (t1, t2) = (t1, t2)
+        let parseTuple = pLabel .>>. pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
+        let tupleTransform =  function
+            | x -> JInstrEQU(x)
         mapParse tupleTransform parseTuple 
-    *)
+
+    let instEQUDCD = 
+        let label = "EQU Instruction + Int"
+        let tupleTransform = function
+                | x -> x
+        let instrLabelHold = (pEQU <|> pDCD) <?> label
+        mapParse tupleTransform instrLabelHold
+  (*  
 
     let instEQU = 
         let label = "EQU Instruction + Int"
@@ -466,6 +474,8 @@ module Parser =
         let instrLabelHold = pInstrEND .>>. opt(pS) <?> label
         mapParse tupleTransform instrLabelHold
 
+    *)
+
 
 //////////////////////////////////////// Final Choice + External Parse Instruction////////////////////////////////
     let parseInstr = choice [
@@ -479,9 +489,11 @@ module Parser =
                             instType8;
                             instType9;
                             instTypeLabel;
-                            instDCD;
+                            instEQUDCD;
+                           (* instDCD;
                             instFILL;
-                            instEQU;                            
+                            instEQU; 
+                           *)                           
                             instEOF;
                             ]
                             
