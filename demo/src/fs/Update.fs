@@ -16,7 +16,7 @@ module Update =
     open Fable.Import.Browser
     open Fable.Core.JsInterop
     open MachineState
-//    open View
+
 
     // Update UI
     let updateUI (state: MachineState) : unit =
@@ -48,6 +48,17 @@ module Update =
         Map.toList (Optics.get MachineState.Flags_ state)
         |> List.map updateFlag
         |> ignore
+
+        let pc : int = state |> (Optics.get MachineState.Register_ R15)
+
+        let decorations =
+            createObj [ 
+                        "options" ==> createObj [ "isWholeLine" ==> true
+                                                  "className" ==> "myLineDecoration" ] ]
+
+        window?code?deltaDecorations([], decorations) |> ignore
+        ()
+
 (*        let renderFlag ((id, bit): FlagID * bool) : string =
             let boolToZeroOne = function
                 | false -> 0 | true -> 1

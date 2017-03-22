@@ -73,11 +73,13 @@ module MemoryInstructions =
 
 
 
-    let storeInstructionW ((result: Data), (regN: AddressRegister), (state: MachineState)) =
+    let storeInstructionW ((result: RegisterID), (regN: AddressRegister), (state: MachineState)) =
+
+        let resultVal = (^.) result state
 
         let address = addressWithOffset state regN
 
-        let state1 = (sw) address result state
+        let state1 = (sw) address resultVal state
 
         match regN with
         | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
@@ -96,11 +98,13 @@ module MemoryInstructions =
 
 
 
-    let storeInstructionB ((result: Data), (regN: AddressRegister), (state: MachineState)) =
+    let storeInstructionB ((result: RegisterID), (regN: AddressRegister), (state: MachineState)) =
+
+        let resultVal = (^.) result state
 
         let address = addressWithOffset state regN
 
-        let state1 = (sb) address (byte result) state
+        let state1 = (sb) address (byte resultVal) state
 
         match regN with
         | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
@@ -123,7 +127,13 @@ module MemoryInstructions =
 
         let finstate = List.fold (fun st (a,b) -> (^=) b ((gw) a st) st) state combinedList
 
-        if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
+        if writeBack then match addMode with
+                          | ED | IB -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | EA | DB -> (^=) addRegister (addVal - 4*listSize) finstate
+                          | FD | IA -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | FA | DA -> (^=) addRegister (addVal - 4*listSize) finstate
+
+        else finstate
 
     let storeMultiple ((addMode: AddressMode), (addRegister: RegisterID), (regList: RegisterID list), (state: MachineState), (writeBack: bool)) =
 
@@ -141,7 +151,13 @@ module MemoryInstructions =
 
         let finstate = List.fold (fun st (a,b) -> (sw) a ((^.) b st) st) state combinedList
 
-        if writeBack then (^=) addRegister (List.last addressList) finstate else finstate
+        if writeBack then match addMode with
+                          | FA | IB -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | FD | DB -> (^=) addRegister (addVal - 4*listSize) finstate
+                          | EA | IA -> (^=) addRegister (addVal + 4*listSize) finstate
+                          | ED | DA -> (^=) addRegister (addVal - 4*listSize) finstate
+
+        else finstate
 
     //not tested yet
     let ldrPseudo ((regD: RegisterID), (expr: Expression), (state: MachineState)) =
@@ -180,5 +196,3 @@ module MemoryInstructions =
         let branchAddress = Optics.get MachineState.Label_ label state
 
         (^=) R15 branchAddress state
-
-//    let simpleLDRSTRtest = printfn "%A" (MachineState.make())

@@ -6,12 +6,16 @@
 
     Contributors: Angelos Filos
 
-    Module: MachineState
-    Description: 
+    Module: Memory
+    Description: Model for Abstract Data Type `Memory`, simulating the memory of the processor, 
+                 address->byte, instructions stored in memory, label map.
+                 Immutable data structure -> get<|>set access using Optics.
 *)
 
 [<AutoOpen>]
 module Memory =
+
+//    open Expecto
 
     type Memory =
         // AST
@@ -61,7 +65,7 @@ module Memory =
                 | true ->
                     let raw =
                         // fetch memory 4-byte content and construct an int
-                        [| Optics.get Memory.Byte_ address memory
+                        [| Optics.get Memory.Byte_  address      memory
                            Optics.get Memory.Byte_ (address + 1) memory
                            Optics.get Memory.Byte_ (address + 2) memory
                            Optics.get Memory.Byte_ (address + 3) memory |]
@@ -76,7 +80,7 @@ module Memory =
                         Map(Seq.concat [ (Map.toSeq p) ; q ])
                     // Raw Bytes to be copied
                     let raw : (Address * byte) [] =
-                        [| address, byte value
+                        [| address,     byte  value
                            address + 1, byte (value >>> 8)
                            address + 2, byte (value >>> 16)
                            address + 3, byte (value >>> 24) |]
@@ -98,4 +102,50 @@ module Memory =
         // init with empty data structures
         { AST = [] ; Storage = Map.empty<Address, byte> ; Labels = Map.empty<string, Address> }
 
-(*----------------------------------------------------------- Testing -----------------------------------------------------------*)
+    let makeByte (address: Address) (content: byte) : Memory =
+        let storage = Map.ofList [address, content]
+        // init with empty data structures
+        { AST = [] ; Storage = storage ; Labels = Map.empty<string, Address> }
+
+    let makeWord (address: Address) (content: Data) : Memory =
+        let init = makeHack ()
+        let tmp = Optics.set Memory.Word_ address content init
+        // init with empty data structures
+        { AST = [] ; Storage = tmp.Storage ; Labels = Map.empty<string, Address> }
+
+(*----------------------------------------------------------- Testing -----------------------------------------------------------
+
+    /// Complete Module Unit Testing
+    let testMemory : Test =
+        // initialise sandbox-dummy Memory
+        let sand : Memory = makeHack ()
+        // initialiser && Optics test
+        let testMake : Test =
+            testList "Initialisers" 
+                [ test "AST_" { Expect.equal (Optics.get Memory.AST_ sand) [] "empty initialisation" }
+                  test "Storage_" { Expect.equal (Optics.get Memory.Storage_ sand) Map.empty<Address, byte> "empty initialisation" }
+                  test "Labels_" { Expect.equal (Optics.get Memory.Labels_ sand) Map.empty<string, Address> "empty initialisation" } ] 
+
+        // byte Optics test
+        let testByte : Test =
+            testList "Byte_" 
+                [ test "get" { Expect.equal (Optics.get Memory.Byte_ (System.Random().Next()) sand) 0uy "should be 0uy" }
+                  test "set" { 
+                    let uy : Memory = makeByte 400 6uy
+                    Expect.equal (Optics.set Memory.Byte_ 400 6uy sand) uy "should be 6uy" } ] 
+
+        // word Optics test
+        let testWord : Test =
+            testList "Word_" 
+                [ test "get" { Expect.equal (Optics.get Memory.Word_ (4*System.Random().Next()) sand) 0 "should be 0" }
+                  test "set" 
+                    { let dt : Memory = makeWord 400 256
+                      Expect.equal (Optics.set Memory.Word_ 400 256 sand) dt "should be 256" } ] 
+
+        // initialiser - top level Optics test
+        let testLabel : Test =
+            testList "Label_" 
+                [ test "get" { Expect.equal (0) -1 "unimplemented" }
+                  test "set" { Expect.equal (0) -1 "unimplemented" } ] 
+
+        testList "Top Level" [ testMake ; testByte ; testWord ; testLabel ] *)

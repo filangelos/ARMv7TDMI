@@ -24,11 +24,17 @@ module View =
     open InstructionsInterfaces
     open Update
 
+    let mutable debug = MachineState.make ()
+    let mutable maxpc = 0
+
     // Get Referencence on DOM Elements
     let exploreBtn = document.getElementById("explore")     // open button
     let saveBtn = document.getElementById("save")           // save button
     let indentBtn = document.getElementById("indent")       // auto-indent button
     let debugBtn = document.getElementById("debug")         // debug button
+    let stepBtn = document.getElementById("step")           // step button
+    let backBtn = document.getElementById("back")           // back button
+    let stopBtn = document.getElementById("stop")           // stop button
     let runBtn = document.getElementById("run")             // run button
     let docsBtn = document.getElementById("docs")           // docs button
     let warnBtn = document.getElementById("warn")           // warn button
@@ -47,17 +53,32 @@ module View =
         indentBtn.onclick <- ( fun _ -> null )
         // debug button
         debugBtn.onclick <- ( fun _ ->
-            let assembly : string = sprintf "%O" (window?code?getValue())
-            document.getElementById("R0").innerHTML <- "0x" + assembly
+            let assembly : string = sprintf "%O" (window?code?getValue()) + "\n"
+            debug <- assembly |> tokenise |> Parse |> buildAST |> init
+            maxpc <- debug |> (Optics.get MachineState.AST_) |> List.rev |> List.head |> snd
+            updateUI debug
+            null )
+        stepBtn.onclick <- ( fun _ ->
+            debug <- step debug
+            updateUI debug
+            let r15 = Optics.get MachineState.Register_ R15 debug
+            match r15 = maxpc with
+            | false -> debug <- Optics.set MachineState.Register_ R15 (r15+4) debug
+            | true -> ()
+            null )
+        stopBtn.onclick <- ( fun _ ->
+            debug <- MachineState.make ()
+            maxpc <- 0
+            updateUI (step debug)
             null )
         // run button
         runBtn.onclick <- ( fun _ -> 
             let assembly : string = sprintf "%O" (window?code?getValue()) + "\n"
-            let program = tokenise >> Parse >> buildAST >> init >> execute
-            updateUI (program assembly)
+            let execute = tokenise >> Parse >> buildAST >> init >> execute
+            updateUI (execute assembly)
             null )
         // docs button
-        docsBtn.onclick <- ( fun _ -> null )
+//        docsBtn.onclick <- ( fun _ -> null)
         // warn button
         warnBtn.onclick <- ( fun _ -> null )
         // theme button

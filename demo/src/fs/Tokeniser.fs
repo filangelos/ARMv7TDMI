@@ -15,6 +15,7 @@ module Tokeniser =
 
     open System.Text.RegularExpressions
     open Microsoft.FSharp.Reflection
+//    open FsCheck
 
     ///returns the first matched group of a regex and the leftovers from the input
     let private (|MatchToken|_|) pattern input =
@@ -85,14 +86,24 @@ module Tokeniser =
         let Instr i =
             System.String.Concat [|"("; i; ")"; patternEnd|]
         match str.ToUpper() with
-        | MatchToken (Instr "ADD") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADD)])
-        | MatchToken (Instr "ADC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADC)])
         | MatchToken (Instr "MOV") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr1(MOV)])
         | MatchToken (Instr "MVN") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr1(MVN)])
+        | MatchToken (Instr "ADR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr2(ADR)])
+        | MatchToken (Instr "ADD") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADD)])
+        | MatchToken (Instr "ADC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(ADC)])
+        | MatchToken (Instr "SUB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SUB)])
+        | MatchToken (Instr "SBC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SBC)])
+        | MatchToken (Instr "RSB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSB)])
+        | MatchToken (Instr "RSC") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSC)])
         | MatchToken (Instr "ORR") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr3(ORR)])
         | MatchToken (Instr "AND") (_, leftovers) ->
@@ -107,14 +118,10 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr4(LSR)])
         | MatchToken (Instr "ASR") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr4(ASR)])
-        | MatchToken (Instr "SUB") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SUB)])
-        | MatchToken (Instr "SBC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(SBC)])
-        | MatchToken (Instr "RSB") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSB)])
-        | MatchToken (Instr "RSC") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr3(RSC)])
+        | MatchToken (Instr "ROR") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr4(ROR_)])
+        | MatchToken (Instr "RRX") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr5(RRX_)])
         | MatchToken (Instr "CMP") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr6(CMP)])
         | MatchToken (Instr "CMN") (_, leftovers) ->
@@ -123,10 +130,10 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr6(TST)])
         | MatchToken (Instr "TEQ") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr6(TEQ)])
-        | MatchToken (Instr "ROR") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr4(ROR_)])
-        | MatchToken (Instr "RRX") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokInstr5(RRX_)])
+        | MatchToken (Instr "LDRB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr7(LDR); TokB(B)])
+        | MatchToken (Instr "STRB") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr7(STR); TokB(B)])
         | MatchToken (Instr "LDR") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr7(LDR)])
         | MatchToken (Instr "STR") (_, leftovers) ->
@@ -135,10 +142,12 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr8(LDM)])
         | MatchToken (Instr "STM") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr8(STM)])
+        | MatchToken (Instr "B") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr9(B_)])
+        | MatchToken (Instr "BL") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokInstr9(BL)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS(S)])
-        | MatchToken (Instr "B") (_, leftovers) ->
-            getTokenInstructionFrom leftovers (lst @ [TokB(B)])
         | MatchToken (Instr "ED|EA|FD|FA|IA|IB|DA|DB") (dir, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [getTokenStackDirectionFrom dir])
         | MatchToken (Instr "EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL") (cond, leftovers) ->
@@ -156,20 +165,20 @@ module Tokeniser =
                 //str may contain several tokens, so recursively call MatchToken until str is empty
                 | MatchToken "([pP][cC])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                           //pc (R15)
                     strToToken (lst @ [TokReg(R15)]) leftovers
-                | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\n])" (reg, leftovers) ->                   //register
+                | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\-\n])" (reg, leftovers) ->                   //register
                     strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
-                | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
+                | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\-\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                     //printfn "hex: %A" hexVal
                     strToToken (lst @ [TokLiteral (int hexVal)]) leftovers
-                | MatchToken "#(0[bB][01]+(?![^01,\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
+                | MatchToken "#(0[bB][01]+(?![^01,\-\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
                     //printfn "bin: %A" binVal
                     strToToken (lst @ [TokLiteral (int binVal)]) leftovers
-                | MatchToken "#(-?[0-9]+)(?![^0-9,\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
+                | MatchToken "#(-?[0-9]+)(?![^0-9,\-\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
                     strToToken (lst @ [TokLiteral(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
-                | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
+                | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\-\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
                     strToToken (lst @ (getTokenInstructionFrom name [])) leftovers
                 | MatchToken "," (_, leftovers) ->
                     strToToken (lst @ [TokComma]) leftovers
@@ -183,6 +192,8 @@ module Tokeniser =
                     strToToken (lst @ [TokCurlyLeft]) leftovers
                 | MatchToken "\}" (_, leftovers) ->
                     strToToken (lst @ [TokCurlyRight]) leftovers
+                | MatchToken "\-" (_, leftovers) ->
+                    strToToken (lst @ [TokDash]) leftovers
                 | MatchToken "\n|\r|\f" (_,leftovers) ->
                     strToToken (lst @ [TokNewLine]) leftovers
                 | MatchToken "( )+" (_,leftovers) ->
@@ -199,8 +210,8 @@ module Tokeniser =
         (Array.fold strToToken [] strList)  @ [TokEOF]
 
 
-(*--------------------------------------------------------TESTING--------------------------------------------------------*)
-(*
+(*--------------------------------------------------------TESTING--------------------------------------------------------
+
     ///prints the results for the tokenise function against a set of good, bad and random inputs
     let testTokeniser () =
         printfn "Running tokeniseTest:"
@@ -217,6 +228,7 @@ module Tokeniser =
                             "mov R0  R1";
                             "  ";
                             "mov r1, #-5"
+                            "[R1-R14]!"
                         |]
 
         ///list of incorrect syntax
@@ -234,6 +246,7 @@ module Tokeniser =
                             "MOV R1, #0xFFFF00004";
                             "MOV R1, #888888888888888888888888888888888888888";
                             "#1MOV";
+                            "#5A"
                         |]
 
         let rec tryGoodTests testList count = 
@@ -260,7 +273,7 @@ module Tokeniser =
             else
                 count
 
-        let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"]
+        let strWords = ["MOV"; "ADC"; "r1"; "R16"; "["; "]"; "{"; "}"; "\n" ; "LABEL"; "#0xFF"; "#2"; "#0b101"; "-"]
 
         let checkTokenListLength separator = 
             let isSeparatorAToken = ((tokenise separator).Length > 1)
@@ -365,35 +378,16 @@ module Tokeniser =
         printfn "Generating random tests for stack direction codes..."
         Check.Quick(checkTokenListLengthMem())
 
+        printfn "Testing branch and byte tokens..."
+        printfn "LDRB -> %A" (tokenise "LDRB")
+        printfn "LDRBNE -> %A" (tokenise "LDRBNE")
+        printfn "BEQ -> %A" (tokenise "BEQ")
+        printfn "B -> %A" (tokenise "B")
+
         //let testNewline = "\n\n\n\n\n \n \n MOV \n \n \n \n MOV \n"
         //printfn "\"%A\" tokenises to %A and contains %A tokens, expected 5 tokens" testNewline (tokenise (testNewline)) ((tokenise (testNewline)).Length)
 
-        let parseGoodTokenList =
-                            [
-                                [TokNewLine; TokInstr1 MOV; TokReg R1; TokComma; TokLiteral 5; TokEOF];
-                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokComma; TokReg R3; TokNewLine; TokInstr1 MOV; TokReg R2; TokComma; TokReg R1; TokEOF];
-                                [TokInstr1 MVN; TokReg R0; TokComma; TokLiteral 5; TokEOF];
-                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokLiteral 5; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
-                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
-                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
-                                [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
-                            ]
-
-        let parseBadTokenList =
-                            [
-                                [TokNewLine; TokInstr1 MOV; TokLiteral 5; TokComma; TokReg R1; TokEOF];
-                                [TokReg R0; TokInstr1 MOV; TokComma; TokReg R1; TokEOF];
-                                [TokInstr3 ADD; TokReg R1; TokComma; TokReg R2; TokReg R3; TokEOF];
-                                [TokReg R14; TokEOF];
-                                [TokInstr3 ADC; TokS S; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr4 LSL; TokLiteral 5; TokEOF];
-                                [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
-                                [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokComma; TokCond NE; TokEOF];
-                                [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr5 RRX_; TokLiteral 1; TokEOF];
-                                [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
-                            ] *)
-
-        (*
+        
         printfn "%A" (tokenise "\nMOV R1, #5")
         printfn "%A" (tokenise "ADD R1, R2, R3\nMOV R2, R1")
         printfn "%A" (tokenise "MVN R0, #5")
@@ -402,9 +396,9 @@ module Tokeniser =
         printfn "%A" (tokenise "RRXSNE r10, r1")
         printfn "%A" (tokenise "TSTPL R0, r4 , ror #1")
         printfn "%A" (tokenise "MOV r0, r1, rrx")
-        *)
+        
 
-        (*
+        
         printfn "%A" (tokenise "\nMOV #5, R1")
         printfn "%A" (tokenise "R0 MOV, R1")
         printfn "%A" (tokenise "ADD R1, R2 R3")
@@ -414,6 +408,6 @@ module Tokeniser =
         printfn "%A" (tokenise "RRXSNE r10, r1, NE")
         printfn "%A" (tokenise "TSTPL R0, r4 , rrx #1")
         printfn "%A" (tokenise "ADD r0, r1")
-        *)
+        
 
-//        printfn "Finished tokeniseTest\n"
+        printfn "Finished tokeniseTest\n" *)

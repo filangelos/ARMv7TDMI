@@ -42,11 +42,8 @@ amdRequire(['vs/editor/editor.main'], function () {
     keywords: [
       'MOV', 'ADD', 'ADC', 'MVN', 'ORR', 'AND', 'EOR', 'BIC', 'SUB', 'SBC',
       'RSB', 'RSC', 'CMP', 'CMN', 'TST', 'TEQ', 'LSL', 'LSR', 'ASR', 'LDR',
-      'STR', 'ADR', 'LDM', 'STM', 'MVNS', 'MOVS'
-    ],
-
-    typeKeywords: [
-      'R0', 'R1'
+      'STR', 'ADR', 'LDM', 'STM', 'MVNS', 'MOVS', 'MOV', 'SUBS', 'BPL', 'MVNS',
+      'ADD', 'SUBS', 'CMP', 'BNE', 'MOVS', 'ASR', 'CMPCS', 'RRX', 'ASR', 'ROR', 'ADCS'
     ],
 
     // we include these common regular expressions
@@ -107,7 +104,7 @@ amdRequire(['vs/editor/editor.main'], function () {
         [/[^\/*]+/, 'comment'],
         [/\/\*/, 'comment', '@push'],    // nested comment
         ["\\*/", 'comment', '@pop'],
-        [/[\/*]/,   'comment' ]
+        [/[\/*]/, 'comment']
       ],
 
       string: [
@@ -119,21 +116,35 @@ amdRequire(['vs/editor/editor.main'], function () {
 
       whitespace: [
         [/[ \t\r\n]+/, 'white'],
-//        [/\/\*/, 'comment', '@comment'],
-//        [/\/\/.*$/, 'comment'],
+        //        [/\/\*/, 'comment', '@comment'],
+        //        [/\/\/.*$/, 'comment'],
       ],
     }
   });
 
   window.code = monaco.editor.create(document.getElementById('editor'), {
-//    value: [
-//      'mov r0 #5',
-//      'mov r1 r0'
-//    ].join('\n'),
+    value: [
+      'mov r0, #5',
+      'mov r1, r0'
+    ].join('\n'),
     language: 'arm',
     theme: 'vs-light',
     renderWhitespace: 'all',
     roundedSelection: false,
     scrollBeyondLastLine: false
   });
+
+  const docs = document.getElementById('docs');
+  docs.onclink = function () {
+    window.code.deltaDecorations([], [
+      {
+        range: new monaco.Range(2, 0, 2, 5),
+        options: {
+          isWholeLine: true,
+          className: 'myContentClass'
+        }
+      }
+    ]);
+  }
 });
+
