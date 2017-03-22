@@ -47,30 +47,34 @@ module Common =
     /// Flags Type Abbreviation
     type Flags = Map<FlagID, bool>
 
-    /// Operand D.U Type
+    /// Representing op2 since it can be a register and a literal
     type Input =
         | ID of RegisterID // Pass Register ID for data access
         | Literal of Data // Pass literal
 
+    // Encapsulates shift direction into op2
     type Operand = 
         | Operand of Input*ShiftDirection
 
+    //Memory address offsetting
     type Offset = 
         | TempOffset of Input // LDR     R8, [R10, #4] 
         | PreIndex of Input // LDR     R8, [R10, #4]!
         | PostIndex of Input // LDR     R8, [R10], #4
         | NoOffset // syntax: LDR     R8, [R10] 
 
-
+    //Addressing modes for LDM and STM instructions (both normal and stack-oriented conventions)
     type AddressMode = 
         | IA | IB | DA | DB 
         | ED | FD | EA | FA
 
     type StackDirection = AddressMode
 
+    //encapsulates address resgister and offset
     type AddressRegister = 
         {register: RegisterID; offset: Offset}
 
+    //represents memory-related expressions
     type Expression = 
         | Lab of string
         | Number of int
