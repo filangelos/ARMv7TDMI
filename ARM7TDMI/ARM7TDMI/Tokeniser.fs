@@ -146,6 +146,14 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr9(B_)])
         | MatchToken (Instr "BL") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr9(BL)])
+        | MatchToken (Instr "DCD") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokDCD(DCD)])
+        | MatchToken (Instr "EQU") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokEQU(EQU)])
+        | MatchToken (Instr "FILL") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokFILL(FILL)])
+        | MatchToken (Instr "END") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokEND(END)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS(S)])
         | MatchToken (Instr "ED|EA|FD|FA|IA|IB|DA|DB") (dir, leftovers) ->
