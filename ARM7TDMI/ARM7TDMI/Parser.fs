@@ -9,7 +9,8 @@
     Module: Parser
 
     Description: Parser which accepts a Token List from the Tokeniser and return an Instruction List to the AST,
-                 Implements Monadic Parser Combinators from ParserMonad and Railway Oriented Error Handling
+                 Implements Monadic Parser Combinators and Railway Oriented Error Handling from ParserMonad.fs,
+                 Testing of entire Parser included at the end.
     
     Guidance Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, stackoverflow.com
    
