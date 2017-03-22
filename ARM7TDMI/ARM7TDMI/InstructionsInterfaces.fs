@@ -162,9 +162,9 @@ module InstructionsInterfaces =
         printfn "%A" b
 
     let quicktest () = 
-        let a = tst_ (R0, Operand(ID R4, ROR 1), MachineState.make (), None)
+        let a = tst_ (R0, Operand(ID R4, ROR 1), MachineState.make (), Some PL)
         let b = loadMultiple (ED, R0, [R1;R3;R2], a,true)
         //let c = orr_ (R2, R2, Operand(Literal 11,NoShift), b,true, None)
         printfn "Quick Test"
         printfn "%A" a
-        printfn "%A" b
+        //printfn "%A" b
