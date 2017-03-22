@@ -33,10 +33,6 @@ module AST =
     let private addLabel (labelMap: LabelMap) (name:string) (addr:Address) =
         labelMap.Add (name, addr)
 
-    ///adds data to Storage at a specific location
-    let private addData (storage: Map<Address, byte>) (addr:Address) (data:byte) =
-        storage.Add (addr, data)
-
     ///Build the AST and label map from the list given by Parser
     (*
     let buildAST (parseLst:(Instr list)) =
@@ -54,6 +50,17 @@ module AST =
 
     *)
 
+    let private addDCD (mem:Memory) (label:string) (dataLst:(int list)) =
+        printfn "data list is %A" dataLst
+        let newMemLabel = ( ^< ) (addLabel ((^>) mem) label (Memory.next mem)) mem
+        printfn "added label"
+        let rec addData (m:Memory) (lst:(int list)) =
+            match lst with
+            | [] -> m
+            | d::t -> addData (Memory.push d m) t
+        addData newMemLabel dataLst
+
+    //let private addFILL (mem:Memory) (label:Option<string>) (data)
 
     ///Build the Memory for MachineState from the list given by Parser
     let buildMemory (parseLst:(Instr list)) =
@@ -64,11 +71,20 @@ module AST =
                 match node with
                 | JInstrEOF -> addNode t mem pc
                 | (JError(s)) ->
-                        printfn "Found error while parsing: %A." s
                         failwithf "Found error while parsing: %A." s
                 | (JLabel(s)) -> 
                     let newMem = ( ^< ) (addLabel ((^>) mem) s pc) mem 
                     addNode t newMem (pc+4)
+                | JInstrDCD((label, _), dataLst) ->      
+                    let newMem = addDCD mem label dataLst
+                    printfn "doing this"
+                    addNode t newMem pc
+                | JInstrEQU((label, _), d) ->
+                    let newMemLabel = ( ^< ) (addLabel ((^>) mem) label (Memory.next mem)) mem
+                    let newMem = Memory.push d newMemLabel
+                    addNode t newMem pc
+                //| JInstrFILL((label, _), fillSize) ->
+                    
                 | instr ->
                     let newMem = ( ^~ ) (addInstruction ((^&) mem) instr pc) mem 
                     addNode t newMem (pc+4)
@@ -112,23 +128,23 @@ module AST =
                 | JInstr3(((((ORR, setFlags), cond), rd), rn), op2) ->
                     InstructionsInterfaces.orr_ (rd, rn, op2, state, (not (setFlags = None)), cond)
                 | JInstr4(((((LSL, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(shift)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((LSL, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.lsl_ (rd, Operand(ID(rn), ShiftDirection.Left(( ^. ) reg state)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((LSR, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(shift)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((LSR, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.lsr_ (rd, Operand(ID(rn), ShiftDirection.RightL(( ^. ) reg state)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((ASR, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(shift)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((ASR, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.asr_ (rd, Operand(ID(rn), ShiftDirection.RightA(( ^. ) reg state)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((ROR_, setFlags), cond), rd), rn), Literal(shift)) ->
-                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(shift)), state, (not (setFlags = None)), cond)
                 | JInstr4(((((ROR_, setFlags), cond), rd), rn), ID(reg)) ->
-                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) reg state)), state, (not (setFlags = None)), cond) //need to test
+                    InstructionsInterfaces.ror_ (rd, Operand(ID(rn), ShiftDirection.ROR(( ^. ) reg state)), state, (not (setFlags = None)), cond)
                 | JInstr5((((RRX_, setFlags), cond), rd), op2) ->
-                    InstructionsInterfaces.rrx_ (rd, Operand(op2, ShiftDirection.RRX), state, (not (setFlags = None)), cond) // need to test
+                    InstructionsInterfaces.rrx_ (rd, Operand(op2, ShiftDirection.RRX), state, (not (setFlags = None)), cond)
                 | JInstr6(((CMP, cond), rd), op2) ->
                     InstructionsInterfaces.cmp_ (rd, op2, state, cond)
                 | JInstr6(((CMN, cond), rd), op2) ->
@@ -212,6 +228,21 @@ module AST =
 
         printfn "Testing branching loop:"
         let mem = buildMemory testBranchList
+        printfn "Memory is:\n%A\n" mem
+        let state = MachineState.initTMP(mem)
+        //let result = reduce state 0 24
+        let result = execute state
+        printfn "final result state after branching is:\n%A\n" result
+
+        let testMemList =    [
+                                JInstrDCD(("data1", DCD),[1;5;20]);
+                                JInstrEQU(("data2", EQU), 100);
+                                JInstr2(((ADR, None), R3), Expression.Lab("data2"))
+                                JInstr7((((LDR, None), None), R4), {register= R3; offset= NoOffset} )
+                            ]
+        
+        printfn "Testing memory instructions:"
+        let mem = buildMemory testMemList
         printfn "Memory is:\n%A\n" mem
         let state = MachineState.initTMP(mem)
         //let result = reduce state 0 24

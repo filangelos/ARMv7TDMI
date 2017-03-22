@@ -182,7 +182,7 @@ module Common =
     |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
     |  JInstrDCD of ((string*InstrDCD)* int list)
     |  JInstrEQU of ((string*InstrEQU) *int)
-    |  JInstrFILL of(InstrFILL*int)   //int must be multiple of 4
+    |  JInstrFILL of((Option<string>*InstrFILL)*int)   //int must be multiple of 4
     |  JInstrEND of (InstrEND*Option<SType>)
     |  JLabel of string
     |  JError of string
