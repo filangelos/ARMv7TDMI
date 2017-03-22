@@ -146,6 +146,14 @@ module Tokeniser =
             getTokenInstructionFrom leftovers (lst @ [TokInstr9(B_)])
         | MatchToken (Instr "BL") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokInstr9(BL)])
+        | MatchToken (Instr "DCD") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokDCD(DCD)])
+        | MatchToken (Instr "EQU") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokEQU(EQU)])
+        | MatchToken (Instr "FILL") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokFILL(FILL)])
+        | MatchToken (Instr "END") (_, leftovers) ->
+            getTokenInstructionFrom leftovers (lst @ [TokEND(END)])
         | MatchToken (Instr "S") (_, leftovers) ->
             getTokenInstructionFrom leftovers (lst @ [TokS(S)])
         | MatchToken (Instr "ED|EA|FD|FA|IA|IB|DA|DB") (dir, leftovers) ->
@@ -167,7 +175,7 @@ module Tokeniser =
                     strToToken (lst @ [TokReg(R15)]) leftovers
                 | MatchToken "[rR]([0-9]|1[0-6])(?![^,\[\]\{\}\!\-\n])" (reg, leftovers) ->                   //register
                     strToToken (lst @ [getTokenRegisterFromID(reg |> int)]) leftovers
-                | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^0-9A-Fa-f,\-\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
+                | MatchToken "#(0[xX][0-9A-Fa-f]{1,8}(?![^,\-\[\]\{\}\!\n]))" (hexVal, leftovers) -> //hex const
                     //printfn "hex: %A" hexVal
                     strToToken (lst @ [TokLiteral (int hexVal)]) leftovers
                 | MatchToken "#(0[bB][01]+(?![^01,\-\[\]\{\}\!\n]))" (binVal, leftovers) ->                   //bin const
@@ -176,6 +184,8 @@ module Tokeniser =
                 | MatchToken "#(-?[0-9]+)(?![^0-9,\-\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const
                     //printfn "dec: %A" value
                     strToToken (lst @ [TokLiteral(value |> int)]) leftovers
+                | MatchToken "(-?[0-9]+)(?![^0-9,\-\[\]\{\}\!\n])" (value, leftovers) ->                       //dec const (no # in front)
+                    strToToken (lst @ [TokLiteralNoHash(value |> int)]) leftovers
                 //| MatchToken "((?<![0-9]+)[A-Za-z][A-Za-z0-9_]*(?![^,\[\]\{\}\!\n]))" (name, leftovers) ->  
                 //    strToToken (lst @ [TokIdentifier name]) leftovers
                 | MatchToken "((?:[^\s\S]+|^)[A-Za-z][A-Za-z0-9_]*(?![^,\-\[\]\{\}\!\n]))" (name, leftovers) ->  //label or instruction keyword
@@ -194,6 +204,8 @@ module Tokeniser =
                     strToToken (lst @ [TokCurlyRight]) leftovers
                 | MatchToken "\-" (_, leftovers) ->
                     strToToken (lst @ [TokDash]) leftovers
+                | MatchToken "\=" (_, leftovers) ->
+                    strToToken (lst @ [TokEquals]) leftovers
                 | MatchToken "\n|\r|\f" (_,leftovers) ->
                     strToToken (lst @ [TokNewLine]) leftovers
                 | MatchToken "( )+" (_,leftovers) ->
@@ -227,14 +239,15 @@ module Tokeniser =
                             "ADCS R1, R2, #3, LSL #2";
                             "mov R0  R1";
                             "  ";
-                            "mov r1, #-5"
-                            "[R1-R14]!"
+                            "mov r1, #-5";
+                            "[R1-R14]!";
+                            "ADR r1, 1";
+                            "LDR R1, =50";
                         |]
 
         ///list of incorrect syntax
         let badTests = [|   
                             "1MOV r1, r2";
-                            "add rr1, r22, 1";
                             "mov r1, #abc123";
                             "aDd r0, r2 ,#0B474";
                             "adc r1, r1, #0xh";
