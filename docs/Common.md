@@ -2,7 +2,7 @@
 
 ## Description
 
-This module contains the interfaces shared between the various modules.
+This module contains the interfaces shared between the various modules. It was supported and maintained by everyone equally.
 
 ## Types
 * `Token`: all the differnt types of tokens using for tokenisation
@@ -20,9 +20,9 @@ This module contains the interfaces shared between the various modules.
 * `AddressRegister`: Record of `RegisterID*Offset`
 * `Expression`: D.U. `| Lab of string | Number of int` for memory-related expressions
 * `ConditionCode`: D.U. `| EQ | NE | CS | ...` representing the conditional codes in ARM instructions
-* `InstrType1` ... `InstrType9`: represents the groups of instruction keywords with the same parameters
+* `InstrType1` ... `InstrType9`: represents the groups of instruction keywords with the same parameter signatures
 * `InstrDCD`, `InstrEQU`, `InstrFILL`, `InstrEND`: singular instruction keyword types
-* `Instr`: = D.U. of tuples for different instructions and their parameters
+* `Instr`: = D.U. of tuples for different instructions and their parameter signatures used to design Parser Combinators
 * `Address`: = int, represent the byte addressing of the memory
 * `Node`: = Instr * Address
 * `LabelMap`: = Map<string, Address>

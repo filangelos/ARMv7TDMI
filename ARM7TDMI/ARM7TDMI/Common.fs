@@ -186,7 +186,7 @@ module Common =
     |  JInstrEND of (InstrEND*Option<SType>)
     |  JLabel of string
     |  JError of string
-
+    |  JInstrEOF
 
     (*
     Tokenisation (please remove once done):

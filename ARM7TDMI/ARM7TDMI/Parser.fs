@@ -166,19 +166,26 @@ module Parser =
             | _ -> failwith "Impossible"
         mapParse tupleTransform parseTuple
     let pRegComma = 
-            let parseTuple = pReg .>>. pComma <?> "Register followed by Comma"
-            let tupleTransform (t1,t2) = 
-                match t1, t2 with  
-                | a, TokComma-> a
-                | _ -> failwith "Impossible"
-            mapParse tupleTransform parseTuple
+        let parseTuple = pReg .>>. pComma <?> "Register followed by Comma"
+        let tupleTransform (t1,t2) = 
+            match t1, t2 with  
+            | a, TokComma-> a
+            | _ -> failwith "Impossible"
+        mapParse tupleTransform parseTuple
 
     let pStackDir = 
-            let parseTuple = anyOf tokenStackDirList <?> "Stack Direction"
-            let tupleTransform t1 =  
-                match t1 with 
-                | TokStackDir a -> a
-            mapParse tupleTransform parseTuple
+        let parseTuple = anyOf tokenStackDirList <?> "Stack Direction"
+        let tupleTransform t1 =  
+            match t1 with 
+            | TokStackDir a -> a
+        mapParse tupleTransform parseTuple
+        
+    let pInstrDCD = 
+        let parseTuple = pToken (TokDCD DCD) <?> "DCD Token"
+        let tupleTransform t1 =  
+            match t1 with 
+            | TokDCD a -> a
+        mapParse tupleTransform parseTuple
 
     ///////////////////////////////////////// Input Parser /////////////////////////////////////////////////////////////
     let pInt =
@@ -379,6 +386,13 @@ module Parser =
         let instrLabelHold = pLabel <?> label
         mapParse tupleTransform instrLabelHold
 
+    let instEOF = 
+        let label = "End Of File Instruction"
+        let tupleTransform = function
+            | x -> JInstrEOF
+        let instrLabelHold = pToken TokEOF <?> label
+        mapParse tupleTransform instrLabelHold
+
 //////////////////////////////////////// Final Choice + External Parse Instruction////////////////////////////////
     let parseInstr = choice [
                             instType1;
@@ -391,6 +405,7 @@ module Parser =
                             instType8;
                             instType9;
                             instTypeLabel;
+                            instEOF;
                             ]
                             
 
