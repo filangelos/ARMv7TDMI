@@ -51,7 +51,7 @@ module Parser =
     // Create a new InitState from a Token List for a specific Line
 
     /// Split a list to a list of lists at the delimiter (del)
-(*    let splitBy (del: 'a) (lst: 'a list) : ('a list) list =
+(*     let inline splitBy (del: 'a) (lst: 'a list) (remove: bool) : ('a list) list =
 
         // reverse non-empty list
         let yieldRevNonEmpty lst = 
@@ -64,15 +64,18 @@ module Parser =
             match lst with 
             | [] -> yield! yieldRevNonEmpty acc
             | h::t when h = del ->
-            yield! yieldRevNonEmpty acc
-            yield! loop [] t
-            | h::t -> yield! loop (h::acc) t }
-        
+              match remove with
+              | true  -> yield! yieldRevNonEmpty acc
+              | false -> yield! yieldRevNonEmpty (h::acc)
+              yield! loop [] t
+            | h::t ->
+              yield! loop (h::acc) t }
+          
         loop [] lst |> List.ofSeq
 
 *)
     let tokenToInit tokenLst = 
-        let y = splitBy TokNewLine tokenLst false
+        let y = splitBy TokNewLine tokenLst true
         match y with
             | [] -> {lineList = [||]; position = initPos;}
             | _ ->  {lineList = List.toArray y; position=initPos;}
@@ -88,7 +91,7 @@ module Parser =
     // Decision function for nextToken return
     // 1) if lineNo >= lastLine -> return TokEOF
     // 2) if tokenNo < line length -> return token at tokPos and tokPos++
-    // 3) if tokenNO = line length -> return TokNewLine, linePos++
+    // 3) if tokenNo = line length -> return TokNewLine, linePos++
     let decisionFunc (linePos, tokPos, input)= 
         if linePos >= input.lineList.Length then
             input, None
@@ -575,8 +578,8 @@ module Parser =
         mapP tupleTransform parseTuple
 
     let pOffsetPost = 
-        let parseTuple =  pRBracket .>>. pCommaOffset <?> "Post-indexed Offset Addressing"
-        let tupleTransform (t1, t2) = PostIndex t2
+        let parseTuple =  pRBracket >>. pCommaOffset <?> "Post-indexed Offset Addressing"
+        let tupleTransform t1 = PostIndex t1
         mapP tupleTransform parseTuple
 
     let pAddressRegister =
@@ -702,7 +705,7 @@ module Parser =
                                                        let tokPos = parPos.tokenNo
                                                        let failureLine = sprintf "%*s^%s" tokPos "" err
                                                        JError(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
-        let y = splitBy TokNewLine tokenLstLst false                           
+        let y = splitBy TokNewLine tokenLstLst true                           
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
         y |> x |> u
