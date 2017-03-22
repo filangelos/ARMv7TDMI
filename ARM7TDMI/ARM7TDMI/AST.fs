@@ -37,11 +37,8 @@ module AST =
             | node::t ->
                 match node with
                 | (JError(s)) ->
-                    if (not (s.Contains("TokEOF"))) then
-                        printfn "Found error while parsing: %A. Ignoring instruction." s
-                        failwithf "Found error while parsing: %A. Ignoring instruction." s
-                    else
-                        addNode t ast labelMap (pc+4)
+                        printfn "Found error while parsing: %A." s
+                        failwithf "Found error while parsing: %A." s
                 | (JLabel(s)) -> addNode t ast (addLabel labelMap s pc) (pc+4)
                 | instr -> addNode t (addInstruction ast instr pc) labelMap (pc+4)
         addNode parseLst [] Map.empty<string, Address> 0
