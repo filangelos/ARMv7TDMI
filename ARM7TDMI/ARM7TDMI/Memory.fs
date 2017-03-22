@@ -70,7 +70,7 @@ module Memory =
                            Optics.get Memory.Byte_ (address + 2) memory
                            Optics.get Memory.Byte_ (address + 3) memory |]
                     int raw.[0] ||| ((int raw.[1]) <<< 8) + ((int raw.[2]) <<< 16) + ((int raw.[3]) <<< 24)
-                | false -> failwith "incorrect address passed" ),
+                | false -> 0 ),
             // Setter: Address -> Data -> Memory -> MachineState
             ( fun (address: Address) (value: Data) (memory: Memory) ->
                 match (address % 4 = 0) with
@@ -85,7 +85,7 @@ module Memory =
                            address + 2, byte (value >>> 16)
                            address + 3, byte (value >>> 24) |]
                     { memory with Storage = merge memory.Storage raw }
-                | false -> failwith "incorrect address passed" )
+                | false -> memory )
 
         /// Address Composition Optic Function
         static member Label_ =

@@ -179,7 +179,25 @@ module MachineState =
         { Registers = registers ; StatusBits = flags ; Memory = Memory.make (ast,labels) }
 
 
+    /// MachineState Initialisation
+    let initTMP (memory : Memory) : MachineState =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Toolkit.enumerator<RegisterID>
+            // Initialise all Registers to zero
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
 
+        let flags : Flags =
+            // Enumerate all Flags
+            Toolkit.enumerator<FlagID>
+            // Initialise all Status Bits to zero
+            |> Array.map ( fun id -> id, false )
+            // construct Map
+            |> Map.ofArray
+
+        { Registers = registers ; StatusBits = flags ; Memory = memory }
 
 
     /// MachineState Initialisation - Necessary for smooth interface with VisUAL testing framework provided
