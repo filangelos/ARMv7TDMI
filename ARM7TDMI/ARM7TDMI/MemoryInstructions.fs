@@ -57,7 +57,7 @@ module MemoryInstructions =
         List.map (fun a -> fst a) sortList
 
     let addressWithOffset state = function
-                                  | {register = R_; offset = PreIndex x} | {register = R_; offset = TempOffset x} -> ((^.) R_ state) + x
+                                  | {register = R_; offset = PreIndex x} | {register = R_; offset = TempOffset x} -> ((^.) R_ state) + (opVal state x)
                                   | {register = R_; offset = _} -> (^.) R_ state
 
 
@@ -68,7 +68,7 @@ module MemoryInstructions =
         let state1 = (^=) regD ((gw) address state) state
 
         match regN with
-        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
+        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + (opVal state x)) state1
         | _ -> state1
 
 
@@ -82,7 +82,7 @@ module MemoryInstructions =
         let state1 = (sw) address resultVal state
 
         match regN with
-        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
+        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + (opVal state x)) state1
         | _ -> state1
 
 
@@ -93,7 +93,7 @@ module MemoryInstructions =
         let state1 = (^=) regD (int ((gb) address state)) state
 
         match regN with
-        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
+        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + (opVal state x)) state1
         | _ -> state1
 
 
@@ -107,7 +107,7 @@ module MemoryInstructions =
         let state1 = (sb) address (byte resultVal) state
 
         match regN with
-        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + x) state1
+        | {register = R_; offset = PreIndex x} | {register = R_; offset = PostIndex x} -> (^=) R_ (((^.) R_ state) + (opVal state x)) state1
         | _ -> state1
   
 
@@ -201,18 +201,18 @@ module MemoryInstructions =
 
 
 
-    //let simpleLDRSTRtest = 
-    ////testing loadInstruction
-    //    let a3 = MachineState.make()
-    //    let b3 = storeInstructionW (2, {register= R0; offset= TempOffset 4}, a3)
-    //    printfn "%A" a3
-    //    printfn "%A" b3
-    //    let c3 = storeInstructionW (1, {register= R1; offset= PreIndex 8}, b3)
-    //    printfn "%A" c3
-    //    let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset 4}, c3)
-    //    printfn "%A" d3
-    //    let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
-    //    printfn "%A" e3
+    let simpleLDRSTRtest = 
+    //testing loadInstruction
+        let a3 = MachineState.make() |> (^=) R3 2 |> (^=) R5 1
+        let b3 = storeInstructionW (R3, {register= R0; offset= TempOffset (Literal(4))}, a3)
+        printfn "%A" a3
+        printfn "%A" b3
+        let c3 = storeInstructionW (R5, {register= R1; offset= PreIndex (Literal(8))}, b3)
+        printfn "%A" c3
+        let d3 = loadInstructionW (R2, {register= R0; offset= TempOffset (Literal(4))}, c3)
+        printfn "%A" d3
+        let e3 = loadInstructionW (R1, {register= R1; offset= NoOffset}, d3)
+        printfn "%A" e3
 
 
     //let LDMtest = 
@@ -241,7 +241,7 @@ module MemoryInstructions =
     //    printfn "%A" e3  
     //    printfn "Memory Instruction Testing Done" 
 
-    let simpleLDRSTRtest = printfn "%A" (MachineState.make())
+    //let simpleLDRSTRtest = printfn "%A" (MachineState.make())
 //    let simpleLDRSTRtest = 
     ////testing loadInstruction
     //    let a3 = MachineState.make()

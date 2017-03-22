@@ -56,9 +56,9 @@ module Common =
         | Operand of Input*ShiftDirection
 
     type Offset = 
-        | TempOffset of int // LDR     R8, [R10, #4] 
-        | PreIndex of int // LDR     R8, [R10, #4]!
-        | PostIndex of int // LDR     R8, [R10], #4
+        | TempOffset of Input // LDR     R8, [R10, #4] 
+        | PreIndex of Input // LDR     R8, [R10, #4]!
+        | PostIndex of Input // LDR     R8, [R10], #4
         | NoOffset // syntax: LDR     R8, [R10] 
 
 
