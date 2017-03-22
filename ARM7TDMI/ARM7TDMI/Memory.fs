@@ -70,7 +70,7 @@ module Memory =
                            Optics.get Memory.Byte_ (address + 2) memory
                            Optics.get Memory.Byte_ (address + 3) memory |]
                     int raw.[0] ||| ((int raw.[1]) <<< 8) + ((int raw.[2]) <<< 16) + ((int raw.[3]) <<< 24)
-                | false -> failwith "incorrect address passed" ),
+                | false -> 0 ),
             // Setter: Address -> Data -> Memory -> MachineState
             ( fun (address: Address) (value: Data) (memory: Memory) ->
                 match (address % 4 = 0) with
@@ -85,7 +85,7 @@ module Memory =
                            address + 2, byte (value >>> 16)
                            address + 3, byte (value >>> 24) |]
                     { memory with Storage = merge memory.Storage raw }
-                | false -> failwith "incorrect address passed" )
+                | false -> memory )
 
         /// Address Composition Optic Function
         static member Label_ =
@@ -93,6 +93,16 @@ module Memory =
             ( fun (label: string) (memory: Memory) -> Map.find label (Optics.get Memory.Labels_ memory) ),
             // Setter: Label -> Address -> Memory -> Memory
             ( fun (label: string) (value: Address) (memory: Memory) -> { memory with Labels = Map.add label value memory.Labels } )
+
+        /// Initialise Memory Content with DCD and FILL instructions
+        static member push =
+            // Setter: Data -> Memory -> Memory
+            ( fun (content: Data) (memory: Memory) -> 
+                // Get max used address
+                let max : Address = memory |> Optics.get Memory.Storage_ |> Map.toList |> List.maxBy fst |> fst
+                match max >= 0x1700 with
+                | true -> Optics.set Memory.Word_ (max + 1) content memory
+                | false -> Optics.set Memory.Word_ 0x1700 content memory )
 
     /// Memory Initialisation
     let make ((ast, labels): AST*LabelMap) : Memory =
