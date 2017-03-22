@@ -44,7 +44,7 @@ module Program =
                             readInput (str @ [line]) (enterCount+1)
                     else
                         readInput (str @ [line]) 0
-                let prog = (readInput [] 0 |> String.concat "\n")
+                let prog = (readInput [] 0 |> String.concat " \n ")
                 printfn "Program is:\n%A" prog
                 printfn "\nExecuting program..."
                 let result = (prog |> tokenise |> Parse |> buildAST |> init |> execute)
