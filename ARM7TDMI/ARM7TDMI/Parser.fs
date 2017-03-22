@@ -222,8 +222,8 @@ module Parser =
         satisfy predicate label 
 
     let pLiteralNoHash = 
-        let parseTuple = pInt <?> "Shift Direction"
-        let tupleTransform (t1) = 
+        let parseTuple = pInt .>>. opt pComma <?> "Shift Direction"
+        let tupleTransform (t1, t2) = 
             match t1 with
             | TokLiteralNoHash a -> a
         mapParse tupleTransform parseTuple  
@@ -402,7 +402,7 @@ module Parser =
         let label = "Instruction Type 8"
         let tupleTransform = function
             | x -> JInstr8(x)
-        let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. onePlus pReg <?> label
+        let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. onePlus pRegComma <?> label
         mapParse tupleTransform instr8Hold
 
     let instType9 = 
