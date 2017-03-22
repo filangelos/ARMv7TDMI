@@ -22,7 +22,7 @@ Lens for `MemoryLocation`, `get<|>set` of memory location (byte) given an addres
 * `Memory.Word_ : ( Address -> Memory -> Data ) * ( Address -> Data -> Memory -> Memory ) ` 
 Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address.
 * `make : (AST * LabelMap) -> Memory` Memory initialiser - it will be called only once in every execution of the assembly code.
-* `makeEmpty` unit -> Memory` Memory initialiser - used only for individual memory testing without complete AST.
+* `makeEmpty : unit -> Memory` Memory initialiser - used only for individual memory testing without complete AST.
 ---
 ## Dependencies
 * `Common.AST`

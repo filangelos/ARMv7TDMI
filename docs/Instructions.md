@@ -5,7 +5,7 @@
 ---
 ## Functions
 
-* function opVal: MachineState -> Input -> Data
+* function `opVal: MachineState -> Input -> Data`
 * function getOperandVal: bool -> MachineState -> Operand -> Data*MachineState
 * function mov: RegisterID * Operand * MachineState * bool -> MachineState
 * function mvn: RegisterID * Operand * MachineState * bool -> MachineState

@@ -11,7 +11,6 @@
     Description: Take in a Token List, Parse and return a List of InstrType or Error (and associated Error information)
     to AST for processing onwards to actual implementation. Parsing done using monadic parser combinators. 
     
-
     Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, 
     
     Notes: 
@@ -20,7 +19,7 @@
 
     2) Self-implemented (through research and guidance from above Sources) 
        parser structure not compatible with Fable (due to lambda in Parser<'T>), 
-       but maintained for Command Line testing as too far progressed
+       but maintained for Command Line testing as too far progressed 
        
     3) Infix operators match those used in FParsec for implemented combinator functions thus making future reference easy.
 *)
@@ -212,12 +211,12 @@ module Parser =
 
     let run parser inputTokenLst = 
         runInput parser (tokenToInit inputTokenLst)
-
-    /// 
-    /// "bindP" takes a parser-producing function f, and a parser p
-    /// and passes the output of p into f, to create a new parser
+ 
+    /// This is akin to a standard bind function >>, but takes a 
+    /// function which produces a parser, f, and a parser p
+    /// and then passes the output of p into f, to create a new parser
     let bindP f p =
-        let label = "Empty"
+        let label = "Nothing"
         let innerFn input =
             let res1 = runInput p input 
             match res1 with
@@ -225,13 +224,12 @@ module Parser =
                 // return error from parser1
                 Failure (label, err, pos) 
             | Success (val1,remInput) ->
-                // apply function f to get a new parser
+                // apply the function f to get a new a parser value
                 let p2 = f val1
                 // run parser with remaining input
                 runInput p2 remInput
-        {parseFunc =innerFn; pLabel=label }
-
-    /// Infix version of bindP
+        {parseFunc =innerFn; pLabel=label}
+ 
     let ( >>= ) p f = bindP f p
 
     let returnP x = 
