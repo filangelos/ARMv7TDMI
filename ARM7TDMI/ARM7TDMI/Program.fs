@@ -31,7 +31,7 @@ module Program =
 //        printfn "%A \n\n These instructions give the following final state:\n%A" testInput result 
 
 //        runTests defaultConfig (testList "Complete Test" [ testMemory ])
-
+        simpleLDRSTRtest
         let rec commandLineDemo () =
             try 
                 printfn "Please type your program (press enter three times in a row to finish):"
