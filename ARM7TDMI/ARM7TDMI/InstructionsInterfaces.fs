@@ -16,6 +16,8 @@ module InstructionsInterfaces =
     open Instructions
     open MemoryInstructions
 
+
+    //function to determine whether an isntruction should be executed or not based on the condition code and the machine state
     let executeOrNot (cond: ConditionCode option) (state: MachineState) =
         match cond with
         | Some EQ when ((^*) Z state) = true -> true

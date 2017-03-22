@@ -34,5 +34,7 @@ This module contains the execution code for the ARM memory access instructions. 
 * As stated in the Functions section, the LDM/STM instructions support the two types of addressing modes, while VisUAL only supports stack-oriented ones.
 * `sortRegister` is created to accomodate for FABLE, since passing `RegisterID list` to List.sort works in F# but does not work with FABLE, and hence the suboptimal implementation.
 * This module is again only used by `InstructionsInterfaces` module.
+* Minor testing is present at the end of the code as functions of type `unit -> MachineState`, which can be called from Program.fs. More comprehensive testing is done in the testing project which interfaces with VisUAL
+
 
 ## Owner: Youssef Rizk

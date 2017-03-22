@@ -55,5 +55,7 @@ This module serves the primary interface between the execution part of the proje
 
 * This module abstracts the implementation of the execution part from any other module in the project.
 * DCD and FILL are dealt with by the AST module since they define start-time conditions.
+* Testing for the instructions here is mainly done in the testing project that interfaces with VisUAL.
+* Testing for the branching instructions is done by the AST module owner.
 
 ## Owner: Youssef Rizk
