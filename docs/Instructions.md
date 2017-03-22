@@ -32,5 +32,6 @@ This module contains the fundamental functions that execute ARM ALU instructions
 
 * These functions only directly affect the `InstructionsInterfaces` module as they are used to make up the ARM instruction set.
 * Conceptually, the instructions are implemented as a pipeline starting with `opVal |> getOperandVal |> instruction` where `instruction` is any of the actual ALU instructions.
+* Minor testing is present at the end of the code as functions of type `unit -> MachineState`, which can be called from Program.fs. More comprehensive testing is done in the testing project which interfaces with VisUAL
 
 ## Owner: Youssef Rizk
