@@ -124,6 +124,14 @@ module Common =
     type InstrType9 = 
         | B_ | BL
 
+    type InstrDCD = | DCD
+
+    type InstrEQU = | EQU
+
+    type InstrFILL = | FILL
+
+    type InstrEND = | END
+
     type SType = | S
     type BType = | B
 
@@ -138,13 +146,18 @@ module Common =
         | TokInstr7 of InstrType7
         | TokInstr8 of InstrType8
         | TokInstr9 of InstrType9
+        | TokDCD of InstrDCD
+        | TokEQU of InstrEQU
+        | TokFILL of InstrFILL
+        | TokEND of InstrEND
         | TokS of SType
         | TokB of BType
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
         | TokReg of RegisterID
-        | TokLiteral of int
+        | TokLiteral of int         //#5, #0xB, etc.
+        | TokLiteralNoHash of int   //5, 10, 
         | TokComma
         | TokExclam
         | TokSquareLeft
@@ -152,6 +165,7 @@ module Common =
         | TokCurlyLeft
         | TokCurlyRight
         | TokDash
+        | TokEquals
         | TokNewLine
         | TokError of string
         | TokEOF
@@ -166,8 +180,39 @@ module Common =
     |  JInstr7 of ((((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)*AddressRegister)
     |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
     |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
+    |  JInstrDCD of ((string*InstrDCD)*(int list))
+    |  JInstrEQU of ((string*InstrEQU)*int)
+    |  JInstrFILL of ((Option<string>*InstrFILL)*int)   //int must be multiple of 4
+    |  JInstrEND of (InstrEND*Option<SType>)
     |  JLabel of string
     |  JError of string
+    |  JInstrEOF
+
+    (*
+    Tokenisation (please remove once done):
+
+    JInstr2 (has changed):
+    In ADR, change TokLiteral to TokLiteralNoHash
+
+    
+    JInstrDCD:
+    TokLabel TokDCD VAL_LIST
+    
+    VAL_LIST: VAL_LIST TokComma TokLiteralNoHash
+            | TokLiteralNoHash
+
+
+    JInstrEQU:
+    TokLabel TokEQU TokLiteralNoHash
+
+    JInstrFILL:
+    Option(TokLabel) TokFILL TokLiteralNoHash
+
+    JInstrEND:
+    TokEnd Option(TokS)
+    
+    *)
+
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  

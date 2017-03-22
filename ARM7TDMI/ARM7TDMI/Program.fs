@@ -15,7 +15,7 @@ module Program =
     let main argv =
 //        Tokeniser.testTokeniser ()
 //        MemoryInstructions.simpleLDRSTRtest
-//        AST.testAST ()
+        AST.testAST ()
 //        Parser.testParser ()
 //        InstructionsInterfaces.test()
 //        let x: MachineState = MachineState.make ()
@@ -47,7 +47,7 @@ module Program =
                 let prog = (readInput [] 0 |> String.concat " \n ")
                 printfn "Program is:\n%A" prog
                 printfn "\nExecuting program..."
-                let result = (prog |> tokenise |> Parse |> buildAST |> init |> execute)
+                let result = (prog |> tokenise |> Parse |> buildMemory |> initTMP |> execute)
                 printfn "Final Machine State:\n%A" result
             with
                 _ -> printfn "Failed to run program." 
