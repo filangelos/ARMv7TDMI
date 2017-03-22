@@ -180,9 +180,9 @@ module Common =
     |  JInstr7 of ((((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)*AddressRegister)
     |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
     |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
-    |  JInstrDCD of ((string*InstrDCD)*(int list))
-    |  JInstrEQU of ((string*InstrEQU)*int)
-    |  JInstrFILL of ((Option<string>*InstrFILL)*int)   //int must be multiple of 4
+    |  JInstrDCD of ((string*InstrDCD)* int list)
+    |  JInstrEQU of ((string*InstrEQU) *int)
+    |  JInstrFILL of(InstrFILL*int)   //int must be multiple of 4
     |  JInstrEND of (InstrEND*Option<SType>)
     |  JLabel of string
     |  JError of string

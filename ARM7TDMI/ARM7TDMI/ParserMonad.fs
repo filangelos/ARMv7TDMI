@@ -201,7 +201,7 @@ module ParserMonad =
     //Infix operator for binding
     let ( >>= ) parser func = bindParse func parser
 
-    // Takes in a value and returns a parser of that value
+    // Takes in a value and returns a parser of that value 
     let returnParse x = 
         let innerFunc input =
             // Ignore the input 

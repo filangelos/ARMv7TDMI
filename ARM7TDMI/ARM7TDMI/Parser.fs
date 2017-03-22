@@ -61,8 +61,11 @@ module Parser =
 
     let tokenStackDirList = List.map TokStackDir stackDirList
 
-    
-    ////////////////////////////////// Primitive (+Near-Primitive) Token Parsers /////////////////////////////////////
+///////////////////////////////////// Primitive (+Near-Primitive) Token Parsers /////////////////////////////////////
+
+    // For each parser you can see what it parses from the Label string after the <?> 
+    // Most parsers contain a parseTuple, which represents, their pipeline
+    // Most also inclue a tupleTransform structure which returns the correct output type for building up
     let pInstr1 =
         let parseTuple = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let tupleTransform(x) =
@@ -179,12 +182,33 @@ module Parser =
             match t1 with 
             | TokStackDir a -> a
         mapParse tupleTransform parseTuple
-        
+    
     let pInstrDCD = 
-        let parseTuple = pToken (TokDCD DCD) <?> "DCD Token"
+        let parseTuple = pToken (TokDCD DCD) <?> "DCD Keyword"
         let tupleTransform t1 =  
             match t1 with 
             | TokDCD a -> a
+        mapParse tupleTransform parseTuple
+    
+    let pInstrEQU = 
+        let parseTuple = pToken (TokEQU EQU) <?> "EQU Keyword"
+        let tupleTransform t1 =  
+            match t1 with 
+            | TokEQU a -> a
+        mapParse tupleTransform parseTuple
+
+    let pInstrFILL = 
+        let parseTuple = pToken (TokFILL FILL) <?> "FILL Keyword"
+        let tupleTransform t1 =  
+            match t1 with 
+            | TokFILL a -> a
+        mapParse tupleTransform parseTuple
+
+    let pInstrEND = 
+        let parseTuple = pToken (TokEND END) <?> "END Keyword"
+        let tupleTransform t1 =  
+            match t1 with 
+            | TokEND a -> a
         mapParse tupleTransform parseTuple
 
     ///////////////////////////////////////// Input Parser /////////////////////////////////////////////////////////////
@@ -192,9 +216,17 @@ module Parser =
         let predicate y = 
             match y with
             | TokLiteral a -> true
+            | TokLiteralNoHash a -> true
             | _ -> false
         let label = sprintf "Integer" 
         satisfy predicate label 
+
+    let pLiteralNoHash = 
+        let parseTuple = pInt <?> "Shift Direction"
+        let tupleTransform (t1) = 
+            match t1 with
+            | TokLiteralNoHash a -> a
+        mapParse tupleTransform parseTuple  
 
     let pLiteral =  
         let parseTuple = pInt <?> "Integer"
@@ -313,6 +345,7 @@ module Parser =
         let tupleTransform (t1) = 
             match t1 with
             | TokLiteral a -> Number a
+            | TokLiteralNoHash a -> Number a
             | TokLabel a -> Lab a
         mapParse tupleTransform parseTuple          
 
@@ -392,6 +425,47 @@ module Parser =
             | x -> JInstrEOF
         let instrLabelHold = pToken TokEOF <?> label
         mapParse tupleTransform instrLabelHold
+    
+   (*
+    let pDCD = 
+        let parseTuple = pInstrDCD .>>. onePlus pLiteralNoHash <?> "DCD Instruction + Int List"
+        let tupleTransform (t1, t2) = (t1, t2)
+        mapParse tupleTransform parseTuple  
+
+    let pEQU = 
+        let parseTuple = pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
+        let tupleTransform (t1, t2) = (t1, t2)
+        mapParse tupleTransform parseTuple 
+    *)
+
+    let instEQU = 
+        let label = "EQU Instruction + Int"
+        let tupleTransform = function
+                | x -> JInstrEQU(x)
+        let instrLabelHold = pInstrEQU .>>. pLiteralNoHash <?> label
+        mapParse tupleTransform instrLabelHold
+
+    let instDCD = 
+        let label = "DCD Instruction + Int List"
+        let tupleTransform = function
+                | x -> JInstrDCD(x)
+        let instrLabelHold = pInstrDCD .>>. onePlus pLiteralNoHash <?> label
+        mapParse tupleTransform instrLabelHold
+
+    let instFILL= 
+        let label = "FILL Instruction + Int"
+        let tupleTransform = function
+                | x -> JInstrFILL(x)
+        let instrLabelHold = pInstrFILL .>>. pLiteralNoHash <?> label
+        mapParse tupleTransform instrLabelHold
+
+    let instEND= 
+        let label = "END Instruction"
+        let tupleTransform = function
+                | x -> JInstrEND(x)
+        let instrLabelHold = pInstrEND .>>. opt(pS) <?> label
+        mapParse tupleTransform instrLabelHold
+
 
 //////////////////////////////////////// Final Choice + External Parse Instruction////////////////////////////////
     let parseInstr = choice [
@@ -405,6 +479,9 @@ module Parser =
                             instType8;
                             instType9;
                             instTypeLabel;
+                            instDCD;
+                            instFILL;
+                            instEQU;                            
                             instEOF;
                             ]
                             
