@@ -62,6 +62,7 @@ module AST =
             | [] -> mem
             | node::t ->
                 match node with
+                | JInstrEOF -> addNode t mem pc
                 | (JError(s)) ->
                         printfn "Found error while parsing: %A." s
                         failwithf "Found error while parsing: %A." s
