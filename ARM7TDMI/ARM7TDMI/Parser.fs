@@ -8,20 +8,11 @@
 
     Module: Parser
 
-    Description: Take in a Token List from Baron Khan's Tokeniser, Parses and return a List of InstrType or Error (and associated Error information)
-    to AST for processing onwards to actual implementation. Parsing done using monadic parser combinators. 
+    Description: Parser which accepts a Token List from the Tokeniser and return an Instruction List to the AST,
+                 Implements Monadic Parser Combinators from ParserMonad and Railway Oriented Error Handling
     
-    Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, 
-    
-    Notes: 
-    1) Initially tried to use FParsec Library, not compatible with Fable, 
-       so self-implemented suite of required parsing tools and combinators
-
-    2) Self-implemented (through research and guidance from above Sources) 
-       parser structure not compatible with Fable (due to lambda in Parser<'T>), 
-       but maintained for Command Line testing as too far progressed 
-       
-    3) Infix operators match those used in FParsec for implemented combinator functions thus making future reference easy.
+    Guidance Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, stackoverflow.com
+   
 *)
 
 module Parser =
@@ -31,296 +22,31 @@ module Parser =
     // Toolkit used for splitBy function
     open Toolkit
     open FsCheck
-    
-    // Position in the Array of Token Lists - InitState.lineList
-    type Pos = {
-        lineNo : int
-        tokenNo : int
-    }
+    open ParserMonad
 
-    //The state of the Parser at Input
-    type InitState = {
-        lineList : List<Token>[]
-        position : Pos
-    }
+/////////////////////////////////////// Token Lists ////////////////////////////////////////////////////   
 
-    // Initialise Position
-    let initPos = {lineNo=0; tokenNo=0;}
+    // A series of Token lists as the enumerator function given to us by TC failed in Fable 
+    // Used with anyOf function to rapidly parse various token types
+    // For some types included base type and a List.map function to map D.U.types to Token types
+    // Effective dictionary for Parser Combinators 
 
-    /// Increment the tokenNo number
-    let incrTok pos =  {pos with tokenNo=pos.tokenNo + 1}
+    let tokenCondList = [TokCond(EQ); TokCond(NE); TokCond(CS); TokCond(HS); TokCond(CC); TokCond(LO); 
+                         TokCond(MI); TokCond(PL); TokCond(VS); TokCond(VC); TokCond(HI); TokCond(LS); 
+                         TokCond(GE); TokCond(LT); TokCond(GT); TokCond(LE); TokCond(AL); TokCond(NV);]
 
-    /// Increment the lineNo number and set tokenNo to 0
-    let incrLine pos = {lineNo=pos.lineNo + 1; tokenNo=0}
-
-    // Create a new InitState from a Token List
-    let tokenToInit tokenLst = 
-        //Use splitBy to split by TokNewLine Token
-        // and return the an array of token lists
-        let y = splitBy TokNewLine tokenLst true
-        match y with
-            | [] -> {lineList = [||]; position = initPos;}
-            | _ ->  {lineList = List.toArray y; position=initPos;}
-
-    // Return the current line or token signifying end of file (TokEOF)
-    let currLine initState = 
-        let linePos = initState.position.lineNo
-        if linePos < initState.lineList.Length then
-            initState.lineList.[linePos]
-        else
-            [TokEOF]
-
-    // Decision function for nextToken return
-    // 1) If lineNo >= lastLine -> return TokEOF
-    // 2) If tokenNo < line length -> return token at tokPos and tokPos++
-    // 3) If tokenNo = line length -> return TokNewLine, linePos++
-    let decisionFunc (linePos, tokPos, input)= 
-        if linePos >= input.lineList.Length then
-            input, None
-        else
-            let currLine = currLine input
-            if tokPos < currLine.Length then
-                let token = currLine.[tokPos]
-                let newPos = incrTok input.position 
-                let newState = {input with position=newPos}
-                newState, Some token
-            else 
-                let token = TokNewLine
-                let newPos = incrLine input.position 
-                let newState = {input with position=newPos}
-                newState, Some token
-
-    // Get the next token from the Initlist or return 
-    // None if there are any else return End Options.
-    // Then return the updated InitState
-    let nextToken input =
-        let linePos = input.position.lineNo
-        let tokPos = input.position.tokenNo
-        decisionFunc (linePos, tokPos, input)
-
-    // String signifying that specific parser's components    
-    type PLabel = string
-    // String specifying the Error
-    type PError = string
-
-    // Position in the file being Parsed at any one time
-    type PPosition = {
-        currLine : List<Token>
-        lineNo : int
-        tokenNo : int
-    }
-
-    // Outcome of a Parser - either success or failure (with error message)
-    type Outcome<'a> =
-        | Success of 'a
-        | Failure of PLabel * PError * PPosition
-
-    // Parser Type
-    type Parser<'T> = {
-        //Parses InitState and returns success or failure
-        parseFunc : (InitState -> Outcome<'T * InitState>)
-        //Label of individual parser in pipeline
-        pLabel:  PLabel
-        }
-        
-    // Returns a PPosition for the next parser in the pipeline  
-    let parserPosfromInitState initState = {
-        currLine =  currLine initState
-        lineNo = initState.position.lineNo
-        tokenNo = initState.position.tokenNo
-    }
-
-    // Set Label for Parser
-    let setLabel parser newLab = 
-        // Inner function to update to change label to next in pipeline
-        let innerFunc input = 
-            let result = parser.parseFunc input
-            match result with
-            | Success s -> Success s 
-            // If we fail, return label for new parser in pipeline
-            | Failure (oldLab,err, parPos) -> Failure (newLab,err, parPos)
-        // return new Parser
-        {parseFunc=innerFunc; pLabel=newLab}
-
-    // Infix operator for setting label
-    let ( <?> ) = setLabel
-
-    // Outer function that gets predicate to be matched and its label
-    let satisfy pred lab =
-        // inner function consumes next token in token list
-        let innerFunc tokenLst=
-            let remainInput, tokenOpt = nextToken tokenLst
-            match tokenOpt with 
-                //No token in list - return Failure
-                | None -> let err = "No more input"
-                          let pos = parserPosfromInitState tokenLst
-                          printf "%A" (nextToken tokenLst)                                                              
-                          Failure (lab,err,pos) 
-                //Check if token matches predicate
-                | Some first -> 
-                    if pred first then
-                        Success (first,remainInput)
-                    else
-                        let err = sprintf "Unexpected '%A'" first
-                        let pos = parserPosfromInitState tokenLst
-                        Failure (lab,err,pos)
-        // return the parser
-        {parseFunc=innerFunc; pLabel=lab}
-
-    
-    // Run a specific parser on a Token
-    let runInput parser input = 
-        parser.parseFunc input
-
-    // Run successice parsers on a Token List
-    let run parser inputTokenLst = 
-        runInput parser (tokenToInit inputTokenLst)
-
-    // Parse a specific Token defined by tokentoMatch
-    let pToken tokenToMatch = 
-        let pred tk = (tk = tokenToMatch) 
-        let label = sprintf "%A" tokenToMatch 
-        satisfy pred label 
- 
-    /// This is akin to a standard compose function >>, but takes a 
-    /// function which produces a parser (func) , and a parser
-    /// and then passes the output of parser into func, to create a new parser
-    let bindParse func parser =
-        let label = "Nothing"
-        let innerFn input =
-            let res1 = runInput parser input 
-            match res1 with
-            | Failure (label, err, pos) -> 
-                // return error from parser1
-                Failure (label, err, pos) 
-            | Success (val1,remInput) ->
-                // apply the function f to get a new a parser value
-                let p2 = func val1
-                // run parser with remaining input
-                runInput p2 remInput
-        {parseFunc =innerFn; pLabel=label}
-
-    //Infix operator for binding
-    let ( >>= ) parser func = bindParse func parser
-
-    //Returns a function 
-    let returnP x = 
-        let innerFn input =
-            // ignore the input and return x
-            Success (x,input)
-        // return the inner function
-        {parseFunc =innerFn; pLabel= "Success"} 
-
-    /// apply a function to the value inside a parser
-    let mapParse f = bindParse (f >> returnP)
-
-    /// Combine two parsers as "A andThen B"
-    let (.>>.) p1 p2 =   
-        let label = sprintf "%A andThen %A" (p1.pLabel) (p2.pLabel)      
-        p1 >>= (fun p1Result -> p2 >>= (fun p2Result -> returnP (p1Result,p2Result) )) <?> label
-
-
-
-    /// Combine two parsers as "A orElse B"
-    let ( <|> )p1 p2 =
-        let innerFn input =
-            // run parser1 with the input
-            let result1 = runInput p1 input
-
-            // test the result for Failure/Success
-            match result1 with
-                | Success result -> 
-                // if success, return the original result
-                    result1
-
-                | Failure (label, err, pos) -> 
-                // if failed, run parser2 with the input
-                    let result2 = runInput p2 input
-
-                // return parser2's result
-                    result2 
-
-        // return the inner function
-        {parseFunc =innerFn; pLabel = p1.pLabel;}
-
-
-
-    /// Choose any of a list of parsers
-    let choice listOfParsers = 
-        List.reduce ( <|> ) listOfParsers 
-
-    /// Choose any of a list of characters
-    let anyOf tokenList = 
-        let label = sprintf "anyOf %A" tokenList
-        tokenList
-        |> List.map pToken // convert into parsers
-        |> choice
-        <?> label
-
-    /// Optional instance of parser P
-    let opt p = 
-        let some = mapParse Some p
-        let none = returnP None
-        some <|> none
-
-    /// Return only the result of the left side parser
-    let (.>>) p1 p2 = 
-        // create a pair
-        p1 .>>. p2 
-        // then only keep the first value
-        |> mapParse (fun (a,b) -> a) 
-
-    /// Return result of the right side parser
-    let (>>.) p1 p2 = 
-        // create a pair
-        p1 .>>. p2 
-        // then only keep the second value
-        |> mapParse (fun (a,b) -> b) 
-
-    /// Return result of parser in middle
-    let inBetween p1 p2 p3 = 
-        p1 >>. p2 .>> p3
-    let (>>%) parse t = mapParse (fun _ -> t) parse
-
-    /// matches 0+ instances of Parser<'a>
-    let zeroPlus parser = 
-        let label = sprintf "0+ %s" (parser.pLabel)
-        let rec pZeroPlus parser input =
-            let initResult = runInput parser input 
-            // match outcome with Failure or Success
-            match initResult with
-            // parse failure - return empty list
-            | Failure (_) ->  ([],input)  
-            // parse success - recursive call to get subsequent value
-            | Success (initValue, firstParseOutcome) -> 
-                let (nextValues,remainingInput) = 
-                    pZeroPlus parser firstParseOutcome
-                let values = initValue::nextValues
-                (values,remainingInput) 
-        let rec innerFn input =
-            // parse the input -- always succeeds, so can be wrapped in Success
-            Success (pZeroPlus parser input)
-        {parseFunc=innerFn; pLabel=label}
-
-    /// matches 1+ instances of the specified Parser<'a> - built using zeroPlus parser
-    let onePlus p =         
-        let label = sprintf "1+ %s" (p.pLabel)
-        p >>= (fun h -> zeroPlus p >>= (fun tl -> returnP(h::tl))) <?> label
-
-/////////////////////////////////////// Token Lists ////////////////////////////////////////////////////    
-    let tokenCondList = [TokCond(EQ); TokCond(NE); TokCond(CS); TokCond(HS); TokCond(CC); TokCond(LO); TokCond(MI); TokCond(PL);
-                            TokCond(VS); TokCond(VC); TokCond(HI); TokCond(LS); TokCond(GE); TokCond(LT); TokCond(GT); TokCond(LE);
-                            TokCond(AL); TokCond(NV);]
     let regList = [R0; R1; R2; R3; R4; R5; R6; R7; R8; R9; R10; R11; R12; R13; R14; R15;]
-
     let tokenRegList = List.map TokReg regList
+
     let tokenInstrList1 = [TokInstr1(MOV); TokInstr1(MVN)]
     let tokenInstrList2 = [TokInstr2(ADR)]
-    let instrList3 = [ADD ; ADC ; SUB ; SBC ; RSB ; RSC ; AND; EOR ; BIC ; ORR;]
+
+    let instrList3 = [ADD; ADC; SUB; SBC; RSB; RSC; AND; EOR; BIC; ORR;]
     let tokenInstrList3 = List.map TokInstr3 instrList3
 
     let instrList4 = [LSL; LSR; ASR; ROR_;]
     let tokenInstrList4 = List.map TokInstr4 instrList4
+
     let tokenInstrList5 = [TokInstr5(RRX_)]
     let instrList6 = [CMP ; CMN ; TST ; TEQ;]
     let tokenInstrList6 = List.map TokInstr6 instrList6
@@ -334,7 +60,8 @@ module Parser =
 
     let tokenStackDirList = List.map TokStackDir stackDirList
 
-    ////////////////////////////////// Primitive (+Near-Primitive) Token Parsers /////////////////////////////////////////////////////////////////
+    
+    ////////////////////////////////// Primitive (+Near-Primitive) Token Parsers /////////////////////////////////////
     let pInstr1 =
         let parseTuple = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let tupleTransform(x) =
@@ -452,7 +179,7 @@ module Parser =
                 | TokStackDir a -> a
             mapParse tupleTransform parseTuple
 
-    ///////////////////////////////////////// Input Type /////////////////////////////////////////////////////////////
+    ///////////////////////////////////////// Input Parser /////////////////////////////////////////////////////////////
     let pInt =
         let predicate y = 
             match y with
@@ -485,7 +212,7 @@ module Parser =
         mapParse tupleTransform parseTuple
         
         
-     ///////////////////////////////////////////////// OPERAND ATTEMPT //////////////////////////////////////////////
+     //////////////////////////////////////////////////// Operand Type ///////////////////////////////////////////////////
 
     let pShiftDirection4 =
         let parseTuple = pComma >>. pInstr4 .>>. pInt <?> "Shift Direction (Int)"
@@ -516,7 +243,7 @@ module Parser =
                                     | Some b -> Operand(Literal a, b)
         mapParse tupleTransform parseTuple
 
-////////////////////////////////////////////////// AddressRegister Type ////////////////////////////////////////////////
+////////////////////////////////////////////////// AddressRegister Type ////////////////////////////////////////////
     let pLBracket = pToken TokSquareLeft <?> "LeftBracket"
     let pRBracket = pToken TokSquareRight <?> "RightBracket"
     let pExclam = pToken TokExclam <?> "Exclamation Mark"
@@ -552,12 +279,11 @@ module Parser =
         mapParse tupleTransform parseTuple
 
     let pAddressRegister =
-        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetPost; pOffsetPre; pOffsetAddress;]  <?> "Address Register"
+        let parseTuple =  pLBracket >>. pReg .>>. choice[pOffsetPost; pOffsetPre; pOffsetAddress;] <?> "Address Register"
         let tupleTransform (t1, t2) = {register=t1;offset = t2;}
         mapParse tupleTransform parseTuple          
           
-// TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;
-//////////////////////////////////////// String/Expression/Labels Parsers ////////////////////////////////////////////////
+////////////////////////////////////// String/Expression/Labels Types /////////////////////////////////////////////
     let pString =   
         let predicate y = 
             match y with
@@ -582,7 +308,7 @@ module Parser =
             | TokLabel a -> Lab a
         mapParse tupleTransform parseTuple          
 
- //////////////////////////////////////////// Final Instruction Types /////////////////////////////////////////////////////
+ //////////////////////////////////////////// Final Instruction Parsers  ////////////////////////////////////////////////
     let instType1 = 
         let label = "Instruction Type 1"
         let tupleTransform = function
@@ -632,18 +358,18 @@ module Parser =
         let instr7Hold = pInstr7 .>>. opt pB .>>. opt pCond .>>. pRegComma .>>. pAddressRegister <?> label
         mapParse tupleTransform instr7Hold
     let instType8 = 
-            let label = "Instruction Type 8"
-            let tupleTransform = function
-                | x -> JInstr8(x)
-            let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. onePlus pReg <?> label
-            mapParse tupleTransform instr8Hold
+        let label = "Instruction Type 8"
+        let tupleTransform = function
+            | x -> JInstr8(x)
+        let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. onePlus pReg <?> label
+        mapParse tupleTransform instr8Hold
 
     let instType9 = 
-            let label = "Instruction Type 9"
-            let tupleTransform = function
-                | x -> JInstr9(x)
-            let instr9Hold = pInstr9 .>>. opt pCond .>>. pLabel <?> label
-            mapParse tupleTransform instr9Hold
+        let label = "Instruction Type 9"
+        let tupleTransform = function
+            | x -> JInstr9(x)
+        let instr9Hold = pInstr9 .>>. opt pCond .>>. pLabel <?> label
+        mapParse tupleTransform instr9Hold
 
     let instTypeLabel = 
         let label = "Instruction Type Label"
