@@ -1,0 +1,1669 @@
+
+>>---SOURCE:
+MOVS R0, #-1, ASR #1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid source.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOVS R0, R0, AST #1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid source.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R1, R1, #-1 LSRS R1, R1, #1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid source.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R1, R1, #-1 
+ LSRS R1, R1, #1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid source.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R1, #-1 
+ MOV R2, #213 
+ SUBS R1, R2, R!
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="3">Invalid first operand.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOVS R0, #0
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="3">Invalid first operand.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+CMP R0, #-1, ASR #3
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid first operand.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R0, #23412 
+ CMN R0, R0, ROR #3
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R0, #1 
+ LSRS R4, R0, #1 
+ MOV R1, #8 
+ TEQ R0,#-8
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>MOV R0, #1</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>LSRS R4, R0, #1</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <cycles>1</cycles>
+  </line>
+  <line id="3">
+    <code>MOV R1, #8</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x8</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x10</register>
+    <cycles>1</cycles>
+  </line>
+  <runtime-error line="4">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R0, #1 
+ LSRS R4, R0, #1 
+ MOV R1, #8 
+ RSB R1,R1,#-4
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>MOV R0, #1</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>LSRS R4, R0, #1</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <cycles>1</cycles>
+  </line>
+  <line id="3">
+    <code>MOV R1, #8</code>
+    <register name="R0">0x1</register>
+    <register name="R1">0x8</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x10</register>
+    <cycles>1</cycles>
+  </line>
+  <runtime-error line="4">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RRXS R3,R3,#252
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid destination.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RRX R3,R3,#243
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid destination.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RRXS R2,#209
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="1">Invalid source.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+ADR R0, test 
+ LDR R1, [R0] 
+ test DCD 123
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Offset out of range for address load.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RORS R1,R3,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Immediate operand value out of range.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RSCS R2,R2,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+EORS R2,R2,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+TEQ R2,#-1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+EOR R1,R2,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+LDR R0, =test 
+ MOV R5, #3 
+ MOV R6, #4 
+ MOV R7, #6 
+ STMEA R0, {R5,R6,R7} 
+ LDMEA R0, {R1,R2,R3} 
+ test FILL 16
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>LDR R0, =test</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>MOV R5, #3</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="3">
+    <code>MOV R6, #4</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x4</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x10</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="4">
+    <code>MOV R7, #6</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x4</register>
+    <register name="R7">0x6</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x14</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="5">
+    <code>STMEA R0, {R5,R6,R7}</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x4</register>
+    <register name="R7">0x6</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x18</register>
+    <word address="0x10000">0x3</word>
+    <word address="0x10004">0x4</word>
+    <word address="0x10008">0x6</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>5</cycles>
+  </line>
+  <runtime-error line="6">Attempting to read word from instruction memory space at address 0xFFFC</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+LDR R0, =test 
+ MOV R5, #3 
+ MOV R6, #4 
+ MOV R7, #6 
+ STMED R0!, {R5,R6,R7} 
+ LDMED R0!, {R1,R2,R3} 
+ test FILL 16
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>LDR R0, =test</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>MOV R5, #3</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="3">
+    <code>MOV R6, #4</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x4</register>
+    <register name="R7">0x0</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x10</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="4">
+    <code>MOV R7, #6</code>
+    <register name="R0">0x10000</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x3</register>
+    <register name="R6">0x4</register>
+    <register name="R7">0x6</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x14</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <runtime-error line="5">Attempting to set word in instruction memory space at address 0xFFFC</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+LDR R0, =test 
+ MOV R1, #3 
+ STR R1, [R0,#4] 
+ LDR R2, [R0] 
+ test FILL t16
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <syntax-error line="5">Could not convert literal 't16' to a 32-bit integer.</syntax-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R7, #3 
+ LSRS R7, R7, #1 
+ORR R3,R1,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>MOV R7, #3</code>
+    <register name="R0">0x0</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x3</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>LSRS R7, R7, #1</code>
+    <register name="R0">0x0</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x1</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <runtime-error line="3">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+RSBS R3,R1,#-1
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <runtime-error line="1">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
+
+>>---SOURCE:
+MOV R7, #3 
+ LSRS R7, R7, #1 
+TST R1,#-2
+          MOV R1, #0
+          ADDMI R1, R1, #8
+          ADDEQ R1, R1, #4
+          ADDCS R1, R1, #2
+          ADDVS R1, R1, #1
+       
+-------
+
+>>>>>>>>>>>>>>>>>>>>>>
+
+<VisUAL xmlns="http://bitbucket.org/salmanarif/visual">
+  <line id="1">
+    <code>MOV R7, #3</code>
+    <register name="R0">0x0</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x3</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0x8</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <line id="2">
+    <code>LSRS R7, R7, #1</code>
+    <register name="R0">0x0</register>
+    <register name="R1">0x0</register>
+    <register name="R2">0x0</register>
+    <register name="R3">0x0</register>
+    <register name="R4">0x0</register>
+    <register name="R5">0x0</register>
+    <register name="R6">0x0</register>
+    <register name="R7">0x1</register>
+    <register name="R8">0x0</register>
+    <register name="R9">0x0</register>
+    <register name="R10">0x0</register>
+    <register name="R11">0x0</register>
+    <register name="R12">0x0</register>
+    <register name="R13">0xFF000000</register>
+    <register name="R14">0x0</register>
+    <register name="R15">0xC</register>
+    <word address="0x10000">0x0</word>
+    <word address="0x10004">0x0</word>
+    <word address="0x10008">0x0</word>
+    <word address="0x1000C">0x0</word>
+    <word address="0x10010">0x0</word>
+    <word address="0x10014">0x0</word>
+    <word address="0x10018">0x0</word>
+    <word address="0x1001C">0x0</word>
+    <word address="0x10020">0x0</word>
+    <word address="0x10024">0x0</word>
+    <word address="0x10028">0x0</word>
+    <word address="0x1002C">0x0</word>
+    <word address="0x10030">0x0</word>
+    <word address="0x10034">0x0</word>
+    <word address="0x10038">0x0</word>
+    <word address="0x1003C">0x0</word>
+    <word address="0x10040">0x0</word>
+    <word address="0x10044">0x0</word>
+    <word address="0x10048">0x0</word>
+    <word address="0x1004C">0x0</word>
+    <word address="0x10050">0x0</word>
+    <word address="0x10054">0x0</word>
+    <word address="0x10058">0x0</word>
+    <word address="0x1005C">0x0</word>
+    <word address="0x10060">0x0</word>
+    <word address="0x10064">0x0</word>
+    <word address="0x10068">0x0</word>
+    <word address="0x1006C">0x0</word>
+    <word address="0x10070">0x0</word>
+    <word address="0x10074">0x0</word>
+    <word address="0x10078">0x0</word>
+    <word address="0x1007C">0x0</word>
+    <word address="0x10080">0x0</word>
+    <word address="0x10084">0x0</word>
+    <word address="0x10088">0x0</word>
+    <word address="0x1008C">0x0</word>
+    <word address="0x10090">0x0</word>
+    <word address="0x10094">0x0</word>
+    <word address="0x10098">0x0</word>
+    <word address="0x1009C">0x0</word>
+    <word address="0x100A0">0x0</word>
+    <word address="0x100A4">0x0</word>
+    <word address="0x100A8">0x0</word>
+    <word address="0x100AC">0x0</word>
+    <word address="0x100B0">0x0</word>
+    <word address="0x100B4">0x0</word>
+    <word address="0x100B8">0x0</word>
+    <word address="0x100BC">0x0</word>
+    <word address="0x100C0">0x0</word>
+    <word address="0x100C4">0x0</word>
+    <word address="0x100C8">0x0</word>
+    <word address="0x100CC">0x0</word>
+    <word address="0x100D0">0x0</word>
+    <word address="0x100D4">0x0</word>
+    <word address="0x100D8">0x0</word>
+    <word address="0x100DC">0x0</word>
+    <word address="0x100E0">0x0</word>
+    <word address="0x100E4">0x0</word>
+    <word address="0x100E8">0x0</word>
+    <word address="0x100EC">0x0</word>
+    <word address="0x100F0">0x0</word>
+    <word address="0x100F4">0x0</word>
+    <word address="0x100F8">0x0</word>
+    <word address="0x100FC">0x0</word>
+    <cycles>1</cycles>
+  </line>
+  <runtime-error line="3">Invalid immediate operand value.</runtime-error>
+</VisUAL>
+----------------------
