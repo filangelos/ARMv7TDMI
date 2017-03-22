@@ -14,10 +14,10 @@ namespace ARM7TDMI
      
     Notes: 
     1) Initially tried to use FParsec Library, not compatible with Fable,so self-implemented suite of required 
-       parsing tools and combinators
+       parsing tools and combinators.
 
-    2) Self-implemented (through research and guidance from above Sources) parser structure not compatible with 
-       Fable (due to lambda in Parser<'T>), but maintained for Command Line testing as too far progressed 
+    2) Self-implemented (through research and guidance from above Sources), as parser structure not Fable
+       compatible (due to lambda in Parser<'T>), but maintained for Command Line testing as too far progressed.
        
     3) Infix operators match those used in FParsec for implemented combinator functions thus making future 
        reference easy.
