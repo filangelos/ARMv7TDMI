@@ -480,7 +480,7 @@ module Parser =
                 | TokStackDir a -> a
             mapP tupleTransform parseTuple
 
-    ///////////////////////////////////////// Operand /////////////////////////////////////////////////////////////
+    ///////////////////////////////////////// Input Type /////////////////////////////////////////////////////////////
     let pInt =
         let predicate y = 
             match y with
@@ -554,11 +554,10 @@ module Parser =
             | Some x -> true
             | None -> false
         mapP tupleTransform parseTuple
+
     let pCommaOffset =     
-        let parseTuple = pComma .>>. pInt <?> "Offset Integer"
-        let tupleTransform (t1,t2) = 
-            match t2 with  
-            | TokLiteral a -> a
+        let parseTuple = pComma .>>. pInput <?> "Offset Integer"
+        let tupleTransform (t1,t2) = t2 
         mapP tupleTransform parseTuple
 
     let pOffsetAddress = 
@@ -575,14 +574,12 @@ module Parser =
         mapP tupleTransform parseTuple
 
     let pOffsetPost = 
-        let parseTuple =  pRBracket .>>. pComma .>>. pInt <?> "Post-indexed Offset Addressing"
-        let tupleTransform ((t1, t2), t3) = 
-            match t3 with
-            | TokLiteral a -> PostIndex a
+        let parseTuple =  pRBracket .>>. pCommaOffset <?> "Post-indexed Offset Addressing"
+        let tupleTransform (t1, t2) = PostIndex t2
         mapP tupleTransform parseTuple
 
     let pAddressRegister =
-        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetAddress; pOffsetPre; pOffsetPost]  <?> "Address Register"
+        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetPost; pOffsetPre; pOffsetAddress;]  <?> "Address Register"
         let tupleTransform (t1, t2) = {register=t1;offset = t2;}
         mapP tupleTransform parseTuple          
           
@@ -708,8 +705,6 @@ module Parser =
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
         y |> x |> u
-
-
 
 (**************************************************TESTING***********************************************************)
 
