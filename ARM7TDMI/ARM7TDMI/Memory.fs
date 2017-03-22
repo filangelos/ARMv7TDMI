@@ -97,6 +97,8 @@ module Memory =
         static member next =
             // Getter: Memory -> Address
             ( fun (memory: Memory) ->
+                // check if memory is empty
+                if Map.isEmpty memory.Storage then 0x1700 else
                 // Get max used address
                 let max : Address = memory |> Optics.get Memory.Storage_ |> Map.toList |> List.maxBy fst |> fst
                 // Check if greater than specified starting storage address
