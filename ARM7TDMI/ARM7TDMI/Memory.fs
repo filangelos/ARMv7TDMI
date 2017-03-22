@@ -98,7 +98,7 @@ module Memory =
     let make ((ast, labels): AST*LabelMap) : Memory =
         { AST = ast ; Storage = Map.empty<Address, byte> ; Labels = labels }
 
-    let makeHack () : Memory =
+    let makeEmpty () : Memory =
         // init with empty data structures
         { AST = [] ; Storage = Map.empty<Address, byte> ; Labels = Map.empty<string, Address> }
 
@@ -108,7 +108,7 @@ module Memory =
         { AST = [] ; Storage = storage ; Labels = Map.empty<string, Address> }
 
     let makeWord (address: Address) (content: Data) : Memory =
-        let init = makeHack ()
+        let init = makeEmpty ()
         let tmp = Optics.set Memory.Word_ address content init
         // init with empty data structures
         { AST = [] ; Storage = tmp.Storage ; Labels = Map.empty<string, Address> }
@@ -118,7 +118,7 @@ module Memory =
     /// Complete Module Unit Testing
     let testMemory : Test =
         // initialise sandbox-dummy Memory
-        let sand : Memory = makeHack ()
+        let sand : Memory = makeEmpty ()
         // initialiser && Optics test
         let testMake : Test =
             testList "Initialisers" 

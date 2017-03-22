@@ -156,7 +156,7 @@ module MachineState =
             // construct Map
             |> Map.ofArray
 
-        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeEmpty () }
 
     /// MachineState Initialisation
     let init ((ast, labels): AST*LabelMap) : MachineState =
@@ -208,6 +208,6 @@ module MachineState =
             // construct Map
             |> Map.ofArray
 
-        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeHack () }
+        { Registers = registers ; StatusBits = flags ; Memory = Memory.makeEmpty () }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
