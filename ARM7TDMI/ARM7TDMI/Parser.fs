@@ -579,7 +579,7 @@ module Parser =
         mapP tupleTransform parseTuple
 
     let pAddressRegister =
-        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetPost; pOffsetAddress; pOffsetPre;]  <?> "Address Register"
+        let parseTuple =  pLBracket >>. pReg .>>. choice [pOffsetPost; pOffsetPre; pOffsetAddress;]  <?> "Address Register"
         let tupleTransform (t1, t2) = {register=t1;offset = t2;}
         mapP tupleTransform parseTuple          
           
