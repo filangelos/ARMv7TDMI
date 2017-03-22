@@ -4,10 +4,12 @@
     High Level Programming @ Imperial College London # Spring 2017
     Project: A user-friendly ARM7TDMI assembler and simulator in F# and Web Technologies ( Github Electron & Fable Compliler )
 
-    Contributors: Angelos Filos, Youssef Rizk
+    Contributors: Angelos Filos
 
     Module: MachineState
-    Description: 
+    Description: Model for Abstract Data Type `MachineState`, simulating the state of the processor, 
+                 register values, memory locations, instructions, label map.
+                 Immutable data structure -> get<|>set access using Optics.
 *)
 
 module MachineState =
@@ -53,7 +55,7 @@ module MachineState =
 
         /// Memory AST Composition Optic Function
         static member AST_ =
-            // Getter: Address -> MachineState -> byte
+            // Getter: MachineState -> AST
             ( fun (state: MachineState) -> 
                 Optics.get Memory.AST_ (Optics.get MachineState.Memory_ state) ),
             // Setter: Address -> byte -> MachineState -> MachineState

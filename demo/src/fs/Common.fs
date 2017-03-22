@@ -7,7 +7,7 @@
     Contributors: Angelos Filos, Baron Khan, Youssef Rizk, Pranav Prabhu
 
     Module: Common
-    Description: 
+    Description: Common types definitions, top-level interface definitions between modules.
 *)
 
 [<AutoOpen>]
@@ -27,14 +27,6 @@ module Common =
         | RRX
         | NoShift
     
-    (*
-    type StackDirection = 
-        | FA
-        | FD
-        | EA
-        | ED
-    *)
-
     /// Register ID D.U
     type RegisterID =
         | R0  | R1  | R2  | R3  | R4
@@ -68,7 +60,6 @@ module Common =
         | PreIndex of int // LDR     R8, [R10, #4]!
         | PostIndex of int // LDR     R8, [R10], #4
         | NoOffset // syntax: LDR     R8, [R10] 
-
 
     type AddressMode = 
         | IA | IB | DA | DB 
@@ -147,6 +138,7 @@ module Common =
         | TokCond of ConditionCode
         | TokStackDir of StackDirection
         | TokLabel of string
+        //| TokInput of Input
         | TokReg of RegisterID
         | TokLiteral of int
         | TokComma
@@ -155,19 +147,23 @@ module Common =
         | TokSquareRight
         | TokCurlyLeft
         | TokCurlyRight
+        | TokDash
         | TokNewLine
         | TokError of string
         | TokEOF
 
     type Instr =
     |  JInstr1 of ((((InstrType1*Option<SType>)*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr2 of (((InstrType2*Option<SType>)*Option<ConditionCode>)*RegisterID)
+    |  JInstr2 of (((InstrType2*Option<ConditionCode>)*RegisterID)*Expression) 
     |  JInstr3 of (((((InstrType3*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Operand)
     |  JInstr4 of (((((InstrType4*Option<SType>)*Option<ConditionCode>)*RegisterID)*RegisterID)*Input)
-    |  JInstr5 of ((((InstrType5*Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
+    |  JInstr5 of ((((InstrType5* Option<SType>)*Option<ConditionCode>)*RegisterID)*Input)
     |  JInstr6 of (((InstrType6*Option<ConditionCode>)*RegisterID)*Operand)
-    |  JInstr7 of (((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)
+    |  JInstr7 of ((((InstrType7*Option<BType>)*Option<ConditionCode>)*RegisterID)*AddressRegister)
+    |  JInstr8 of (((((InstrType8*StackDirection)*Option<ConditionCode>)*RegisterID)*bool)*(RegisterID list))   //bool: true if ! is next to reg
+    |  JInstr9 of ((InstrType9*Option<ConditionCode>)*string)
     |  JLabel of string
+    |  JError of string
 
     ///type representing the memory location (an int value in bytes) of the instruction or data (incr. addr by 4 bytes for each instruction parsed).
     type Address = int                  
