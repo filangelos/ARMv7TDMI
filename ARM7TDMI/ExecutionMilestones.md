@@ -1,0 +1,53 @@
+Milestones: Youssef
+=============
+
+- [x] Create N flag-setting function
+- [x] Create Z flag-setting function
+- [x] Create V flag-setting function
+- [x] Create C flag-setting function for addition/subtraction
+- [x] Create C flag-setting function for left shift
+- [x] Create N flag-setting function for right shift and rotations
+- [x] Write basic function for implementing addition
+- [x] Add ability to deal with carry in the addition function implemented
+- [x] Add flag setting ability to the add instruction
+- [x] Test and confirm functionality of the addition instruction for ADD/ ADC/ ADDS/ ADCS
+- [x] Write basic mov function which moves the value of a register or literal into a register
+- [x] Add flag setting ability to mov instruction
+- [x] Add ability to deal with shifts in the operands to mov instruction
+- [x] Define new function `getOperandVal` which obtains the value of the operand after applying a shift and the new state if flags are being setting
+- [x] Test and confirm functionality of mov instruction for MOV/LSL/LSR/ASR/ROR/RRX
+- [x] Write MVN instruction using mov as the skeleton code
+- [x] Test functionality of mvn 
+- [x] Write logical ORR instruction using Mov instruction as skeleton code
+- [x] Test functionality of ORR instruction
+- [x] Write AND instruction using ORR as skeleton code
+- [x] Write EOR instruction using ORR as skeleton code
+- [x] Write BIC instruction using ORR as skeleton code
+- [x] Test operation of all logical instructions
+- [x] Write basic subtract instruction using addition instruction as skeleton code
+- [x] Change the interfaces to make both inputs operands rather than the first being register and the second being operand so that the same instruction can later be used to implement reverse subtract
+- [x] Test operation of subtraction instruction in the context of SUB/SBC/RSB/RSC/CMP
+- [x] Write wrappers for the all ALU instructions supported by ARM using the existing functions 
+- [x] Add a function to determine whether to execute an instruction or not depending on the condition code and the machine state
+- [x] Include condition code in the interfaces of the wrapper functions
+- [x] Test the wrappers through unit testing in the Visual Interface project provided
+- [x] Automate testing by making a parser which decodes valid ARM instructions and executes the corresponding instruction in our implementation
+- [x] Write a function which generates random valid ARM instructions
+- [x] Combine the above functions to create automated random testing which test all implemented ALU instructions
+- [x] Implement simple LDR instruction
+- [x] Implement register offsets in the interface of the LDR instructions
+- [x] Test functionality of the LDR instruction
+- [x] Write complete STR instruction using LDR instruction as the skeleton code
+- [x] Test functionality of STR instruction
+- [x] Implement LDRB and STRB instructions and test them
+- [x] Implement simple LDMIA instruction
+- [x] Add addressing mode to interface of LDM instruction
+- [x] Add write back functionality
+- [x] Test LDM instruction
+- [x] Implement full STM instruction using LDM as skeleton code
+- [x] Test STM instruction
+- [x] Write branching instruction
+- [x] Write wrappers for the memory and branching instructions
+- [x] Remind Baron to test branching instruction on his AST
+- [x] Test memory instructions on the Visual Interface project manually
+- [x] Ensure documentation is up to date
