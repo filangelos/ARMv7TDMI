@@ -72,7 +72,7 @@ module Parser =
 
 *)
     let tokenToInit tokenLst = 
-        let y = splitBy TokNewLine tokenLst   
+        let y = splitBy TokNewLine tokenLst false
         match y with
             | [] -> {lineList = [||]; position = initPos;}
             | _ ->  {lineList = List.toArray y; position=initPos;}
@@ -212,7 +212,7 @@ module Parser =
     let run parser inputTokenLst = 
         runInput parser (tokenToInit inputTokenLst)
  
-    /// This is akin to a standard bind function >>, but takes a 
+    /// This is akin to a standard compose function >>, but takes a 
     /// function which produces a parser, f, and a parser p
     /// and then passes the output of p into f, to create a new parser
     let bindP f p =
@@ -531,6 +531,7 @@ module Parser =
             match t1 with
             | RRX_ -> RRX
         mapP tupleTransform parseTuple 
+
     let pOp =
         let parseTuple = pInput .>>. opt(pShiftDirection5 <|> pShiftDirection4)  <?> "Operand"
         let tupleTransform (t1, t2) = 
@@ -701,7 +702,7 @@ module Parser =
                                                        let tokPos = parPos.tokenNo
                                                        let failureLine = sprintf "%*s^%s" tokPos "" err
                                                        JError(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
-        let y = splitBy TokNewLine tokenLstLst                            
+        let y = splitBy TokNewLine tokenLstLst false                           
         let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
         y |> x |> u
