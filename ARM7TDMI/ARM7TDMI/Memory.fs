@@ -94,6 +94,16 @@ module Memory =
             // Setter: Label -> Address -> Memory -> Memory
             ( fun (label: string) (value: Address) (memory: Memory) -> { memory with Labels = Map.add label value memory.Labels } )
 
+        /// Initialise Memory Content with DCD and FILL instructions
+        static member push =
+            // Setter: Data -> Memory -> Memory
+            ( fun (content: Data) (memory: Memory) -> 
+                // Get max used address
+                let max : Address = memory |> Optics.get Memory.Storage_ |> Map.toList |> List.maxBy fst |> fst
+                match max >= 0x1700 with
+                | true -> Optics.set Memory.Word_ (max + 1) content memory
+                | false -> Optics.set Memory.Word_ 0x1700 content memory )
+
     /// Memory Initialisation
     let make ((ast, labels): AST*LabelMap) : Memory =
         { AST = ast ; Storage = Map.empty<Address, byte> ; Labels = labels }
