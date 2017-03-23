@@ -12,3 +12,12 @@
 - [ ] Dialog Open / Save
 - [ ] Actions Type
 - [ ] Memory Renderer
+
+## Testing
+
+- [ ] Optics Expecto
+- [ ] Memory Expecto
+- [ ] MachineState Expecto
+- [ ] Toolkit Expecto
+- [ ] GUI Parser Expecto
+- [ ] Renderer Mocha Testing
