@@ -61,6 +61,9 @@ module Electron =
     /// access to native dialogs
     let dialog = remote.dialog
 
+    /// access to electron shell
+    let shell = remote.shell
+
     // acces to main process browserwindow
     let browserWindow = remote.BrowserWindow
 
@@ -121,10 +124,10 @@ module Electron =
         let chooseFileOptions =
             [
                 Properties  [|"openFile"|]
-            ] 
+            ]
         let optFName = 
             match dialog?showOpenDialog( chooseFileOptions) with
-            | :? (string []) as x ->  Some x.[0]
+            | :? (string []) as x -> Some x.[0]
             | _ -> None
         match optFName with
         | Some fn ->
@@ -137,47 +140,14 @@ module Electron =
     /// return Some name, or None of operation fails
     let writeFromFileDialog(data: string) = 
         let chooseFileOptions = [
-                Title "my dialog"
-                DefaultPath  @"C:\tmp"
+                Title "Save Assembly File"
+                DefaultPath  @"~/Desktop"
             ] 
         let optFName = 
-            match dialog?showSaveDialog( chooseFileOptions) with
-            | :? (string []) as x ->  Some x.[0]
-            | _ -> None
+            match box ( dialog?showSaveDialog( chooseFileOptions) ) with
+            | :? (string) as x ->  Some x
+            | _ -> 
+                None
         match optFName with
         | Some fn ->  if writeFileSimple fn data then Some fn else None
         | None -> None
-
-
-
-    
-
-    /// This function demonstrates access to server Node API as defined in 
-    /// Fable.Import.Node and Fable.Import.Electron
-    /// This allows a client (web-page) app full access to a computer which it
-    /// runs on using electron instead of a browser.
-    let render() =
-        // demo how to use Electron dialog boxes
-        let showMessage s =
-            let showMessageOptions (s:string) =
-                // creates an literal object for JS interface
-                // the string/value pairs here make object properties
-                // 
-                createObj [ 
-//                    "buttons" ==> [|"OK";"Terrible"|]
-                    "title"==> "My Box"
-                    "message" ==>  s; 
-                    "filters" ==> None; 
-                    "properties" ==> Some [|"openFile"|]
-                    // :?> casts obj type to correct type to fit JS
-                    // interface. TODO - chnage this to KeyValueList
-                ] :?> Electron.ShowMessageBoxOptions
-            let ret = dialog.showMessageBox(showMessageOptions s)
-            printfn "Messagebox returned %f" ret
-
-        /// demo how to read a file
-        /// displays a box with file length
-        match readFromFileDialog() with
-        | Some (fName,data) ->
-            Browser.window?code?setValue(data) |> ignore
-        | None -> printfn "No file name given!"

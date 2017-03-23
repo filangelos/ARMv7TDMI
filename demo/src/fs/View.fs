@@ -39,22 +39,30 @@ module View =
     let stopBtn = document.getElementById("stop")           // stop button
     let runBtn = document.getElementById("run")             // run button
     let docsBtn = document.getElementById("docs")           // docs button
-    let warnBtn = document.getElementById("warn")           // warn button
     let themeBtn = document.getElementById("theme")         // warn button
     let editorDiv = document.getElementById("editor")       // editor div
     let dashboardDiv = document.getElementById("dashboard") // dashboard div
     let flagsDiv = document.getElementById("flags")         // flags div
 
-    // Event Listeners
+    // Attach Event Listeners
     let actions : unit -> unit = fun _ ->
         // explore button
-        exploreBtn.onclick <- ( fun _ -> render (); null )
+        exploreBtn.onclick <- ( fun _ -> 
+            match readFromFileDialog() with
+            | Some (fName,data) ->
+                window?code?setValue(data) |> ignore
+            | None -> printfn "No file name given!"
+            null )
         // save button
-        saveBtn.onclick <- ( fun _ -> null )
+        saveBtn.onclick <- ( fun _ -> 
+            let data = sprintf "%O" (window?code?getValue())
+            let fn = writeFromFileDialog data
+            printfn "%A" fn
+            null )
         // indent button
         indentBtn.onclick <- ( fun _ -> 
             let current : string = sprintf "%O" (window?code?getValue())
-            let indented = Regex.Replace(current, "\t", " ")
+            let indented = Regex.Replace(current, "[\t]", " ")
             window?code?setValue(indented) |> ignore
             null )
         // debug button
@@ -86,20 +94,25 @@ module View =
             stopBtn.className <- "btn btn-default"
             null )
         // run button
-        runBtn.onclick <- ( fun _ -> 
+        runBtn.onclick <- ( fun _ ->
             let assembly : string = sprintf "%O" (window?code?getValue()) + "\n"
             let execute = tokenise >> Parse >> buildAST >> init >> execute
             updateUI (execute assembly)
             null )
         // docs button
-//        docsBtn.onclick <- ( fun _ -> null)
-        // warn button
-        warnBtn.onclick <- ( fun _ -> null )
+        docsBtn.onclick <- ( fun _ ->
+            shell.openExternal("https://github.com/filangel/HLP") |> ignore
+            null)
         // theme button
         themeBtn.onclick <- ( fun _ ->
+            let current : string = sprintf "%O" (window?code?getRawConfiguration()?theme)
+            let theme = 
+                match current with
+                | "vs" -> "vs-dark"
+                | _ -> "vs"
             let options = 
                 createObj [
-                    "theme" ==> "vs-dark"
+                    "theme" ==> theme
                 ]
             window?code?updateOptions(options) )
         ()

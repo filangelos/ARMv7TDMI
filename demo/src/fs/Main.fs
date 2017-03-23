@@ -34,7 +34,6 @@ module Main =
 
     let main () =
         actions ()
-//        render ()
 
     do
         main ()
