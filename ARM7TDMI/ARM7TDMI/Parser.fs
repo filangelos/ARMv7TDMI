@@ -192,7 +192,7 @@ module Parser =
 
     // Parse a Register List for LDM/STM Instructions (Type 8)
     let pOnePlusRegComma = 
-        let parseTuple = (zeroPlus pRegComma) .>>. pReg <?> "Register followed by Comma"
+        let parseTuple = pComma >>. (zeroPlus pRegComma) .>>. pReg <?> "Register followed by Comma List"
         let tupleTransform (t1,t2) = 
             match t1, t2 with  
             |  [a], b -> a::[b]
@@ -256,12 +256,29 @@ module Parser =
         satisfy pred label 
 
     let pLiteralNoHash = 
-        let parseTuple = pInt .>> opt pComma <?> "Shift Direction"
+        let parseTuple = pInt .>> opt pComma <?> "Literal Integer - No Hash"
         let tupleTransform t1 = 
             match t1 with
             | TokLiteralNoHash a -> a
-            | _ -> failwith "pLiteralHash"
-        mapParse tupleTransform parseTuple  
+            | _ -> failwith "pLiteralNoHash"
+        mapParse tupleTransform parseTuple 
+
+    let pLiteralNoHashComma = 
+        let parseTuple = pInt .>> pComma <?> "Literal No Hash followed by Comma"
+        let tupleTransform t1 = 
+            match t1 with
+            | TokLiteralNoHash a -> a
+            | _ -> failwith "pLiteralNoHashComma"
+        mapParse tupleTransform parseTuple 
+
+    let pOnePlusLiteralNoHash = 
+        let parseTuple = pComma >>. (zeroPlus pLiteralNoHash) .>>. pLiteralNoHash <?> "Register followed by Comma"
+        let tupleTransform (t1,t2) = 
+            match t1, t2 with  
+            |  [a], b -> a::[b]
+            |  [], b -> [b] 
+            | _ -> failwith "pOnePlusLiteralNohash"
+        mapParse tupleTransform parseTuple 
 
     let pLiteral =  
         let parseTuple = pInt <?> "Integer"
@@ -472,7 +489,7 @@ module Parser =
 
     // The primitive parser for Memory Related Instructions
     let pDCD = 
-        let parseTuple = pLabel .>>. pInstrDCD .>>. onePlus pLiteralNoHash <?> "DCD Instruction + Int List"
+        let parseTuple = pLabel .>>. pInstrDCD .>>. pOnePlusLiteralNoHash <?> "DCD Instruction + Int List"
         let tupleTransform  = function
             | x -> JInstrDCD(x)
         mapParse tupleTransform parseTuple  
@@ -483,7 +500,6 @@ module Parser =
             | x -> JInstrEQU(x)
         mapParse tupleTransform parseTuple 
 
-    
     let pFILL= 
         let label = "FILL Instruction + Int"
         let tupleTransform = function
