@@ -32,7 +32,7 @@ Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address
 - [x] Optics Wrappers
 - [x] Empty Constructor
 - [x] `DCD` | `FILL` | `EQU` helper functions `next` and `push` 
-- [ ] Error Handling for memory access of words with non-multiple of 4 starting address
+- [x] Error Handling for memory access of words with non-multiple of 4 starting address
 - [x] Expecto Testing
 ---
 ## Dependencies
