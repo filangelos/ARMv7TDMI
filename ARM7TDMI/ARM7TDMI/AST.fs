@@ -1,4 +1,4 @@
-﻿namespace ARM7TDMI
+namespace ARM7TDMI
 
 (* 
     High Level Programming @ Imperial College London # Spring 2017
@@ -72,6 +72,7 @@ module AST =
         
 
     ///Build the Memory for MachineState from the list given by Parser
+    (*
     let buildMemory (parseLst:(Instr list)) =
         let rec addNode (lst:(Instr list)) (mem:Memory) (pc:int) =
             match lst with
@@ -98,7 +99,55 @@ module AST =
                     let newMem = ( ^~ ) (addInstruction ((^&) mem) instr pc) mem 
                     addNode t newMem (pc+4)
         addNode parseLst (makeEmpty ()) 0
+    *)
 
+    let buildMemory (parseLst:(Instr list)) =
+        let rec addNode (lst:(Instr list)) (mem:Memory) (pc:int) =
+            match lst with
+            | [] -> mem
+            | node1::node2::t -> 
+                match node1, node2 with
+                | JInstrEOF,_ -> addNode (node2::t) mem pc
+                | JError(s), _ ->
+                        failwithf "Found error while parsing: %A." s
+                | JLabel(label), JInstrDCD((_), dataLst) ->      
+                    let newMem = addDCD mem label dataLst
+                    addNode t newMem pc
+                | JLabel(label), JInstrEQU((_), d) ->
+                    let newMemLabel = ( ^< ) (addLabel ((^>) mem) label (Memory.next mem)) mem
+                    let newMem = Memory.push d newMemLabel
+                    addNode t newMem pc
+                | JLabel(label), JInstrFILL((_), fillSize) ->
+                    let newMem = addFILL mem (Some(label)) fillSize
+                    addNode t newMem pc
+                | JLabel(s),_ -> 
+                    let newMem = ( ^< ) (addLabel ((^>) mem) s pc) mem 
+                    addNode (node2::t) newMem (pc+4)
+                | JInstrFILL((_), fillSize), _ ->
+                    let newMem = addFILL mem None fillSize
+                    addNode (node2::t) newMem pc
+                | instr, _ ->
+                    let newMem = ( ^~ ) (addInstruction ((^&) mem) instr pc) mem 
+                    addNode (node2::t) newMem (pc+4)
+            | node::t ->
+                match node with
+                | JInstrEOF -> addNode t mem pc
+                | (JError(s)) ->
+                        failwithf "Found error while parsing: %A." s
+                | (JLabel(s)) -> 
+                    let newMem = ( ^< ) (addLabel ((^>) mem) s pc) mem 
+                    addNode t newMem (pc+4)
+                | JInstrDCD((_), dataLst) ->      
+                    failwithf "Found error while parsing: Found DCD instruction with no label."
+                | JInstrEQU((_), d) ->
+                    failwithf "Found error while parsing: Found EQU instruction with no label."
+                | JInstrFILL((_), fillSize) ->
+                    let newMem = addFILL mem None fillSize
+                    addNode t newMem pc
+                | instr ->
+                    let newMem = ( ^~ ) (addInstruction ((^&) mem) instr pc) mem 
+                    addNode t newMem (pc+4)
+        addNode parseLst (makeEmpty ()) 0
 
     ///executes instructions in an AST and returns the final MachineState (need to add all instructions)
     let step (state:MachineState) =
@@ -243,12 +292,15 @@ module AST =
         let result = execute state
         printfn "final result state after branching is:\n%A\n" result
 
-        let testMemList =    [
-                                JInstrDCD(("data1", DCD),[1;5;20]);
-                                JInstrEQU(("data2", EQU), 100);
+        let testMemList =    [ 
+                                JLabel("data1");
+                                JInstrDCD((DCD),[1;5;20]);
+                                JLabel("data2");
+                                JInstrEQU((EQU), 100);
                                 JInstr2(((ADR, None), R3), Expression.Lab("data2"))
                                 JInstr7((((LDR, None), None), R4), {register= R3; offset= NoOffset} )
-                                JInstrFILL((Some("data3"), FILL), 5);
+                                JLabel("data3");
+                                JInstrFILL((FILL), 5);
                                 JInstr2(((ADR, None), R3), Expression.Lab("data3"))
                                 JInstr7((((LDR, None), None), R4), {register= R3; offset= NoOffset} )
                             ]
