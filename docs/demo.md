@@ -16,8 +16,10 @@ Github Electron is used for running the app as a native desktop application.
 * electron github, globally installed.
 ---
 ## Installation
+
 In the root of the project run `npm install` or `yarn` in the CLI.
 When the necessary `node_modules` are installed, run `npm/yarn start`.
+
 ---
 ## Milestones
 - [x] Integrate Monaco Editor
