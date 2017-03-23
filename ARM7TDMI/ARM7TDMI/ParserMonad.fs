@@ -55,7 +55,7 @@ module ParserMonad =
     let tokenToInit tokenLst = 
         //Use splitBy to split by TokNewLine Token
         // and return the an array of token lists
-        let y = splitBy TokNewLine tokenLst false
+        let y = splitBy TokNewLine tokenLst true
         match y with
             | [] -> {lineList = [||]; position = initPos;}
             | _ ->  {lineList = List.toArray y; position=initPos;}

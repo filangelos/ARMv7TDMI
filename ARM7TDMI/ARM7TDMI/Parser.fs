@@ -498,12 +498,6 @@ module Parser =
                             instEND;                          
                             instEOF;
                             ]
-                        <?> "Invalid Instruction"
-
-    
-    let parseFinal = 
-        let label = "Function must end with New Line"
-        parseInstr .>> (pToken TokNewLine) <?> label
 
     let Parse (tokenLstLst: Token List) : Instr List = 
         let z outcome = match outcome with 
@@ -512,8 +506,8 @@ module Parser =
                                                        let tokPos = parPos.tokenNo
                                                        let failureLine = sprintf "%*s^%s" tokPos "" err
                                                        JError(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
-        let y = splitBy TokNewLine tokenLstLst false                          
-        let x = List.map (fun j -> run parseFinal j) 
+        let y = splitBy TokNewLine tokenLstLst true                         
+        let x = List.map (fun j -> run parseInstr j) 
         let u = List.map z 
         y |> x |> u
 
