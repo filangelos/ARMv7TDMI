@@ -6,8 +6,12 @@ The memory is implemented to be __sparse__ and __unified__:
 * _storage_, _instructions_ (in form of an AST) and _labels_ are under a single data structure `->` unity
 ---
 ## Types
-* `type Memory = { AST: AST ; Storage: Map<Address, byte> ; Labels: LabelMap }` 
-record of AST, storage map and labels map.
+  ```F#
+  type Memory = 
+    { AST: AST
+      Storage: Map<Address, byte>
+      Labels: LabelMap }
+  ```
 ---
 ## Functions
 * `Memory.AST_ : ( Memory -> AST ) * ( AST -> Memory -> Memory ) ` Lens for `AST`, useful for UI.
