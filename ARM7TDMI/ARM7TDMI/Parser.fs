@@ -485,13 +485,13 @@ module Parser =
 
     // The primitive parser for Memory Related Instructions
     let pDCD = 
-        let parseTuple = pLabel .>> pToken TokNewLine .>>.  pInstrDCD .>>. pOnePlusLiteralNoHash <?> "DCD Instruction + Int List"
+        let parseTuple =  pInstrDCD .>>. pOnePlusLiteralNoHash <?> "DCD Instruction + Int List"
         let tupleTransform  = function
             | x -> JInstrDCD(x)
         mapParse tupleTransform parseTuple  
 
     let pEQU = 
-        let parseTuple = pLabel .>> pToken TokNewLine .>>. pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
+        let parseTuple =  pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
         let tupleTransform =  function
             | x -> JInstrEQU(x)
         mapParse tupleTransform parseTuple 
@@ -500,7 +500,7 @@ module Parser =
         let label = "FILL Instruction + Int"
         let tupleTransform = function
                 | x -> JInstrFILL(x)
-        let instrLabelHold = opt (pLabel .>> pToken TokNewLine) .>>. pInstrFILL .>>. pLiteralNoHash <?> label
+        let instrLabelHold = pInstrFILL .>>. pLiteralNoHash <?> label
         mapParse tupleTransform instrLabelHold
     
     // Combined Parser required for all Memory Instructions that Start with a string as no multi-level backtracking implemented 
@@ -509,7 +509,7 @@ module Parser =
     let instMemory = 
         let tupleTransform = function
                 | x -> x
-        let instrLabelHold = choice [pFILL; pDCD; pEQU]
+        let instrLabelHold = choice [pFILL; pDCD; pEQU;]
         mapParse tupleTransform instrLabelHold
 
     // Parser for END 
@@ -533,8 +533,8 @@ module Parser =
                             instType7;
                             instType8;
                             instType9;
-                            instTypeLabel;
-                            instMemory; 
+                            instMemory;  
+                            instTypeLabel;                         
                             instEND;                          
                             instEOF;
                             ]

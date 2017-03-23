@@ -48,16 +48,6 @@ The Parser is implemented using two files - Parser.fs and ParserMonad.fs
 - [x] Improve combinators 
 - [x] Make sure everything properly documented
 - [x] Full system command line Testing
-
-## Types
-
-*
-*
----
-## Functions
-
-*
-*
 ---
 ## Dependencies
 * `Common.fs` - Almost all types are implemented for the Parser Combinator
@@ -66,4 +56,4 @@ The Parser is implemented using two files - Parser.fs and ParserMonad.fs
 
 ## Contributors 
 Pranav Prabhu
-Baron Khan (Testing - 10%)
+Baron Khan (Testing -5%)
