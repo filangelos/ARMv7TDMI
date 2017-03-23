@@ -498,6 +498,7 @@ module Parser =
                             instEND;                          
                             instEOF;
                             ]
+                        <?> "Invalid Instruction"
 
     
     let parseFinal = 
