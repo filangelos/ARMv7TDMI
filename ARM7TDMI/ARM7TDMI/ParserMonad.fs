@@ -8,7 +8,7 @@ namespace ARM7TDMI
 
     Module: Parser Monads
 
-    Description: Self-implementation of Monads required to build Parser Combinators
+    Description: Self-implementation of Monads required to build Parser Combinator
 
     Guidance Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, stackoverflow.com
      
@@ -137,7 +137,7 @@ module ParserMonad =
             | Success s -> Success s 
             // If we fail, return label for new parser in pipeline
             | Failure (oldLab,err, parPos) -> Failure (newLab,err, parPos)
-        // return new Parser
+        // Return new Parser
         {parseFunc=innerFunc; pLabel=newLab}
 
     // Infix operator for setting label
