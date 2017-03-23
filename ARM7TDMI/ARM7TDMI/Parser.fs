@@ -454,10 +454,9 @@ module Parser =
         mapParse tupleTransform instrLabelHold
     
     let instMemory = 
-        let label = "EQU Instruction + Int"
         let tupleTransform = function
                 | x -> x
-        let instrLabelHold = (pEQU <|> pDCD) <?> label
+        let instrLabelHold = choice [pFILL; pDCD; pEQU]
         mapParse tupleTransform instrLabelHold
 
 (*
@@ -502,7 +501,7 @@ module Parser =
 
     
     let parseFinal = 
-        let label = "END Instruction"
+        let label = "Function must end with New Line"
         parseInstr .>> (pToken TokNewLine) <?> label
 
     let Parse (tokenLstLst: Token List) : Instr List = 

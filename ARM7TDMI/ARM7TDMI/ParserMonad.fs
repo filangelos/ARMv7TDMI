@@ -137,7 +137,7 @@ module ParserMonad =
             | Success s -> Success s 
             // If we fail, return label for new parser in pipeline
             | Failure (oldLab,err, parPos) -> Failure (newLab,err, parPos)
-        // return new Parser
+        // Return new Parser
         {parseFunc=innerFunc; pLabel=newLab}
 
     // Infix operator for setting label
