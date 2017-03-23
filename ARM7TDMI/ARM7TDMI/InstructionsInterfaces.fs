@@ -163,6 +163,7 @@ module InstructionsInterfaces =
         printfn "%A" a
         printfn "%A" b
 
+    //this is a quick test for any ad hoc functionality testing
     let quicktest () = 
         let a = tst_ (R0, Operand(ID R4, ROR 1), MachineState.make (), Some PL)
         let b = loadMultiple (ED, R0, [R1;R3;R2], a,true)
@@ -170,3 +171,13 @@ module InstructionsInterfaces =
         printfn "Quick Test"
         printfn "%A" a
         //printfn "%A" b
+
+    //condition code testing
+    let testconditioncode () =
+        let a = mov_ (R0, Operand(Literal -1, NoShift), MachineState.make(), true, None)
+        let b = mov_ (R1, Operand(Literal 0, NoShift), a,true, Some MI)
+        let c = mov_ (R2, Operand(Literal 1, NoShift), b,true, Some EQ)
+        let d = mov_ (R3, Operand(Literal 2, NoShift), c,true, Some NE)
+        printfn "%A" d
+
+    
