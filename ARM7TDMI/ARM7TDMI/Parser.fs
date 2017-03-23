@@ -193,11 +193,9 @@ module Parser =
     // Parse a Register List for LDM/STM Instructions (Type 8)
     let pOnePlusRegComma = 
         let parseTuple = pComma >>. (zeroPlus pRegComma) .>>. pReg <?> "Register followed by Comma List"
-        let tupleTransform (t1,t2) = 
+        let tupleTransform (t1, t2) = 
             match t1, t2 with  
-            |  [a], b -> a::[b]
-            |  [], b -> [b] 
-            | _ -> failwith "pOnePlusRegComma"
+            |  a, b -> a @ [b]
         mapParse tupleTransform parseTuple
 
     let pStackDir = 
@@ -275,9 +273,7 @@ module Parser =
         let parseTuple = pComma >>. (zeroPlus pLiteralNoHash) .>>. pLiteralNoHash <?> "Register followed by Comma"
         let tupleTransform (t1,t2) = 
             match t1, t2 with  
-            |  [a], b -> a::[b]
-            |  [], b -> [b] 
-            | _ -> failwith "pOnePlusLiteralNohash"
+            | a, b -> a @ [b]
         mapParse tupleTransform parseTuple 
 
     let pLiteral =  
