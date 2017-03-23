@@ -25,9 +25,10 @@ When the necessary `node_modules` are installed, run `npm/yarn start`.
 - [x] Integrate Monaco Editor
 - [x] Split View - Editor and Register Values
 - [x] Highlighting
-- [ ] Open files
+- [x] Open files
 - [ ] Save files
 - [x] Theme changing
+- [x] Indent Text
 - [x] Debug Mode
 - [ ] Error Handling
 ---
