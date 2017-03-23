@@ -485,13 +485,13 @@ module Parser =
 
     // The primitive parser for Memory Related Instructions
     let pDCD = 
-        let parseTuple = pLabel .>>. pInstrDCD .>>. pOnePlusLiteralNoHash <?> "DCD Instruction + Int List"
+        let parseTuple = pLabel .>> pToken TokNewLine .>>.  pInstrDCD .>>. pOnePlusLiteralNoHash <?> "DCD Instruction + Int List"
         let tupleTransform  = function
             | x -> JInstrDCD(x)
         mapParse tupleTransform parseTuple  
 
     let pEQU = 
-        let parseTuple = pLabel .>>. pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
+        let parseTuple = pLabel .>> pToken TokNewLine .>>. pInstrEQU .>>. pLiteralNoHash <?> "EQU Direction + Integer"
         let tupleTransform =  function
             | x -> JInstrEQU(x)
         mapParse tupleTransform parseTuple 
@@ -500,7 +500,7 @@ module Parser =
         let label = "FILL Instruction + Int"
         let tupleTransform = function
                 | x -> JInstrFILL(x)
-        let instrLabelHold = opt pLabel .>>. pInstrFILL .>>. pLiteralNoHash <?> label
+        let instrLabelHold = opt (pLabel .>> pToken TokNewLine) .>>. pInstrFILL .>>. pLiteralNoHash <?> label
         mapParse tupleTransform instrLabelHold
     
     // Combined Parser required for all Memory Instructions that Start with a string as no multi-level backtracking implemented 
@@ -551,7 +551,7 @@ module Parser =
                         | Failure(label,err,parPos) -> let errorLine = parPos.currLine
                                                        let tokPos = parPos.tokenNo
                                                        let failureLine = sprintf "%*s^%s" tokPos "" err
-                                                       JError(sprintf "TokenNo:%i Error parsing %A\n %A\n %s" tokPos label errorLine failureLine)
+                                                       JError(sprintf "Error parsing %A\n %A\n %s" label errorLine failureLine)
         let splitToken = splitBy TokNewLine tokenLstLst true                         
         let parseEach = List.map (fun j -> run parseInstr j) 
         let mapToOutcome = List.map z 
@@ -587,16 +587,7 @@ module Parser =
                 yield! readAllTokens remainingInput
         ]
 
-    let testInstrType1List4 = [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]
-
-    let testInstrType1ListFail1 = [TokInstr1(MVN); TokError("R20"); TokLiteral(10); TokNewLine; TokInstr1(MVN); TokError("R16"); TokError("R20");TokEOF;]
-
-    let testInstrType1ListFail3 = [TokInstr1(MOV); TokError("B"); TokReg(R0); TokReg(R1)]
-
-    let testInstrType1ListFail4 = [TokInstr1(MOV); TokS(S); TokError("ER"); TokReg(R0); TokLiteral(10)]
-    let testInstrType1List1 = [TokInstr1(MOV); TokReg(R0); TokComma; TokLiteral(10);]
-    let t1 = [TokReg(R0); TokError("1$");]
-
+    // Test functions that implements FsCheck on a good set of instructions and a bad set of instructions of all types
     let testParser () = 
         printfn "Running testParser...\n"
 
@@ -629,8 +620,7 @@ module Parser =
                                         [TokInstr4 LSL; TokCond EQ; TokS S; TokReg R0; TokComma; TokLiteral 11; TokComma; TokLiteral 6; TokEOF];
                                         [TokInstr3 ADD; TokReg R0; TokComma; TokReg R1; TokEOF]
                                     |]
-    
-        
+
         let rec tryGoodTests testList count = 
             if count < (Array.length testList) then  
                 let outList = Parse testList.[count]
@@ -671,6 +661,8 @@ module Parser =
                             [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokNewLine];
                             [TokLabel "Label"; TokNewLine]
                         ]
+
+        // Implemented based on Tokeniser Test module using FSCheck
 
         let checkInstructionCount () = 
             //http://stackoverflow.com/questions/1123958/get-a-random-subset-from-a-set-in-f
