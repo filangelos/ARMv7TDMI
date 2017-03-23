@@ -18,6 +18,13 @@ Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address
 * `make : unit -> MachineState` MachineState initialiser - used only for individual instructions testing without complete AST.
 * `initWithFlags : string -> MachineState` MachineState initialiser - used only for automating state generation for VisUAL Interface testing.
 ---
+## Milestones
+- [x] Optics Wrappers
+- [x] Flag - ALU Functions
+- [x] Empty Constructor
+- [x] Init Constructor, accepting a `Memory`
+- [ ] Expecto Testing
+---
 ## Dependencies
 * `Common.RegisterID`
 * `Common.Registers`
