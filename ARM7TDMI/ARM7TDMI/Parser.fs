@@ -65,7 +65,7 @@ module Parser =
 
     // For each parser you can see what it parses from the Label string after the <?> 
     // Most parsers contain a parseTuple, which represents, their pipeline
-    // Most also inclue a tupleTransform structure which returns the correct output type for building up
+    // Most also include a tupleTransform structure which returns the correct output type for building up
     let pInstr1 =
         let parseTuple = anyOf tokenInstrList1 <?> "Type 1 Opcode"
         let tupleTransform(x) =
@@ -174,6 +174,13 @@ module Parser =
             match t1, t2 with  
             | a, TokComma-> a
             | _ -> failwith "Impossible"
+        mapParse tupleTransform parseTuple
+
+    let pOnePlusRegComma = 
+        let parseTuple = (zeroPlus pRegComma) .>>. pReg <?> "Register followed by Comma"
+        let tupleTransform (t1,t2) = 
+            match t1, t2 with  
+            |  [a], b -> a::[b]
         mapParse tupleTransform parseTuple
 
     let pStackDir = 
@@ -402,7 +409,7 @@ module Parser =
         let label = "Instruction Type 8"
         let tupleTransform = function
             | x -> JInstr8(x)
-        let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. onePlus pRegComma <?> label
+        let instr8Hold = pInstr8 .>>. pStackDir .>>. opt pCond .>>. pReg .>>. pExclamBool .>>. pOnePlusRegComma <?> label
         mapParse tupleTransform instr8Hold
 
     let instType9 = 
@@ -438,14 +445,22 @@ module Parser =
             | x -> JInstrEQU(x)
         mapParse tupleTransform parseTuple 
 
-    let instEQUDCD = 
+    
+    let pFILL= 
+        let label = "FILL Instruction + Int"
+        let tupleTransform = function
+                | x -> JInstrFILL(x)
+        let instrLabelHold = opt pLabel .>>. pInstrFILL .>>. pLiteralNoHash <?> label
+        mapParse tupleTransform instrLabelHold
+    
+    let instMemory = 
         let label = "EQU Instruction + Int"
         let tupleTransform = function
                 | x -> x
         let instrLabelHold = (pEQU <|> pDCD) <?> label
         mapParse tupleTransform instrLabelHold
-  (*  
 
+(*
     let instEQU = 
         let label = "EQU Instruction + Int"
         let tupleTransform = function
@@ -460,22 +475,13 @@ module Parser =
         let instrLabelHold = pInstrDCD .>>. onePlus pLiteralNoHash <?> label
         mapParse tupleTransform instrLabelHold
 
-    let instFILL= 
-        let label = "FILL Instruction + Int"
-        let tupleTransform = function
-                | x -> JInstrFILL(x)
-        let instrLabelHold = pInstrFILL .>>. pLiteralNoHash <?> label
-        mapParse tupleTransform instrLabelHold
-
-    let instEND= 
+*)
+    let instEND = 
         let label = "END Instruction"
         let tupleTransform = function
                 | x -> JInstrEND(x)
-        let instrLabelHold = pInstrEND .>>. opt(pS) <?> label
+        let instrLabelHold = pInstrEND .>>. opt pS <?> label
         mapParse tupleTransform instrLabelHold
-
-    *)
-
 
 //////////////////////////////////////// Final Choice + External Parse Instruction////////////////////////////////
     let parseInstr = choice [
@@ -489,11 +495,8 @@ module Parser =
                             instType8;
                             instType9;
                             instTypeLabel;
-                            instEQUDCD;
-                           (* instDCD;
-                            instFILL;
-                            instEQU; 
-                           *)                           
+                            instMemory; 
+                            instEND;                          
                             instEOF;
                             ]
                             
