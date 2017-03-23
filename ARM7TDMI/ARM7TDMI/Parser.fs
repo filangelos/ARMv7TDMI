@@ -1,4 +1,4 @@
-﻿namespace ARM7TDMI
+namespace ARM7TDMI
 
 (* 
     High Level Programming @ Imperial College London # Spring 2017
@@ -599,15 +599,16 @@ module Parser =
                                         [TokInstr4 LSL; TokS S; TokCond EQ; TokReg R0; TokComma; TokReg R0; TokComma; TokLiteral 11; TokEOF];
                                         [TokInstr5 RRX_; TokS S; TokCond NE; TokReg R10; TokComma; TokReg R1; TokEOF];
                                         [TokInstr6 TST; TokCond PL; TokReg R0; TokComma; TokReg R4; TokComma; TokInstr4 ROR_; TokLiteral 1; TokEOF];
-                                        [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF]
-                                    |]
-
-        let parseGoodTokenList2 =   [|
-                                        [TokInstr1(MOV); TokReg(R0); TokLiteral(10);TokNewLine;TokInstr1(MVN); TokS(S); TokReg(R0); TokReg(R1);TokEOF]
-                                        [TokInstr2(ADR); TokCond(EQ); TokReg(R12); TokComma; TokLabel("LAB");]
-                                        [TokInstr7(LDR); TokB(B); TokCond(EQ);TokReg(R10);TokSquareLeft;  TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;]
-                                        [TokInstr7(STR); TokB(B); TokCond(EQ);TokReg(R10);TokSquareLeft;  TokReg(R10); TokComma; TokLiteral(10); TokComma; TokSquareRight; TokExclam;]
-                                        [TokInstr1(MVN); TokS(S); TokCond(EQ); TokReg(R0); TokLiteral(10); TokEOF;]      
+                                        [TokInstr1 MOV; TokReg R0; TokComma; TokReg R1; TokComma; TokInstr5 RRX_; TokEOF];
+                                        [TokInstr2 ADR; TokReg R1; TokComma; TokLiteralNoHash 1; TokEOF]
+                                        [TokInstr7 LDR; TokB B; TokReg R8; TokComma; TokSquareLeft; TokReg R10; TokSquareRight; TokEOF]
+                                        [TokInstr7 STR; TokCond NE; TokReg R2; TokComma; TokSquareLeft; TokReg R10;TokSquareRight; TokEOF]
+                                        [TokInstr8 LDM; TokStackDir IA; TokReg R8; TokComma; TokReg R0; TokComma;TokReg R2; TokComma; TokReg R9; TokEOF]
+                                        [TokInstr8 STM; TokStackDir DB; TokReg R1; TokExclam; TokComma; TokReg R11; TokComma; TokReg R12; TokEOF]
+                                        [TokInstr9 B_; TokCond NE; TokLabel "LABEL"; TokNewLine; TokEOF]
+                                        [TokLabel "data1"; TokNewLine; TokDCD DCD; TokLiteralNoHash 1; TokComma; TokLiteralNoHash 5; TokComma; TokLiteralNoHash 20; TokEOF]
+                                        [TokLabel "abc"; TokNewLine; TokEQU EQU; TokLiteralNoHash 2; TokEOF]
+                                        [TokFILL FILL; TokLiteralNoHash 50; TokEOF]
                                     |]
 
         let parseBadTokenList =
