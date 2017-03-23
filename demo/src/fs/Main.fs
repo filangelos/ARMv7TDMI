@@ -28,11 +28,13 @@ module Main =
     open Fable.Import
     open View
     open Update
+    open Electron
 
     let xx = 0
 
     let main () =
         actions ()
+//        render ()
 
     do
         main ()
