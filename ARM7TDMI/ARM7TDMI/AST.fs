@@ -51,16 +51,25 @@ module AST =
     *)
 
     let private addDCD (mem:Memory) (label:string) (dataLst:(int list)) =
-        printfn "data list is %A" dataLst
         let newMemLabel = ( ^< ) (addLabel ((^>) mem) label (Memory.next mem)) mem
-        printfn "added label"
         let rec addData (m:Memory) (lst:(int list)) =
             match lst with
             | [] -> m
             | d::t -> addData (Memory.push d m) t
         addData newMemLabel dataLst
 
-    //let private addFILL (mem:Memory) (label:Option<string>) (data)
+    let private addFILL (mem:Memory) (label:Option<string>) (fillSize:int) =
+        let rec addZero (m:Memory) (size:int) =
+            match size with
+            | 0 -> m
+            | _ -> addZero (Memory.push 0 m) (size-1)
+        match label with
+        | None ->
+            addZero mem fillSize
+        | Some(s) ->
+            let newMemLabel = ( ^< ) (addLabel ((^>) mem) s (Memory.next mem)) mem
+            addZero newMemLabel fillSize
+        
 
     ///Build the Memory for MachineState from the list given by Parser
     let buildMemory (parseLst:(Instr list)) =
@@ -77,14 +86,14 @@ module AST =
                     addNode t newMem (pc+4)
                 | JInstrDCD((label, _), dataLst) ->      
                     let newMem = addDCD mem label dataLst
-                    printfn "doing this"
                     addNode t newMem pc
                 | JInstrEQU((label, _), d) ->
                     let newMemLabel = ( ^< ) (addLabel ((^>) mem) label (Memory.next mem)) mem
                     let newMem = Memory.push d newMemLabel
                     addNode t newMem pc
-                //| JInstrFILL((label, _), fillSize) ->
-                    
+                | JInstrFILL((label, _), fillSize) ->
+                    let newMem = addFILL mem label fillSize
+                    addNode t newMem pc
                 | instr ->
                     let newMem = ( ^~ ) (addInstruction ((^&) mem) instr pc) mem 
                     addNode t newMem (pc+4)
@@ -238,6 +247,9 @@ module AST =
                                 JInstrDCD(("data1", DCD),[1;5;20]);
                                 JInstrEQU(("data2", EQU), 100);
                                 JInstr2(((ADR, None), R3), Expression.Lab("data2"))
+                                JInstr7((((LDR, None), None), R4), {register= R3; offset= NoOffset} )
+                                JInstrFILL((Some("data3"), FILL), 5);
+                                JInstr2(((ADR, None), R3), Expression.Lab("data3"))
                                 JInstr7((((LDR, None), None), R4), {register= R3; offset= NoOffset} )
                             ]
         
