@@ -8,7 +8,7 @@ namespace ARM7TDMI
 
     Module: Parser Monads
 
-    Description: Self-implementation of Monads required to build Parser Combinators
+    Description: Self-implementation of Monads required to build Parser Combinator
 
     Guidance Sources: fsharpforfunandprofit.com, quanttec.com/fparsec/, vimeo.com/113707214, stackoverflow.com
      
