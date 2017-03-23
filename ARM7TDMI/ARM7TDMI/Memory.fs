@@ -90,7 +90,13 @@ module Memory =
         /// Address Composition Optic Function
         static member Label_ =
             // Getter: Label -> Memory -> Address
-            ( fun (label: string) (memory: Memory) -> Map.find label (Optics.get Memory.Labels_ memory) ),
+            ( fun (label: string) (memory: Memory) ->
+                // check if the requested label exists
+                match Map.containsKey label memory.Labels with
+                // return it if it exists
+                | true -> Map.find label (Optics.get Memory.Labels_ memory)
+                // return root -> AST builder handles the redirection
+                | false -> 0 ),
             // Setter: Label -> Address -> Memory -> Memory
             ( fun (label: string) (value: Address) (memory: Memory) -> { memory with Labels = Map.add label value memory.Labels } )
 
@@ -121,16 +127,31 @@ module Memory =
         // init with empty data structures
         { AST = [] ; Storage = Map.empty<Address, byte> ; Labels = Map.empty<string, Address> }
 
-    let makeByte (address: Address) (content: byte) : Memory =
+
+
+    // initialisation used only for testing
+
+    let private makeByte (address: Address) (content: byte) : Memory =
         let storage = Map.ofList [address, content]
         // init with empty data structures
         { AST = [] ; Storage = storage ; Labels = Map.empty<string, Address> }
 
-    let makeWord (address: Address) (content: Data) : Memory =
-        let init = makeEmpty ()
-        let tmp = Optics.set Memory.Word_ address content init
-        // init with empty data structures
-        { AST = [] ; Storage = tmp.Storage ; Labels = Map.empty<string, Address> }
+    let private makeWord (address: Address) (content: Data) : Memory =
+        // memory content
+        let raw = [ address,     byte  content
+                    address + 1, byte (content >>> 8)
+                    address + 2, byte (content >>> 16)
+                    address + 3, byte (content >>> 24) ]
+        // create storage map
+        let storage = Map.ofList raw
+        // init with storage
+        { AST = [] ; Storage = storage ; Labels = Map.empty<string, Address> }
+
+    let private makeLabel (label: string) (address: Address) : Memory =
+        // create label map
+        let labels = Map.ofList [label, address]
+        // init with labelmap
+        { AST = [] ; Storage = Map.empty<Address,byte> ; Labels = labels }
 
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
 
@@ -161,10 +182,32 @@ module Memory =
                     { let dt : Memory = makeWord 400 256
                       Expect.equal (Optics.set Memory.Word_ 400 256 sand) dt "should be 256" } ] 
 
-        // initialiser - top level Optics test
+        // label Optics test
         let testLabel : Test =
             testList "Label_" 
-                [ test "get" { Expect.equal (0) -1 "unimplemented" }
-                  test "set" { Expect.equal (0) -1 "unimplemented" } ] 
+                [ test "get empty" { Expect.equal (Optics.get Memory.Label_ "test" sand) 0 "should be 0uy" }
+                  test "get"
+                    { let lm : Memory = makeLabel "foo" 8
+                      Expect.equal (Optics.get Memory.Label_ "foo" lm) 8 "should be 8" }
+                  test "set"
+                    { let lm : Memory = makeLabel "bar" 16
+                      Expect.equal (Optics.set Memory.Label_ "bar" 16 sand) lm "should have <\"bar\",16> pair" } ]
 
-        testList "Top Level" [ testMake ; testByte ; testWord ; testLabel ]
+        // next available address test
+        let testNext : Test =
+            testList "next" 
+                [ test "empty" { Expect.equal (Memory.next sand) 0x1700 "should be 5888" }
+                  test "first DCD/FILL access"
+                    { let dt : Memory = makeWord 400 256
+                      Expect.equal (Memory.next dt) 0x1700 "should be 5888" }
+                  test "normal access"
+                     { let dt : Memory = makeWord 5888 512
+                       Expect.equal (Memory.next dt) 0x1704 "should be 5892" } ]
+
+        // push data test
+        let testPush : Test =
+            testList "push" 
+                [ test "get" { Expect.equal (0) -1 "unimplemented" }
+                  test "set" { Expect.equal (0) -1 "unimplemented" } ]
+
+        testList "Top Level" [ testMake ; testByte ; testWord ; testLabel ; testNext ; testPush ]
