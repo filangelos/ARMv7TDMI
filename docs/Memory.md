@@ -28,6 +28,13 @@ Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address
 * `make : (AST * LabelMap) -> Memory` Memory initialiser - it will be called only once in every execution of the assembly code.
 * `makeEmpty : unit -> Memory` Memory initialiser - used only for individual memory testing without complete AST.
 ---
+## Milestones
+- [x] Optics Wrappers
+- [x] Empty Constructor
+- [x] `DCD` | `FILL` | `EQU` helper functions `next` and `push` 
+- [ ] Error Handling for memory access of words with non-multiple of 4 starting address
+- [x] Expecto Testing
+---
 ## Dependencies
 * `Common.AST`
 * `Common.Address`
