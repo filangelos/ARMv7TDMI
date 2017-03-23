@@ -207,7 +207,12 @@ module Memory =
         // push data test
         let testPush : Test =
             testList "push" 
-                [ test "get" { Expect.equal (0) -1 "unimplemented" }
-                  test "set" { Expect.equal (0) -1 "unimplemented" } ]
+                [ test "first DCD/FILL access" 
+                    { let dcd : Memory = makeWord 5888 128
+                      Expect.equal (Memory.push 128 sand) dcd "should have <0x1700,128> pair" }
+                  test "normal access" 
+                    { let da : Memory = makeWord 5888 128
+                      let db : Memory = Optics.set Memory.Word_ 0x1704 255 da
+                      Expect.equal (Memory.push 255 da) db "should have <0x1704,255> pair" } ]
 
         testList "Top Level" [ testMake ; testByte ; testWord ; testLabel ; testNext ; testPush ]
