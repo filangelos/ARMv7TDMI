@@ -134,17 +134,5 @@ amdRequire(['vs/editor/editor.main'], function () {
     scrollBeyondLastLine: false
   });
 
-  const docs = document.getElementById('docs');
-  docs.onclink = function () {
-    window.code.deltaDecorations([], [
-      {
-        range: new monaco.Range(2, 0, 2, 5),
-        options: {
-          isWholeLine: true,
-          className: 'myContentClass'
-        }
-      }
-    ]);
-  }
 });
 

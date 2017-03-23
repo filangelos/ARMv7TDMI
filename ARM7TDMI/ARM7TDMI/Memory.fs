@@ -157,14 +157,16 @@ module Memory =
 
     /// Complete Module Unit Testing
     let testMemory : Test =
+
         // initialise sandbox-dummy Memory
         let sand : Memory = makeEmpty ()
+
         // initialiser && Optics test
         let testMake : Test =
             testList "Initialisers" 
                 [ test "AST_" { Expect.equal (Optics.get Memory.AST_ sand) [] "empty initialisation" }
-                  test "Storage_" { Expect.equal (Optics.get Memory.Storage_ sand) Map.empty<Address, byte> "empty initialisation" }
-                  test "Labels_" { Expect.equal (Optics.get Memory.Labels_ sand) Map.empty<string, Address> "empty initialisation" } ] 
+                  test "Storage_" { Expect.equal (Optics.get Memory.Storage_ sand) Map.empty "empty initialisation" }
+                  test "Labels_" { Expect.equal (Optics.get Memory.Labels_ sand) Map.empty "empty initialisation" } ] 
 
         // byte Optics test
         let testByte : Test =

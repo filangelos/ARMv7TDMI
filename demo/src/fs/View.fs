@@ -57,6 +57,8 @@ module View =
             debug <- assembly |> tokenise |> Parse |> buildAST |> init
             maxpc <- debug |> (Optics.get MachineState.AST_) |> List.rev |> List.head |> snd
             updateUI debug
+            stepBtn.className <- "btn btn-positive"
+            stepBtn.firstElementChild.setAttribute ("style","background: white;")
             null )
         stepBtn.onclick <- ( fun _ ->
             debug <- step debug

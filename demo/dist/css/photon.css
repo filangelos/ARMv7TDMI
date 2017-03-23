@@ -402,12 +402,12 @@ h6 {
 }
 
 .btn-positive {
-  border-color: #29a03b;
-  border-bottom-color: #248b34;
-  background-color: #5bd46d;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5bd46d), color-stop(100%, #29a03b));
-  background-image: -webkit-linear-gradient(top, #5bd46d 0%, #29a03b 100%);
-  background-image: linear-gradient(to bottom, #5bd46d 0%, #29a03b 100%);
+  border-color: #34a853;
+  border-bottom-color: #34a853;
+  background-color: #34a853;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #34a853), color-stop(100%, #34a853));
+  background-image: -webkit-linear-gradient(top, #34a853 0%, #34a853 100%);
+  background-image: linear-gradient(to bottom, #34a853 0%, #34a853 100%);
 }
 .btn-positive:active {
   background-color: #34c84a;

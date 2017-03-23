@@ -14,6 +14,8 @@
 
 module MachineState =
 
+    open Expecto
+
     type MachineState =
         // Registers
         { Registers: Registers
@@ -159,28 +161,7 @@ module MachineState =
         { Registers = registers ; StatusBits = flags ; Memory = Memory.makeEmpty () }
 
     /// MachineState Initialisation
-    let init ((ast, labels): AST*LabelMap) : MachineState =
-        let registers : Registers =
-            // Enumerate all RegisterIDs
-            Toolkit.enumerator<RegisterID>
-            // Initialise all Registers to zero
-            |> Array.map ( fun id -> id, 0 )
-            // construct Map
-            |> Map.ofArray
-
-        let flags : Flags =
-            // Enumerate all Flags
-            Toolkit.enumerator<FlagID>
-            // Initialise all Status Bits to zero
-            |> Array.map ( fun id -> id, false )
-            // construct Map
-            |> Map.ofArray
-
-        { Registers = registers ; StatusBits = flags ; Memory = Memory.make (ast,labels) }
-
-
-    /// MachineState Initialisation
-    let initTMP (memory : Memory) : MachineState =
+    let init (memory : Memory) : MachineState =
         let registers : Registers =
             // Enumerate all RegisterIDs
             Toolkit.enumerator<RegisterID>
@@ -198,6 +179,8 @@ module MachineState =
             |> Map.ofArray
 
         { Registers = registers ; StatusBits = flags ; Memory = memory }
+
+
 
 
     /// MachineState Initialisation - Necessary for smooth interface with VisUAL testing framework provided
@@ -228,4 +211,63 @@ module MachineState =
 
         { Registers = registers ; StatusBits = flags ; Memory = Memory.makeEmpty () }
 
+    /// MachineState Initialisation - Necessary for smooth interface with VisUAL testing framework provided
+    let initWithRegister (id: RegisterID) (value: Data) : MachineState =
+        let registers : Registers =
+            // Enumerate all RegisterIDs
+            Toolkit.enumerator<RegisterID>
+            // Initialise all Registers to zero
+            |> Array.map ( fun id -> id, 0 )
+            // construct Map
+            |> Map.ofArray
+
+        let flags : Flags =
+            // Enumerate all Flags
+            Toolkit.enumerator<FlagID>
+            // Initialise all Status Bits to zero
+            |> Array.map ( fun id -> id, false )
+            // construct Map
+            |> Map.ofArray
+
+        { Registers = Map.add id value registers  ; StatusBits = flags ; Memory = Memory.makeEmpty () }
+
 (*----------------------------------------------------------- Testing -----------------------------------------------------------*)
+
+    /// Complete Module Unit Testing
+    let testMachineState : Test =
+
+        // initialise sandbox-dummy Memory
+        let sand : MachineState = make ()
+
+        // initialiser && Optics test
+        let testInit : Test =
+            testList "Initialisers" 
+                [ test "Registers_"
+                    { let regs = 
+                        Array.zip [| R0;R1;R2;R3;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15 |] (Array.init 16 (fun _ -> 0))
+                        |> Map.ofArray
+                      Expect.equal (Optics.get MachineState.Registers_ sand) regs "empty initialisation" }
+                  test "Flags_"
+                    { let flags = 
+                        Array.zip [| N;Z;C;V |] (Array.init 4 (fun _ -> false))
+                        |> Map.ofArray
+                      Expect.equal (Optics.get MachineState.Flags_ sand) flags "empty initialisation" }
+                  test "Memory_" { Expect.equal (Optics.get MachineState.Memory_ sand) (Memory.makeEmpty ()) "empty initialisation" } ] 
+
+        // Register Optics test
+        let testRegister : Test =
+            testList "Register_" 
+                [ test "get" { Expect.equal (Optics.get MachineState.Register_ R5 sand) 0 "should be 0" }
+                  test "set" { 
+                    let uy : MachineState = initWithRegister R3 13
+                    Expect.equal (Optics.set MachineState.Register_ R3 13 sand) uy "should have pair <R3,13>" } ] 
+
+        // Flag Optics test
+        let testFlag : Test =
+            testList "Flag" 
+                [ test "get" { Expect.equal (Optics.get MachineState.Flag_ Z sand) false "should be false" }
+                  test "set" { 
+                    let uy : MachineState = initWithFlags "0100"
+                    Expect.equal (Optics.set MachineState.Flag_ Z true sand) uy "should have pair <Z,true>" } ] 
+
+        testList "Top Level" [ testInit ; testRegister ; testFlag ]

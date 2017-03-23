@@ -271,7 +271,7 @@ module AST =
 
         let mem = buildMemory parseList
         printfn "Memory is:\n%A\n" mem
-        let state = MachineState.initTMP(mem)
+        let state = MachineState.init mem
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state for this ast is:\n%A\n" result
@@ -287,7 +287,7 @@ module AST =
         printfn "Testing branching loop:"
         let mem = buildMemory testBranchList
         printfn "Memory is:\n%A\n" mem
-        let state = MachineState.initTMP(mem)
+        let state = MachineState.init mem
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state after branching is:\n%A\n" result
@@ -308,7 +308,7 @@ module AST =
         printfn "Testing memory instructions:"
         let mem = buildMemory testMemList
         printfn "Memory is:\n%A\n" mem
-        let state = MachineState.initTMP(mem)
+        let state = MachineState.init mem
         //let result = reduce state 0 24
         let result = execute state
         printfn "final result state after branching is:\n%A\n" result
