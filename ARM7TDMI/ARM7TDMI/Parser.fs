@@ -270,7 +270,7 @@ module Parser =
         mapParse tupleTransform parseTuple 
 
     let pOnePlusLiteralNoHash = 
-        let parseTuple = pComma >>. (zeroPlus pLiteralNoHash) .>>. pLiteralNoHash <?> "Register followed by Comma"
+        let parseTuple = (zeroPlus pLiteralNoHashComma) .>>. pLiteralNoHash <?> "Register followed by Comma"
         let tupleTransform (t1,t2) = 
             match t1, t2 with  
             | a, b -> a @ [b]

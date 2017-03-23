@@ -64,6 +64,6 @@ The Parser is implemented using two files - Parser.fs and ParserMonad.fs
 * `Toolkit.splitBy` - Used to split up Token List 
 * `FSCheck` - Automated Testing
 
-##Contributors 
+## Contributors 
 Pranav Prabhu
-Baron Khan (Testing - 5%)
+Baron Khan (Testing - 10%)
