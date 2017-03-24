@@ -81,6 +81,7 @@ module View =
                 debug <- step debug
                 updateUI debug
                 debug <- Optics.set MachineState.Register_ R15 (r15+4) debug
+                printfn "at line %i" (r15 / 4 + 1)
             | true ->
                 stepBtn.className <- "btn btn-default"
                 stopBtn.className <- "btn btn-default"
@@ -101,7 +102,7 @@ module View =
             null )
         // docs button
         docsBtn.onclick <- ( fun _ ->
-            shell.openExternal("https://github.com/filangel/HLP") |> ignore
+            shell.openExternal("https://github.com/filangel/HLP/tree/master/demo") |> ignore
             null)
         // theme button
         themeBtn.onclick <- ( fun _ ->
