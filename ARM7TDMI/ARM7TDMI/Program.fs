@@ -13,25 +13,8 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-//        Tokeniser.testTokeniser ()
-//        MemoryInstructions.simpleLDRSTRtest
-        AST.testAST ()
-//        Parser.testParser ()
-//        InstructionsInterfaces.test()
-//        let x: MachineState = MachineState.make ()
-//        let y: Data = (^.) R0 x
-//        let z: MachineState = (^=) R0 5 x
-//        let u: MachineState = Optics.set MachineState.Flag_ N true z
-//        printfn "%A" x
 
-
-//        printfn "Testing pipeline:"
-//        let testInput = "MVNS R0, #-1"
-//        let result = (testInput |> tokenise |> Parse |> buildAST |> init |> execute)
-//        printfn "%A \n\n These instructions give the following final state:\n%A" testInput result 
-
-//        runTests defaultConfig (testList "Complete Test" [ testMemory ])
-        InstructionsInterfaces.testconditioncode ()
+(*        // Command Line Demo
         let rec commandLineDemo () =
             try 
                 printfn "Please type your program (press enter three times in a row to finish):"
@@ -58,5 +41,7 @@ module Program =
             else
                 ()
 
-        commandLineDemo () |> ignore
-        0
+        commandLineDemo () |> ignore *)
+
+        // Expecto Automated Testing
+        runTests defaultConfig (testList "Complete Test" [ testToolbox ; testMemory ; testMachineState ])

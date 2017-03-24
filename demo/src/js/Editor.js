@@ -43,7 +43,8 @@ amdRequire(['vs/editor/editor.main'], function () {
       'MOV', 'ADD', 'ADC', 'MVN', 'ORR', 'AND', 'EOR', 'BIC', 'SUB', 'SBC',
       'RSB', 'RSC', 'CMP', 'CMN', 'TST', 'TEQ', 'LSL', 'LSR', 'ASR', 'LDR',
       'STR', 'ADR', 'LDM', 'STM', 'MVNS', 'MOVS', 'MOV', 'SUBS', 'BPL', 'MVNS',
-      'ADD', 'SUBS', 'CMP', 'BNE', 'MOVS', 'ASR', 'CMPCS', 'RRX', 'ASR', 'ROR', 'ADCS'
+      'ADD', 'SUBS', 'CMP', 'BNE', 'MOVS', 'ASR', 'CMPCS', 'RRX', 'ASR', 'ROR',
+      'ADCS', 'BEQ', 'B'
     ],
 
     // we include these common regular expressions
@@ -134,17 +135,5 @@ amdRequire(['vs/editor/editor.main'], function () {
     scrollBeyondLastLine: false
   });
 
-  const docs = document.getElementById('docs');
-  docs.onclink = function () {
-    window.code.deltaDecorations([], [
-      {
-        range: new monaco.Range(2, 0, 2, 5),
-        options: {
-          isWholeLine: true,
-          className: 'myContentClass'
-        }
-      }
-    ]);
-  }
 });
 

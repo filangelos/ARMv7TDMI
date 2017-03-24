@@ -28,6 +28,7 @@ module Main =
     open Fable.Import
     open View
     open Update
+    open Electron
 
     let xx = 0
 

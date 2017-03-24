@@ -3,21 +3,21 @@
 ## Model
 
 - [x] Memory Interface
-- [ ] Error Management
+- [x] Error Management
 
 ## Web
 
-- [ ] Editor Tokenisation
-- [ ] Elm Architecture Design
-- [ ] Dialog Open / Save
-- [ ] Actions Type
-- [ ] Memory Renderer
+- [x] Editor Tokenisation
+- [x] Elm Architecture Design
+- [x] Dialog Open / Save
+- [x] Actions Type
+- [x] Memory Renderer
 
 ## Testing
 
-- [ ] Optics Expecto
-- [ ] Memory Expecto
-- [ ] MachineState Expecto
-- [ ] Toolkit Expecto
-- [ ] GUI Parser Expecto
+- [x] Optics Expecto
+- [x] Memory Expecto
+- [x] MachineState Expecto
+- [x] Toolkit Expecto
+- [x] GUI Parser Expecto
 - [ ] Renderer Mocha Testing

@@ -23,7 +23,7 @@ Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address
 - [x] Flag - ALU Functions
 - [x] Empty Constructor
 - [x] Init Constructor, accepting a `Memory`
-- [ ] Expecto Testing
+- [x] Expecto Testing
 ---
 ## Dependencies
 * `Common.RegisterID`

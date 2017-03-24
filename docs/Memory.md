@@ -6,8 +6,12 @@ The memory is implemented to be __sparse__ and __unified__:
 * _storage_, _instructions_ (in form of an AST) and _labels_ are under a single data structure `->` unity
 ---
 ## Types
-* `type Memory = { AST: AST ; Storage: Map<Address, byte> ; Labels: LabelMap }` 
-record of AST, storage map and labels map.
+  ```F#
+  type Memory = 
+    { AST: AST
+      Storage: Map<Address, byte>
+      Labels: LabelMap }
+  ```
 ---
 ## Functions
 * `Memory.AST_ : ( Memory -> AST ) * ( AST -> Memory -> Memory ) ` Lens for `AST`, useful for UI.
@@ -28,7 +32,7 @@ Lens for `Data`, `get<|>set` of memory locations (word|4-bytes) given an address
 - [x] Optics Wrappers
 - [x] Empty Constructor
 - [x] `DCD` | `FILL` | `EQU` helper functions `next` and `push` 
-- [ ] Error Handling for memory access of words with non-multiple of 4 starting address
+- [x] Error Handling for memory access of words with non-multiple of 4 starting address
 - [x] Expecto Testing
 ---
 ## Dependencies

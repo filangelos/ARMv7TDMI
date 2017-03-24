@@ -17,33 +17,6 @@ const defaultMenu = require('electron-default-menu');
 const { Menu, app, shell } = electron;
 const dialog = require('dialog');
 
-// do the modifications after the app has started
-app.on('ready', () => {
-
-  // Get template for default menu
-  const menu = defaultMenu(app, shell);
-
-  // Add custom menu
-  menu.splice(4, 0, {
-    label: 'Custom',
-    submenu: [
-      {
-        label: 'Do something',
-        click: (item, focusedWindow) => {
-          dialog.info('Ground control to major Tom.', 'My app', function (err) {
-            if (!err) console.log('User clicked OK');
-          })
-        }
-      }
-    ]
-  })
-
-  // Set top-level application menu, using modified template
-  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-
-  shell.openExternal('https://github.com/filangel/HLP')
-})
-
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -72,7 +45,7 @@ app.on('ready', function () {
   console.log('ElectronMain.js has loaded dist/index.html')
 
   // Open Development Tools
-  mainWindow.openDevTools();
+//  mainWindow.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

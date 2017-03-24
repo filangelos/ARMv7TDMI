@@ -402,12 +402,12 @@ h6 {
 }
 
 .btn-positive {
-  border-color: #29a03b;
-  border-bottom-color: #248b34;
-  background-color: #5bd46d;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5bd46d), color-stop(100%, #29a03b));
-  background-image: -webkit-linear-gradient(top, #5bd46d 0%, #29a03b 100%);
-  background-image: linear-gradient(to bottom, #5bd46d 0%, #29a03b 100%);
+  border-color: #34a853;
+  border-bottom-color: #34a853;
+  background-color: #34a853;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #34a853), color-stop(100%, #34a853));
+  background-image: -webkit-linear-gradient(top, #34a853 0%, #34a853 100%);
+  background-image: linear-gradient(to bottom, #34a853 0%, #34a853 100%);
 }
 .btn-positive:active {
   background-color: #34c84a;
@@ -417,18 +417,18 @@ h6 {
 }
 
 .btn-negative {
-  border-color: #fb2f29;
-  border-bottom-color: #fb1710;
-  background-color: #fd918d;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fd918d), color-stop(100%, #fb2f29));
-  background-image: -webkit-linear-gradient(top, #fd918d 0%, #fb2f29 100%);
-  background-image: linear-gradient(to bottom, #fd918d 0%, #fb2f29 100%);
+  border-color: #ea4335;
+  border-bottom-color: #ea4335;
+  background-color: #ea4335;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ea4335), color-stop(100%, #ea4335));
+  background-image: -webkit-linear-gradient(top, #ea4335 0%, #ea4335 100%);
+  background-image: linear-gradient(to bottom, #ea4335 0%, #ea4335 100%);
 }
 .btn-negative:active {
-  background-color: #fc605b;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fc605b), color-stop(100%, #fb1710));
-  background-image: -webkit-linear-gradient(top, #fc605b 0%, #fb1710 100%);
-  background-image: linear-gradient(to bottom, #fc605b 0%, #fb1710 100%);
+  background-color: #ea4335;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ea4335), color-stop(100%, #ea4335));
+  background-image: -webkit-linear-gradient(top, #ea4335 0%, #ea4335 100%);
+  background-image: linear-gradient(to bottom, #ea4335 0%, #ea4335 100%);
 }
 
 .btn-warning {
@@ -2416,8 +2416,4 @@ td:last-child {
 .tab-item-fixed {
   flex: none;
   padding: 3px 10px;
-}
-
-.myContentClass {
-  background: lightblue;
 }

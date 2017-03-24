@@ -13,6 +13,7 @@
 module AST =
     open MachineState
     open InstructionsInterfaces
+    open Electron
 
     // shortcuts
     let private ( ^. ) = Optics.get MachineState.Register_
@@ -38,6 +39,7 @@ module AST =
                 match node with
                 | (JError(s)) ->
                     if (not (s.Contains("TokEOF"))) then
+                        dialog.showErrorBox("Error", s)
                         printfn "Found error while parsing: %A. Ignoring instruction." s
                         failwithf "Found error while parsing: %A. Ignoring instruction." s
                     else

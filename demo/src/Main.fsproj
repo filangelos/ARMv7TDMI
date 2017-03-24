@@ -37,6 +37,7 @@
     <Reference Include="../node_modules/fable-core/Fable.Core.dll" />
     <Reference Include="../node_modules/fable-powerpack/Fable.PowerPack.dll" />
     <Compile Include="../node_modules/fable-import-electron/Fable.Import.Electron.fs" />
+    <Compile Include="fs/Electron.fs" />
     <Compile Include="fs/Toolkit.fs" />
     <Compile Include="fs/Optics.fs" />
     <Compile Include="fs/Common.fs" />
@@ -48,7 +49,6 @@
     <Compile Include="fs/InstructionsInterfaces.fs" />
     <Compile Include="fs/AST.fs" />
     <Compile Include="fs/Parser.fs" />
-    <Compile Include="fs/Electron.fs" />
     <Compile Include="fs/Update.fs" />
     <Compile Include="fs/View.fs" />
     <Compile Include="fs/Main.fs" />
